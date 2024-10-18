@@ -1,7 +1,9 @@
 <script setup>
 import NavBar from '@/components/NavBar.vue';
 import lineChart from '@/components/charts/lineChart.vue';
-import inputForm from '@/components/inputForm.vue';
+import { useDataStore } from '@/stores/dataStore';
+const dataStore = useDataStore();
+dataStore.fetchglucose();
 </script>
 
 <template>
