@@ -34,15 +34,10 @@ CORS_ORIGIN_WHITELIST = [
 # Application definition
 
 INSTALLED_APPS = [
-<<<<<<< HEAD
-    'rest_framework',
-    'corsheaders',
-=======
     'corsheaders',
     'account_session',
     'rest_framework',
     'rest_framework_simplejwt',
->>>>>>> 385ab21
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
