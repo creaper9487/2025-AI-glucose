@@ -22,5 +22,4 @@
         android:name="rl.collab.aiglucose.AccFrag"
         android:label="@string/acc"
         tools:layout="@layout/frag_acc" />
-
 </navigation>

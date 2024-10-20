@@ -1,7 +1,5 @@
 <resources>
-    <!-- Base application theme. -->
-    <style name="Base.Theme.AIGlucose" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+
+    <style name="Base.Theme.AIGlucose" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar" >
     </style>
 </resources>
