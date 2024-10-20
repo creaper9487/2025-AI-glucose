@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/recordFrag"
+        android:icon="@drawable/record"
+        android:title="@string/record" />
+
+    <item
+        android:id="@+id/figureFrag"
+        android:icon="@drawable/figure"
+        android:title="@string/figure" />
+
+    <item
+        android:id="@+id/accFrag"
+        android:icon="@drawable/acc"
+        android:title="@string/acc" />
+</menu>

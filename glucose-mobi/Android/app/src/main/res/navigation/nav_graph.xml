@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/recordFrag">
+
+    <fragment
+        android:id="@+id/recordFrag"
+        android:name="rl.collab.aiglucose.RecordFrag"
+        android:label="@string/record"
+        tools:layout="@layout/frag_record" />
+
+    <fragment
+        android:id="@+id/figureFrag"
+        android:name="rl.collab.aiglucose.FigureFrag"
+        android:label="@string/figure"
+        tools:layout="@layout/frag_figure" />
+
+    <fragment
+        android:id="@+id/accFrag"
+        android:name="rl.collab.aiglucose.AccFrag"
+        android:label="@string/acc"
+        tools:layout="@layout/frag_acc" />
+
+</navigation>
