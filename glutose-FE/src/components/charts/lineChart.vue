@@ -30,5 +30,5 @@ const data = dataStore.glucoseCfg
 
 
 <template>
-    <Line :data="data" :options="options" />
+    <Line :data="data" :options="options" key="data"/>
 </template>

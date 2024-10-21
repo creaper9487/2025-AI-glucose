@@ -9,7 +9,7 @@ export const useDataStore = defineStore('DataStore', {
       labels: [0, 1, 2, 3, 4, 5, 6],
       datasets: [
         {
-          label: 'Data One',
+          label: '血糖',
           backgroundColor: '#FF0000',
           borderColor: '#36A2EB',
           color: 'FFFFFF',

@@ -1,14 +1,13 @@
 <script setup>
 import InputForm from '@/components/inputForm.vue';
-import MenuThing from '@/components/menuThing.vue';
 import NavBar from '@/components/NavBar.vue';
 </script>
 <template>
   <NavBar></NavBar>
   <div class="h-screen flex items-center justify-center flex-col bg-gray-800">
   <InputForm />
-  <MenuThing />
   </div>
+
 </template>
 
 
