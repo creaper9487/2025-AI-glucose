@@ -6,7 +6,7 @@ import { RouterLink } from 'vue-router'
         <ul>
             <li><RouterLink to="/">紀錄</RouterLink></li>
             <li><RouterLink to="/figure">資料圖表</RouterLink></li>
-            <li><RouterLink to="/login">登入</RouterLink></li>
+            <li><RouterLink to="/login">註冊</RouterLink></li>
         </ul>
     </nav>
 </template>
