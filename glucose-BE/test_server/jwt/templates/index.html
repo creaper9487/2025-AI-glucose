@@ -80,8 +80,9 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.token) {
-                    alert('Login successful! Token: ' + data.token);
+                if (data.success) {
+                    console.log(data)
+                    alert('Login successful! Token: ' + data.access);
                 } else {
                     alert('Login failed: ' + data.message);
                 }
