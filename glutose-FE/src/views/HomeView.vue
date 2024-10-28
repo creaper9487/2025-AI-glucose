@@ -1,5 +1,5 @@
 <script setup>
-import InputForm from '@/components/inputForm.vue';
+import InputForm from '@/components/Forms/inputForm.vue';
 import NavBar from '@/components/NavBar.vue';
 </script>
 <template>
