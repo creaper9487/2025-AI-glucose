@@ -9,16 +9,11 @@ import rl.collab.aiglucose.databinding.FragAccBinding
 class AccFrag : UniversalFrag() {
     private lateinit var binding: FragAccBinding
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragAccBinding.inflate(inflater, container, false)
-
         return binding.root
     }
 
     override fun update() {
-
     }
 }

@@ -3,4 +3,9 @@
     <string name="record">紀錄</string>
     <string name="figure">資料圖表</string>
     <string name="acc">帳號</string>
+    <string name="glucose_level">血糖值</string>
+    <string name="carbohydrate_intake">碳水化合物攝取量(g)</string>
+    <string name="exercise_duration">運動時長(min)</string>
+    <string name="insulin_injection_volume">胰島素注射量</string>
+    <string name="submit">送出</string>
 </resources>

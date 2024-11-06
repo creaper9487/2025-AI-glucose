@@ -9,16 +9,11 @@ import rl.collab.aiglucose.databinding.FragRecordBinding
 class RecordFrag : UniversalFrag() {
     private lateinit var binding: FragRecordBinding
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragRecordBinding.inflate(inflater, container, false)
-
         return binding.root
     }
 
     override fun update() {
-
     }
 }
