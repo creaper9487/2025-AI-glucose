@@ -1,4 +1,7 @@
 <resources>
+    <integer name="min_ems">11</integer>
+    <dimen name="title_text_size">35sp</dimen>
+    <dimen name="group_padding_margin">15dp</dimen>
     <string name="app_name">AI Glucose</string>
     <string name="record">紀錄</string>
     <string name="figure">資料圖表</string>
@@ -8,4 +11,11 @@
     <string name="exercise_duration">運動時長(min)</string>
     <string name="insulin_injection_volume">胰島素注射量</string>
     <string name="submit">送出</string>
+    <string name="pw">密碼</string>
+    <string name="sign_in">登入</string>
+    <string name="sign_up">註冊</string>
+    <string name="email">電子信箱</string>
+    <string name="continue_with_google">以 Google 帳號繼續</string>
+    <string name="username">使用者名稱</string>
+    <string name="username_email">使用者名稱 / 電子信箱</string>
 </resources>

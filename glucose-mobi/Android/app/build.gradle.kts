@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "rl.collab.aiglucose"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "rl.collab.aiglucose"
