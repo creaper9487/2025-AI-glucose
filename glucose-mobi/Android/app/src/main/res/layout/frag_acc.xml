@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AccFrag">
+    tools:context=".frag.AccFrag">
 
     <TextView
         android:id="@+id/acc_tv"
@@ -16,70 +16,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/et_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/border"
-        android:padding="@dimen/group_padding_margin"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/btn_group"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/acc_tv">
-
-        <EditText
-            android:id="@+id/email_et"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/group_padding_margin"
-            android:ems="@integer/min_ems"
-            android:hint="@string/email"
-            android:inputType="textEmailAddress"
-            app:layout_constraintBottom_toTopOf="@id/username_et"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <EditText
-            android:id="@+id/username_et"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/group_padding_margin"
-            android:hint="@string/username"
-            android:inputType="textPersonName"
-            android:minEms="@integer/min_ems"
-            app:layout_constraintBottom_toTopOf="@id/pw_et"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/email_et" />
-
-        <EditText
-            android:id="@+id/pw_et"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/group_padding_margin"
-            android:hint="@string/pw"
-            android:inputType="textPassword"
-            android:minEms="@integer/min_ems"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/username_et" />
-
-        <ImageView
-            android:id="@+id/show_hide_pw_iv"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginEnd="3dp"
-            android:importantForAccessibility="no"
-            android:src="@drawable/invisible"
-            app:layout_constraintBottom_toBottomOf="@id/pw_et"
-            app:layout_constraintEnd_toEndOf="@id/pw_et"
-            app:layout_constraintTop_toTopOf="@id/pw_et" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
         android:id="@+id/btn_group"
@@ -93,18 +29,18 @@
         app:layout_constraintTop_toBottomOf="@id/acc_tv">
 
         <Button
-            android:id="@+id/sign_in_btn"
+            android:id="@+id/login_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/group_padding_margin"
-            android:text="@string/sign_in" />
+            android:text="@string/login" />
 
         <Button
-            android:id="@+id/sign_up_btn"
+            android:id="@+id/register_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/group_padding_margin"
-            android:text="@string/sign_up" />
+            android:text="@string/register" />
 
         <Button
             android:id="@+id/continue_with_google_btn"

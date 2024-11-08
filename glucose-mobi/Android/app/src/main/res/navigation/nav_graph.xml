@@ -6,19 +6,37 @@
 
     <fragment
         android:id="@+id/recordFrag"
-        android:name="rl.collab.aiglucose.RecordFrag"
+        android:name="rl.collab.aiglucose.frag.RecordFrag"
         android:label="@string/record"
         tools:layout="@layout/frag_record" />
 
     <fragment
         android:id="@+id/figureFrag"
-        android:name="rl.collab.aiglucose.FigureFrag"
+        android:name="rl.collab.aiglucose.frag.FigureFrag"
         android:label="@string/figure"
         tools:layout="@layout/frag_figure" />
 
     <fragment
         android:id="@+id/accFrag"
-        android:name="rl.collab.aiglucose.AccFrag"
+        android:name="rl.collab.aiglucose.frag.AccFrag"
         android:label="@string/acc"
         tools:layout="@layout/frag_acc" />
+
+    <fragment
+        android:id="@+id/loginFrag"
+        android:name="rl.collab.aiglucose.frag.LoginFrag"
+        android:label="@string/login"
+        tools:layout="@layout/frag_login" />
+
+    <fragment
+        android:id="@+id/registerFrag"
+        android:name="rl.collab.aiglucose.frag.RegisterFrag"
+        android:label="@string/register"
+        tools:layout="@layout/frag_register" />
+
+    <fragment
+        android:id="@+id/profileFrag"
+        android:name="rl.collab.aiglucose.frag.ProfileFrag"
+        android:label="@string/profile"
+        tools:layout="@layout/frag_profile" />
 </navigation>
