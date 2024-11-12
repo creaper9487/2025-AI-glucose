@@ -21,22 +21,4 @@
         android:name="rl.collab.aiglucose.frag.AccFrag"
         android:label="@string/acc"
         tools:layout="@layout/frag_acc" />
-
-    <fragment
-        android:id="@+id/loginFrag"
-        android:name="rl.collab.aiglucose.frag.LoginFrag"
-        android:label="@string/login"
-        tools:layout="@layout/frag_login" />
-
-    <fragment
-        android:id="@+id/registerFrag"
-        android:name="rl.collab.aiglucose.frag.RegisterFrag"
-        android:label="@string/register"
-        tools:layout="@layout/frag_register" />
-
-    <fragment
-        android:id="@+id/profileFrag"
-        android:name="rl.collab.aiglucose.frag.ProfileFrag"
-        android:label="@string/profile"
-        tools:layout="@layout/frag_profile" />
 </navigation>

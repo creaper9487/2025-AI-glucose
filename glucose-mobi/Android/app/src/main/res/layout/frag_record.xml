@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/record"
-        android:textSize="@dimen/title_text_size"
+        android:textSize="35sp"
         app:layout_constraintBottom_toTopOf="@id/et_group"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
