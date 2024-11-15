@@ -15,7 +15,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         user = CustomUser.objects.create_user(
             email=validated_data['email'],
             username=validated_data['username'],
-            password=validated_data['password']
+            password=validated_data['password'],
         )
         return user
     
@@ -37,3 +37,11 @@ class CustomLoginSerializer(serializers.Serializer):
             if user and user.check_password(password):
                 return user
         raise ValidationError('Unable to log in with provided credentials.')
+    
+class UpdateLangSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=True)
+    lang = serializers.CharField(required=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'lang']

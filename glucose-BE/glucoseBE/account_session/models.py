@@ -8,6 +8,7 @@ class CustomUserManager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email),
             username=username,
+            lang = 'zh'
         )
         user.set_password(password)
         user.save(using=self._db)
@@ -27,6 +28,7 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=30, unique=True)
+    lang = models.CharField(max_length=10, default='zh')
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 

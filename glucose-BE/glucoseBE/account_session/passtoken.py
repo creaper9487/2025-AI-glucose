@@ -12,6 +12,7 @@ class CustomLoginView(APIView):
         if serializer.is_valid():
                 user = serializer.validated_data
                 refresh = RefreshToken.for_user(user)
+                refresh['username'] = user.username
                 return Response({
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),

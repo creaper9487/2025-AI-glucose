@@ -3,8 +3,11 @@ from .register_port import RegisterView
 from rest_framework_simplejwt.views import TokenRefreshView
 from .passtoken import CustomLoginView
 from .GoogleLoginPort import GoogleLoginView
+from .lang_view import UpdateLangView, GetLangView
 
 urlpatterns = [
+    path('lang/get', GetLangView.as_view(), name='get-lang'),
+    path('lang/update', UpdateLangView.as_view(), name='update-lang'),
     path('auth/google/', GoogleLoginView.as_view(), name='google_login'),
     path('register/', RegisterView.as_view(), name='register'),
     path('token/', CustomLoginView.as_view(), name='token_obtain_pair'),  # 登入視圖
