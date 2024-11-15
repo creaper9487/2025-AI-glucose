@@ -1,24 +1,23 @@
-# Use the official Python image from the Docker Hub
+# 使用 Docker Hub 上的官方 Python 映像
 FROM python:3.9-slim as backend
 
-# Set the working directory for the backend
+# 設定工作目錄
 WORKDIR /app/backend
 
-# Copy the backend requirements file into the container
-COPY backend/requirements.txt .
+# 複製需求檔案到容器中
+COPY 2025-AI-glucose/glucose-BE/requirements.txt .
 
-# Install the backend dependencies
+# 安裝後端依賴項
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the backend source code into the container
-COPY backend/ .
+# 複製後端源代碼到容器中
+COPY 2025-AI-glucose/glucose-BE/glucoseBE ./glucoseBE
 
-# Expose the backend port
+# 暴露後端使用的端口
 EXPOSE 8000
 
-# Command to run the backend
-CMD ["python", "app.py"] 
-
+# 使用 shell 指令執行遷移命令並啟動服務器
+CMD ["sh", "-c", "cd glucoseBE && python manage.py makemigrations && python manage.py migrate && python manage.py runserver"]
 # Use the official Node.js image from the Docker Hub
 FROM node:18 as frontend
 
