@@ -1,11 +1,13 @@
 <script setup>
+
 import InputForm from '@/components/Forms/inputForm.vue';
 import NavBar from '@/components/NavBar.vue';
 </script>
 <template>
-  <NavBar></NavBar>
-  <div class="h-screen flex items-center justify-center flex-col bg-gray-800">
-  <InputForm />
+  <NavBar />
+  <div class="h-screen flex items-center justify-center flex-row bg-gray-800">
+  <InputForm class="mx-10" />
+
   </div>
 </template>
 

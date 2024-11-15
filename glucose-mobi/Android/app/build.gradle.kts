@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "rl.collab.aiglucose"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "rl.collab.aiglucose"
@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.mpandroidchart)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

@@ -4,15 +4,78 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RecordFrag">
+    tools:context=".frag.RecordFrag">
 
     <TextView
+        android:id="@+id/record_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/record"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        android:textSize="35sp"
+        app:layout_constraintBottom_toTopOf="@id/et_group"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/et_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/group_padding_margin"
+        app:layout_constraintBottom_toTopOf="@id/submit_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/record_tv">
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/group_padding_margin"
+            android:gravity="center"
+            android:hint="@string/glucose_level"
+            android:inputType="numberDecimal"
+            android:minEms="@integer/min_ems" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/group_padding_margin"
+            android:gravity="center"
+            android:hint="@string/carbohydrate_intake"
+            android:inputType="numberDecimal"
+            android:minEms="@integer/min_ems" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/group_padding_margin"
+            android:gravity="center"
+            android:hint="@string/exercise_duration"
+            android:inputType="numberDecimal"
+            android:minEms="@integer/min_ems" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/group_padding_margin"
+            android:gravity="center"
+            android:hint="@string/insulin_injection_volume"
+            android:inputType="numberDecimal"
+            android:minEms="@integer/min_ems" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/submit_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/submit"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/et_group" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
