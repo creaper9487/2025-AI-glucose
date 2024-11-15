@@ -1,24 +1,23 @@
-#使用 Docker Hub 上的官方 Python 映像
+# 使用 Docker Hub 上的官方 Python 映像
 FROM python:3.9-slim as backend
 
-#設定工作目錄
+# 設定工作目錄
 WORKDIR /app/backend
 
-#複製需求檔案到容器中
+# 複製需求檔案到容器中
 COPY 2025-AI-glucose/glucose-BE/requirements.txt .
 
-#安裝後端依賴項
+# 安裝後端依賴項
 RUN pip install --no-cache-dir -r requirements.txt
 
-#複製後端源代碼到容器中
+# 複製後端源代碼到容器中
 COPY 2025-AI-glucose/glucose-BE/glucoseBE ./glucoseBE
 
-#暴露後端使用的端口
+# 暴露後端使用的端口
 EXPOSE 8000
 
-#使用 shell 指令執行遷移命令並啟動服務器
-CMD ["sh", "-c", "cd glucoseBE && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
-
+# 使用 shell 指令執行遷移命令並啟動服務器
+CMD ["sh", "-c", "cd glucoseBE && python manage.py makemigrations && python manage.py migrate && python manage.py runserver"]
 # Use the official Node.js image from the Docker Hub
 FROM node:18 as frontend
 
