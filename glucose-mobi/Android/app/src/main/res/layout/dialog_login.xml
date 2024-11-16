@@ -8,17 +8,30 @@
     android:paddingEnd="?dialogPreferredPadding"
     tools:context=".frag.AccFrag">
 
+    <TextView
+        android:id="@+id/err_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="?dialogPreferredPadding"
+        android:background="@drawable/dialog_err_tv_border"
+        android:fontFamily="monospace"
+        android:padding="4dp"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@id/acc_et"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <EditText
         android:id="@+id/acc_et"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="?dialogPreferredPadding"
-        android:hint="@string/username_email"
+        android:hint="@string/uid_email"
         android:inputType="textEmailAddress"
         app:layout_constraintBottom_toTopOf="@id/pw_et"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/err_tv" />
 
     <EditText
         android:id="@+id/pw_et"
