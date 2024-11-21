@@ -13,11 +13,15 @@
     <string name="register">註冊</string>
     <string name="email">Email</string>
     <string name="log_in_by_google">Google 帳號登入</string>
-    <string name="username">使用者名稱</string>
-    <string name="username_email">使用者名稱 / Email</string>
+    <string name="uid">UID</string>
+    <string name="uid_email">UID / Email</string>
     <string name="profile">個人資料</string>
     <string name="glucose_history">血糖軌跡紀錄</string>
     <string name="cancel">取消</string>
     <string name="ok">OK</string>
     <string name="log_out">登出</string>
+    <string name="invalid_email">&gt; Email 格式錯誤</string>
+    <string name="invalid_uid">&gt; UID 只能包含英文字母和數字</string>
+    <string name="invalid_pw">&gt; 密碼不得為空</string>
+    <string name="invalid_acc">&gt; UID/Email 不得為空</string>
 </resources>

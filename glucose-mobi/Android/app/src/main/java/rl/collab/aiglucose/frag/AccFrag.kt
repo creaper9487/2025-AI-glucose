@@ -4,9 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import rl.collab.aiglucose.R
 import rl.collab.aiglucose.databinding.FragAccBinding
-import rl.collab.aiglucose.setPosBtnOnClick
+import rl.collab.aiglucose.onClick.LogInBtnOnClick
+import rl.collab.aiglucose.onClick.RegisterBtnOnClick
 
 class AccFrag : UniversalFrag() {
     private lateinit var binding: FragAccBinding
@@ -23,50 +23,24 @@ class AccFrag : UniversalFrag() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         update()
-        setAccLy()
-        setProfileLy()
-    }
 
-    private fun setAccLy() {
-        binding.registerBtn.setOnClickListener {
-            val registerView = layoutInflater.inflate(R.layout.dialog_register, null)
-            ShowHidePwIvOnClick().onClick(registerView)
-
-            val dialog = ma.customDialog(R.string.register, registerView)
-            dialog.setPosBtnOnClick {
-                dialog.dismiss()
-                logIn()
-            }
-        }
-
-        binding.logInBtn.setOnClickListener {
-            val loginView = layoutInflater.inflate(R.layout.dialog_login, null)
-            ShowHidePwIvOnClick().onClick(loginView)
-
-            val dialog = ma.customDialog(R.string.log_in, loginView)
-            dialog.setPosBtnOnClick {
-                dialog.dismiss()
-                logIn()
-            }
-        }
-
+        binding.registerBtn.setOnClickListener(RegisterBtnOnClick(this))
+        binding.logInBtn.setOnClickListener(LogInBtnOnClick(this))
         binding.continueWithGoogleBtn.setOnClickListener {
             logIn()
         }
-    }
 
-    private fun setProfileLy() {
         binding.logOutBtn.setOnClickListener {
             logOut()
         }
     }
 
-    private fun logIn() {
+    fun logIn() {
         loggedIn = true
         update()
     }
 
-    private fun logOut() {
+    fun logOut() {
         loggedIn = false
         update()
     }
