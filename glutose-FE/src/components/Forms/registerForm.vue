@@ -1,23 +1,15 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axiosInstance from '../axiosInstance';
+import { useAuthStore } from '@/stores/authStore';
+const authStore = useAuthStore();
 const username = ref('');
 const password = ref('');
 const email = ref('');
 
 const handleRegister = async (event) => {
     event.preventDefault();
-    try {
-        const response = await axiosInstance.post('/api/register/', {
-            username: username.value,
-            password: password.value,
-            email: email.value
-        });
-        console.log(response.data);
-    } catch (error) {
-        console.error(error);
-    }
+    authStore.register(username.value, password.value, email.value);
 };
 </script>
 <template>

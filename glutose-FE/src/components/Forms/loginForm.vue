@@ -1,20 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axiosInstance from '../axiosInstance';
+import { useAuthStore } from '@/stores/authStore';
+const authStore = useAuthStore();
 const username_or_email = ref('');
 const password = ref('');
 const handleRegister = async (event) => {
-    event.preventDefault();
-    try {
-        const response = await axiosInstance.post('/api/token/', {
-            username: username_or_email.value,
-            password: password.value,
-        });
-        console.log(response.data);
-    } catch (error) {
-        console.error(error);
-    }
+    event.preventDefault(); 
+    authStore.login(username_or_email.value, password.value);
 };
 const handleGoogleLogin = async () => {
     const clientId = '887111954782-4ak0653kmakl505jo33d7c23tpps1rge.apps.googleusercontent.com';

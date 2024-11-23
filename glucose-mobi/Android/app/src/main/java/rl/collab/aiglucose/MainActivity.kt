@@ -1,9 +1,7 @@
 package rl.collab.aiglucose
 
 import android.os.Bundle
-import android.view.View
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -25,18 +23,6 @@ class MainActivity : AppCompatActivity() {
             v.updatePadding(systemBars.left, systemBars.top, systemBars.right)
             insets
         }
-
         binding.navView.setupWithNavController(findNavController(R.id.container))
     }
-
-    fun customDialog(titleStrRes: Int, view: View): AlertDialog =
-        AlertDialog.Builder(this)
-            .setCancelable(false)
-            .setTitle(getString(titleStrRes))
-            .setView(view)
-            .setPositiveButton(getString(R.string.ok), null)
-            .setNegativeButton(getString(R.string.cancel), null)
-            .show()
 }
-
-fun AlertDialog.setPosBtnOnClick(l: View.OnClickListener) = getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(l)

@@ -1,4 +1,4 @@
-package rl.collab.aiglucose.frag
+package rl.collab.aiglucose.onClick
 
 import android.text.InputType
 import android.view.View
@@ -9,7 +9,6 @@ import rl.collab.aiglucose.R
 class ShowHidePwIvOnClick : View.OnClickListener {
 
     override fun onClick(view: View) {
-
         val showHidePwIv = view.findViewById<ImageView>(R.id.show_hide_pw_iv)
         val pwEt = view.findViewById<EditText>(R.id.pw_et)
 

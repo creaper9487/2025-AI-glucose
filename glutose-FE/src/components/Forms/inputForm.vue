@@ -32,7 +32,7 @@ const handleSubmit = async (event) => {
 <template>
     <div class="w-96 p-10 bg-gray-700 shadow-lg rounded-lg relative">
         <h2 class="text-center text-white text-2xl mb-8">紀錄資料</h2>
-        <p class="text-center text-slate-300 text-l mb-8">嗨， {{ authStore.username }}</p>
+        <p v-if="authStore.username" class="text-center text-slate-300 text-l mb-8">嗨， {{ authStore.username }}</p>
         <form ref="formRef" @submit="handleSubmit">
             <div class="relative mb-8">
                 <input type="text" v-model="glucose" required

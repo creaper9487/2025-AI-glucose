@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
-
+import axiosInstance from '@/components/axiosInstance';
 export const useAuthStore = defineStore('auth', {
     state: () => ({
         token: [],
@@ -8,22 +8,29 @@ export const useAuthStore = defineStore('auth', {
         lang: ''
     }),
     actions: {
+        async register(credentials) {
+            try {
+                const response = await axiosInstance.post('/api/register/', credentials);
+                console.log(response.data);
+            } catch (error) {
+                console.error(error);
+            }
+        },
         async login(credentials) {
             try {
-                const response = await axios.post('/api/login', credentials);
+                const response = await axios.post('/api/login/', credentials);
                 this.token = response.data.token;
                 axios.defaults.headers.common['Authorization'] = `Bearer ${this.token[0]}`;
             } catch (error) {
                 console.error('Error logging in:', error);
             }
         },
-        async fetchUserDetails() {
+        async fetchUser(){
             try {
-                const response = await axios.get('/api/user');
+                const response = await axios.get('/api/user/');
                 this.username = response.data.username;
-                this.lang = response.data.lang;
             } catch (error) {
-                console.error('Error fetching user details:', error);
+                console.error('Error fetching user:', error);
             }
         },
         logout() {
