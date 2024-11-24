@@ -31,7 +31,7 @@ class GoogleLoginSerializer(serializers.Serializer):
             # 使用 requests.post 來發送請求
             response = requests.post(access_token_uri, data=params, headers=headers)
             token_data = response.json()
-
+            print(token_data)
             # 獲取用戶資訊
             userinfo_uri = f"https://www.googleapis.com/oauth2/v1/userinfo?access_token={token_data['access_token']}"
             userinfo_response = requests.get(userinfo_uri)
@@ -45,6 +45,7 @@ class GoogleLoginSerializer(serializers.Serializer):
                 return {"error":"the access_token(from google_oauth) is invalid"}
 
     def create(self, validated_data):
+        return
         idinfo = validated_data['idinfo']
         email = idinfo['email']
         #or email = idinfo.get('email')
