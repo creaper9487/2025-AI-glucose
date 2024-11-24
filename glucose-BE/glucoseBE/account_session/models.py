@@ -31,7 +31,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     lang = models.CharField(max_length=10, default='zh')
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-
+    weight = models.FloatField(null=True, blank=True)  # 體重 (kg)
+    height = models.FloatField(null=True, blank=True)  # 身高 (cm)
+    age = models.PositiveIntegerField(null=True, blank=True)  # 年齡 (years)
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
