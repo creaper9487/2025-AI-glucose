@@ -2,9 +2,14 @@
 import inputForm from '@/components/inputForm.vue';
 import { ref } from 'vue';
 const animationEnded = ref(false);
+const animationGrow = ref(false);
 const handleAnimationEnd = () => {
   animationEnded.value = true;
   console.log('Animation ended');
+};
+const handleGrow = () => {
+  animationGrow.value = true;
+  console.log('Grow animation ended');
 };
 </script>
 
@@ -13,9 +18,9 @@ const handleAnimationEnd = () => {
     <inputForm class="transition-all duration-1000 transform opacity-0 scale-95 animate-slide-drop rounded-lg shadow-lg"
       @animationend="handleAnimationEnd" v-if="!animationEnded" />
     <inputForm v-else class=""></inputForm>
-    <div class="flex flex-col m-5">
+    <div class="flex flex-col m-5 justify-start">
       <p v-if="animationEnded" class="text-white font-electro text-6xl  animate-fly-in">track your glucose</p>
-      <p v-if="animationEnded" class="text-white font-electro mt-5  animate-fly-in-and-grow">control your glucose</p>
+      <p v-if="animationEnded" @animationend="handleGrow" class="text-white font-electro mt-3 animate-fly-in" :class="{ 'animate-grow':animationGrow }">control your glucose</p>
     </div>
   </div>
 </template> 
@@ -44,7 +49,7 @@ const handleAnimationEnd = () => {
     opacity: 0;
   }
   80% {
-    transform: translateX(-5%);
+    transform: translateX(-10%);
     opacity: 1;
   }
   100% {
@@ -53,46 +58,23 @@ const handleAnimationEnd = () => {
   }
 }
 
-@keyframes fly-in-and-grow {
-  0% {
-    transform: translateX(100%) scale(1);
-    opacity: 0;
-  }
-  60% {
-    transform: translateX(-5%) scale(1);
-    opacity: 1;
-  }
-  80% {
-    transform: translateX(50%) scale(1);
-  }
-  100% {
-    transform: translateX(50%) scale(2);
-    opacity: 1;
-  }
-}
-
-
 .animate-fly-in {
   animation: fly-in 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
-
-.animate-fly-in-and-grow {
-  animation: fly-in-and-grow 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-}
-.delay {
-  animation-delay: 0.3s; /* Adds a delay for the second element */
-}
 @keyframes grow {
   0% {
-    transform: scale(1);
+    transform: scale(1) translateX(0);
+    color: white;
   }
   100% {
-    transform: scale(1.2); /* Increase size by 20% */
+    transform: scale(3) translateX(0);
+    transform-origin: left center;
+    color: red;
   }
 }
 
 .animate-grow {
   animation: grow 0.5s ease-out forwards;
-  animation-delay: 1s; /* Start growing after the fly-in finishes */
+  animation-delay: .1s; /* Start growing after the fly-in finishes */
 }
 </style>
