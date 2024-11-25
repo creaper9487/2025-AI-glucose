@@ -45,7 +45,6 @@ class GoogleLoginSerializer(serializers.Serializer):
                 return {"error":"the access_token(from google_oauth) is invalid"}
 
     def create(self, validated_data):
-        return
         idinfo = validated_data['idinfo']
         email = idinfo['email']
         #or email = idinfo.get('email')
