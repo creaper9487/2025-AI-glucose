@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import CustomUser
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-
+from . import jwtdecoder
 User = get_user_model()
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -39,9 +39,17 @@ class CustomLoginSerializer(serializers.Serializer):
         raise ValidationError('Unable to log in with provided credentials.')
     
 class UpdateLangSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(required=True)
     lang = serializers.CharField(required=True)
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'lang']
+        fields = ['lang']
+
+class UpdateInfoSerializer(serializers.ModelSerializer):
+    weight = serializers.CharField(required=True)
+    height = serializers.CharField(required=True)
+    age = serializers.CharField(required=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ['weight', 'height', 'age']

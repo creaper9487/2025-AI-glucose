@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-
+import datetime
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 AUTH_USER_MODEL = 'account_session.CustomUser'
@@ -119,6 +119,14 @@ REST_FRAMEWORK = {
     ),
 }
 
+SIMPLE_JWT = {
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": datetime.timedelta(days=1),
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
