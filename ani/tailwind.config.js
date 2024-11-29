@@ -5,6 +5,9 @@ export default {
     extend: {
       fontFamily:{
         electro:["Electrolize", 'sans-serif'],
+      },
+      colors: {
+        "greenScreen": "#00FF00",
       }
     },
   },
