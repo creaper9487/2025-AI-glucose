@@ -9,7 +9,11 @@ const email = ref('');
 
 const handleRegister = async (event) => {
     event.preventDefault();
-    authStore.register(username.value, password.value, email.value);
+    authStore.register({
+        username: username.value,
+        password: password.value,
+        email: email.value
+    });
 };
 </script>
 <template>
