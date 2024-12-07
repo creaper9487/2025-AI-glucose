@@ -1,5 +1,6 @@
 <script setup>
 
+import FoodInput from '@/components/Forms/foodInput.vue';
 import InputForm from '@/components/Forms/inputForm.vue';
 import NavBar from '@/components/NavBar.vue';
 </script>
@@ -7,7 +8,7 @@ import NavBar from '@/components/NavBar.vue';
   <NavBar />
   <div class="h-screen flex items-center justify-center flex-row bg-gray-800">
   <InputForm class="mx-10" />
-
+  <FoodInput class="mx-10" />
   </div>
 </template>
 
