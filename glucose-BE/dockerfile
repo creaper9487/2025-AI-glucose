@@ -5,13 +5,13 @@ FROM python:3.9-slim as backend
 WORKDIR /app/backend
 
 # 複製需求檔案到容器中
-COPY glucose-BE/requirements.txt .
+COPY ./requirements.txt .
 
 # 安裝後端依賴項
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 複製後端源代碼到容器中
-COPY glucose-BE/glucoseBE ./glucoseBE
+COPY ./glucoseBE ./glucoseBE
 
 # 暴露後端使用的端口
 EXPOSE 8000

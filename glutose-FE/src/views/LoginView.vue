@@ -1,5 +1,5 @@
 <script setup>
-import LoginForm from '@/components/Forms/LoginForm.vue';
+import LoginForm from '@/components/Forms/loginForm.vue';
 import registerForm from '@/components/Forms/registerForm.vue';
 import NavBar from '@/components/NavBar.vue';
 </script>

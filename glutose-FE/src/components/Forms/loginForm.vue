@@ -7,7 +7,7 @@ const username_or_email = ref('');
 const password = ref('');
 const handleRegister = async (event) => {
     event.preventDefault(); 
-    authStore.login(username_or_email.value, password.value);
+    authStore.login({username_or_email:username_or_email.value, password:password.value});
 };
 const handleGoogleLogin = async () => {
     const clientId = '887111954782-4ak0653kmakl505jo33d7c23tpps1rge.apps.googleusercontent.com';
