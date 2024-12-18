@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 import axiosInstance from '../axiosInstance';
 import { useAuthStore } from '@/stores/authStore';
 const authStore = useAuthStore();
@@ -63,7 +62,6 @@ const handleSubmit = async (event) => {
             </button>
         </form>
     </div>
-    
 </template>
 
 <style scoped>
