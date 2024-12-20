@@ -1,6 +1,8 @@
 package rl.collab.aiglucose
 
 import android.os.Bundle
+import android.view.KeyEvent
+import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -24,5 +26,17 @@ class MainActivity : AppCompatActivity() {
             insets
         }
         binding.navView.setupWithNavController(findNavController(R.id.container))
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            val view = layoutInflater.inflate(R.layout.dialog_host, null)
+            val hostEt = view.findViewById<EditText>(R.id.host).apply { setText(Client.host) }
+
+            customDialog(R.string.host, view).setPosBntOnClick {
+                Client.host = hostEt.str
+            }
+        }
+        return true
     }
 }

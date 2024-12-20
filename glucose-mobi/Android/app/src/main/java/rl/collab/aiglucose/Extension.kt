@@ -1,31 +1,26 @@
 package rl.collab.aiglucose
 
+import android.app.AlertDialog
 import android.content.Context
 import android.util.Log
-import android.util.TypedValue
+import android.util.Patterns
 import android.view.View
 import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
-import java.util.Calendar
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-fun ll(vararg msg: Any) = Log.d("666", msg.joinToString(" "))
-val date: String
-    get() {
-        Calendar.getInstance().apply {
-            return "${get(Calendar.MONTH) + 1}/${get(Calendar.DATE)} ${"一二三四五六日"[get(Calendar.DAY_OF_WEEK) - 1]}"
-        }
-    }
+fun nacho(vararg msg: Any) {
+    Log.d("nacho", msg.joinToString(" "))
+}
 
-
-val String.isEmail: Boolean get() = "^[^@]+@[^@]+$".toRegex().matches(this)
-val String.isAlNum: Boolean get() = all { it.isLetterOrDigit() }
-
+val String.isEmail: Boolean get() = Patterns.EMAIL_ADDRESS.matcher(this).matches()
 
 val EditText.str: String get() = text.toString()
-fun AlertDialog.setPosBtnOnClick(l: View.OnClickListener) = getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(l)
 
-
-fun Context.customDialog(titleStrRes: Int, view: View): AlertDialog =
+fun Context.customDialog(titleStrRes: Int, view: View) =
     AlertDialog.Builder(this)
         .setCancelable(false)
         .setTitle(getString(titleStrRes))
@@ -34,11 +29,23 @@ fun Context.customDialog(titleStrRes: Int, view: View): AlertDialog =
         .setNegativeButton(getString(R.string.cancel), null)
         .show()
 
-fun Context.colorFromId(id: Int): Int {
-    val typedValue = TypedValue()
-    theme.resolveAttribute(id, typedValue, true)
-    return typedValue.data
+fun AlertDialog.setPosBntOnClick(listener: View.OnClickListener) {
+    getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(listener)
 }
 
-val Context.fgColor: Int get() = colorFromId(com.google.android.material.R.attr.colorOnSurface)
-val Context.bgColor: Int get() = colorFromId(com.google.android.material.R.attr.colorSurface)
+fun Fragment.io(block: suspend CoroutineScope.() -> Unit) {
+    lifecycleScope.launch(Dispatchers.IO, block = block)
+}
+
+fun Fragment.ui(block: Fragment.() -> Unit) {
+    requireActivity().runOnUiThread { block() }
+}
+
+fun Fragment.errDialog(msg: String) {
+    AlertDialog.Builder(this.requireContext())
+        .setCancelable(false)
+        .setTitle(getString(R.string.err))
+        .setMessage(msg)
+        .setPositiveButton(getString(R.string.ok), null)
+        .show()
+}

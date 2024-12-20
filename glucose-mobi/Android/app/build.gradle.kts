@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "rl.collab.aiglucose"
-        minSdk = 21
+        minSdk = 28
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -39,6 +39,10 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.biometric)
+    implementation(libs.converter.gson)
+    implementation(libs.retrofit)
+    implementation(libs.gms.play.services.auth)
     implementation(libs.mpandroidchart)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

@@ -1,58 +1,51 @@
 package rl.collab.aiglucose.onClick
 
-import android.graphics.Color
 import android.view.View
 import android.widget.EditText
-import android.widget.TextView
-import androidx.core.content.ContextCompat.getString
-import androidx.core.widget.addTextChangedListener
+import rl.collab.aiglucose.Client
 import rl.collab.aiglucose.R
+import rl.collab.aiglucose.Request
 import rl.collab.aiglucose.customDialog
-import rl.collab.aiglucose.date
-import rl.collab.aiglucose.fgColor
 import rl.collab.aiglucose.frag.AccFrag
-import rl.collab.aiglucose.isAlNum
 import rl.collab.aiglucose.isEmail
-import rl.collab.aiglucose.setPosBtnOnClick
+import rl.collab.aiglucose.setPosBntOnClick
 import rl.collab.aiglucose.str
 
 class RegisterBtnOnClick(private val accFrag: AccFrag) : View.OnClickListener {
+    private val context = accFrag.requireContext()
 
     override fun onClick(p0: View?) {
-        val view = View.inflate(accFrag.con, R.layout.dialog_register, null)
-        ShowHidePwIvOnClick().onClick(view)
+        val view = View.inflate(context, R.layout.dialog_register, null)
+        val pwIv = PwIvOnClick()
+        pwIv.onClick(view)
 
-        val errTv = view.findViewById<TextView>(R.id.err_tv)
         val emailEt = view.findViewById<EditText>(R.id.email_et)
-        val uidEt = view.findViewById<EditText>(R.id.uid_et)
+        val usernameEt = view.findViewById<EditText>(R.id.username_et)
         val pwEt = view.findViewById<EditText>(R.id.pw_et)
 
-        errTv.text = date
-        uidEt.addTextChangedListener {
-            if (uidEt.str.isAlNum) {
-                errTv.text = date
-                uidEt.setTextColor(accFrag.con.fgColor)
-            } else {
-                errTv.text = getString(accFrag.con, R.string.invalid_uid)
-                uidEt.setTextColor(Color.RED)
+        val dialog = context.customDialog(R.string.register, view)
+        dialog.setPosBntOnClick {
+            var valid = true
+            val email = emailEt.str
+            val username = usernameEt.str
+            val pw = pwEt.str
+
+            if (!email.isEmail) {
+                emailEt.setText(context.getString(R.string.invalid_email))
+                valid = false
             }
-        }
+            if (username.isEmpty()) {
+                usernameEt.setText(context.getString(R.string.invalid_username))
+                valid = false
+            }
+            if (pw.isEmpty()) {
+                pwIv.show()
+                pwEt.setText(context.getString(R.string.invalid_pw))
+                valid = false
+            }
+            if (!valid) return@setPosBntOnClick
 
-        val dialog = accFrag.con.customDialog(R.string.register, view)
-        dialog.setPosBtnOnClick {
-            val errMsgs = mutableListOf<String>()
-            if (!emailEt.str.isEmail)
-                errMsgs.add(getString(accFrag.con, R.string.invalid_email))
-            if (uidEt.text.isEmpty())
-                errMsgs.add(getString(accFrag.con, R.string.invalid_uid))
-            if (pwEt.text.isEmpty())
-                errMsgs.add(getString(accFrag.con, R.string.invalid_pw))
-
-            if (errMsgs.isEmpty()) {
-                dialog.dismiss()
-                accFrag.logIn()
-            } else
-                errTv.text = errMsgs.joinToString("\n")
+            Client.register(accFrag, Request.Register(email, username, pw), dialog)
         }
     }
 }

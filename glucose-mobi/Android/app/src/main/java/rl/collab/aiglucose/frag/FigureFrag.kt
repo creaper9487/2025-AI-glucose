@@ -5,13 +5,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import rl.collab.aiglucose.databinding.FragFigureBinding
 
-class FigureFrag : UniversalFrag() {
+class FigureFrag : Fragment() {
     private lateinit var binding: FragFigureBinding
     private lateinit var lineChart: LineChart
 
@@ -33,9 +34,6 @@ class FigureFrag : UniversalFrag() {
 
         lineChart.data = LineData(dataSet)
         lineChart.invalidate()
-    }
-
-    override fun update() {
     }
 
     private infix fun Float.en(that: Float) = Entry(this, that)
