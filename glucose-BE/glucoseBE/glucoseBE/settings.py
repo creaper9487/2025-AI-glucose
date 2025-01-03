@@ -36,6 +36,7 @@ CORS_ORIGIN_WHITELIST = [
 
 INSTALLED_APPS = [
     'corsheaders',
+    'AIchat',
     'account_session',
     'rest_framework',
     'rest_framework_simplejwt',
