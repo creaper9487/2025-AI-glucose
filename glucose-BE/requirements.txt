@@ -6,3 +6,4 @@ flask
 django-cors-headers
 google-auth
 google-auth-oauthlib
+ollama
