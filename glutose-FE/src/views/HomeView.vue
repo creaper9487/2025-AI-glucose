@@ -1,5 +1,5 @@
 <script setup>
-
+import chatbot from '@/components/chatBot.vue';
 import FoodInput from '@/components/Forms/foodInput.vue';
 import InputForm from '@/components/Forms/inputForm.vue';
 import NavBar from '@/components/NavBar.vue';
@@ -9,6 +9,7 @@ import NavBar from '@/components/NavBar.vue';
   <div class="h-screen flex items-center justify-center flex-row bg-gray-800">
   <InputForm class="mx-10" />
   <FoodInput class="mx-10" />
+<chatbot />
   </div>
 </template>
 
