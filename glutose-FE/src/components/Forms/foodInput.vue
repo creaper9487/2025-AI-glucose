@@ -2,9 +2,10 @@
 import { ref } from 'vue';
 import axios from 'axios';
 import { useAuthStore } from '@/stores/authStore';
+import { useChatStore } from '@/stores/chatStore';
 const authStore = useAuthStore();
 const imageFile = ref(null);
-
+const chatStore = useChatStore();
 const handleFileChange = (event) => {
     imageFile.value = event.target.files[0];
 };
@@ -16,7 +17,7 @@ const sendImage = async () => {
     formData.append('image', imageFile.value);
 
     try {
-        const response = await axios.post('/api/sense', formData, {
+        const response = await axios.post('/api/sense/', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -27,12 +28,9 @@ const sendImage = async () => {
     }
 };
 const sendAnalysisRequest = async () => {
-    try {
-        const response = await axios.post('/api/analyse');
-        console.log(response.data);
-    } catch (error) {
-        console.error('Error requesting analysis:', error);
-    }
+    chatStore.chatWindow = true;
+    console.log(chatStore.chatWindow);
+    chatStore.fetchChatContent();
 };
 </script>
 <template>
@@ -48,17 +46,16 @@ const sendAnalysisRequest = async () => {
             <h2 class="text-center text-white text-xl mb-4">✨針對血糖資料產生 AI 建議</h2>
             <button
                     class="w-full p-2 mt-4 text-slate-800 bg-slate-200 rounded-lg hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400 opacity-50"
-                    v-if="!authStore.username"
+                    v-if="authStore.username"
                     >
                     登入後使用…
             </button>
             <button @click="sendAnalysisRequest"
                     class="w-full p-2 mt-4 text-slate-800 bg-slate-200 rounded-lg hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400"
-                    v-if="authStore.username"
+                    v-if="!authStore.username"
                     >
                     產生建議
             </button>
-
         </div>
     </div>
 </template>
