@@ -35,11 +35,11 @@
             app:layout_constraintTop_toBottomOf="@id/acc_tv">
 
             <Button
-                android:id="@+id/continue_with_google_btn"
+                android:id="@+id/google_sign_in_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/group_padding_margin"
-                android:text="@string/log_in_by_google" />
+                android:text="@string/google_sign_in" />
 
             <Button
                 android:id="@+id/log_in_btn"

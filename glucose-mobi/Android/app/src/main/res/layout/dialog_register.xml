@@ -8,19 +8,6 @@
     android:paddingEnd="?dialogPreferredPadding"
     tools:context=".frag.AccFrag">
 
-    <TextView
-        android:id="@+id/err_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="?dialogPreferredPadding"
-        android:background="@drawable/dialog_err_tv_border"
-        android:fontFamily="monospace"
-        android:padding="4dp"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@id/email_et"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <EditText
         android:id="@+id/email_et"
         android:layout_width="match_parent"
@@ -28,17 +15,17 @@
         android:layout_marginTop="?dialogPreferredPadding"
         android:hint="@string/email"
         android:inputType="textEmailAddress"
-        app:layout_constraintBottom_toTopOf="@id/uid_et"
+        app:layout_constraintBottom_toTopOf="@id/username_et"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/err_tv" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/uid_et"
+        android:id="@+id/username_et"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="?dialogPreferredPadding"
-        android:hint="@string/uid"
+        android:hint="@string/username"
         android:inputType="textPersonName"
         app:layout_constraintBottom_toTopOf="@id/pw_et"
         app:layout_constraintEnd_toEndOf="parent"
@@ -55,7 +42,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/uid_et" />
+        app:layout_constraintTop_toBottomOf="@id/username_et" />
 
     <ImageView
         android:id="@+id/show_hide_pw_iv"
