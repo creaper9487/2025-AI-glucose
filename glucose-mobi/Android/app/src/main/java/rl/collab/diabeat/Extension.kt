@@ -18,6 +18,8 @@ fun nacho(vararg msg: Any) {
 
 inline val String.isEmail get() = Patterns.EMAIL_ADDRESS.matcher(this).matches()
 
+inline val String.isUsername get() = "^[a-zA-Z0-9_]+$".toRegex().matches(this)
+
 inline val EditText.str get() = text.toString()
 
 fun Context.customDialog(titleId: Int, view: View, neutralBtnId: Int? = null): AlertDialog {
