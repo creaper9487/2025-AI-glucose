@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "rl.collab.aiglucose"
+    namespace = "rl.collab.diabeat"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "rl.collab.aiglucose"
+        applicationId = "rl.collab.diabeat"
         minSdk = 28
         targetSdk = 34
         versionCode = 1

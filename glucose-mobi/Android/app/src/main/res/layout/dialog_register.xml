@@ -14,23 +14,36 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="?dialogPreferredPadding"
         android:hint="@string/email"
+        android:importantForAutofill="no"
         android:inputType="textEmailAddress"
-        app:layout_constraintBottom_toTopOf="@id/username_et"
+        app:layout_constraintBottom_toTopOf="@id/username_tv"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/username_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="?dialogPreferredPadding"
+        android:text="@string/username_fmt"
+        android:typeface="monospace"
+        app:layout_constraintBottom_toTopOf="@id/username_et"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/email_et" />
 
     <EditText
         android:id="@+id/username_et"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="?dialogPreferredPadding"
         android:hint="@string/username"
+        android:importantForAutofill="no"
         android:inputType="textPersonName"
         app:layout_constraintBottom_toTopOf="@id/pw_et"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/email_et" />
+        app:layout_constraintTop_toBottomOf="@id/username_tv" />
 
     <EditText
         android:id="@+id/pw_et"
@@ -38,6 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="?dialogPreferredPadding"
         android:hint="@string/pw"
+        android:importantForAutofill="no"
         android:inputType="textPassword"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -14,6 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="?dialogPreferredPadding"
         android:hint="@string/acc"
+        android:importantForAutofill="no"
         android:inputType="textEmailAddress"
         app:layout_constraintBottom_toTopOf="@id/pw_et"
         app:layout_constraintEnd_toEndOf="parent"
@@ -26,8 +27,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="?dialogPreferredPadding"
         android:hint="@string/pw"
+        android:importantForAutofill="no"
         android:inputType="textPassword"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/reme_cb"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/acc_et" />
@@ -42,5 +44,15 @@
         app:layout_constraintBottom_toBottomOf="@id/pw_et"
         app:layout_constraintEnd_toEndOf="@id/pw_et"
         app:layout_constraintTop_toTopOf="@id/pw_et" />
+
+    <CheckBox
+        android:id="@+id/reme_cb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="?dialogPreferredPadding"
+        android:text="@string/reme"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pw_et" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -21,5 +21,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AI Glucose"
+rootProject.name = "Diabeat"
 include(":app")

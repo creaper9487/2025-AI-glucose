@@ -19,14 +19,17 @@
     <string name="cancel">取消</string>
     <string name="ok">OK</string>
     <string name="log_out">登出</string>
-    <string name="invalid_email">Email格式錯誤</string>
-    <string name="invalid_username">Username只能包含英文字母和數字</string>
-    <string name="invalid_pw">密碼不得為空</string>
-    <string name="invalid_acc">帳號不得為空</string>
-    <string name="host">host</string>
+    <string name="username_fmt">只能包含英文字母、數字和底線</string>
+    <string name="host">主機</string>
     <string name="bio_log_in">生物辨識登入</string>
     <string name="err">錯誤</string>
     <string name="log_in_fail">登入失敗</string>
-    <string name="email_registered">此Email已被註冊</string>
-    <string name="username_registered">此Username已被註冊</string>
+    <string name="email_registered">此 Email 已被註冊</string>
+    <string name="username_registered">此 Username 已被註冊</string>
+    <string name="email_username_registered">此 Email 和 Username 皆已被註冊</string>
+    <string name="socket_timeout_exception">連線逾時</string>
+    <string name="bio">生物辨識</string>
+    <string name="reme">記得我</string>
+    <string name="_192">192</string>
+    <string name="_168">168</string>
 </resources>
