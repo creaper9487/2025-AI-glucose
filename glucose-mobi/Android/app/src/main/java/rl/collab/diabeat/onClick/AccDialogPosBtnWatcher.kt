@@ -23,20 +23,17 @@ class AccDialogPosBtnWatcher(view: View, isLogIn: Boolean, dialogPosBtn: Button)
                 showPw()
         }
 
-        val etGroup: Array<EditText> = if (isLogIn)
+        val etGroup = if (isLogIn)
             arrayOf(view.findViewById(R.id.acc_et), pwEt)
         else
             arrayOf(view.findViewById(R.id.email_et), view.findViewById(R.id.username_et), pwEt)
 
-        dialogPosBtn.isEnabled = false
         for (et in etGroup) {
             et.addTextChangedListener { _ ->
-                dialogPosBtn.isEnabled = etGroup.all { it.str.isNotEmpty() } &&
-                        if (isLogIn) {
-                            true
-                        } else {
-                            etGroup[0].str.isEmail && etGroup[1].str.isUsername
-                        }
+                var bool = etGroup.all { it.str.isNotEmpty() }
+                if (!isLogIn)
+                    bool = bool && etGroup[0].str.isEmail && etGroup[1].str.isUsername
+                dialogPosBtn.isEnabled = bool
             }
         }
     }

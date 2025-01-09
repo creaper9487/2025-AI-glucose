@@ -11,9 +11,9 @@ import rl.collab.diabeat.posBtn
 import rl.collab.diabeat.str
 
 class RegisterBtnOnClick(private val accFrag: AccFrag) : View.OnClickListener {
+    private val context = accFrag.requireContext()
 
     override fun onClick(v0: View) {
-        val context = accFrag.requireContext()
         val view = View.inflate(context, R.layout.dialog_register, null)
 
         val emailEt = view.findViewById<EditText>(R.id.email_et)
@@ -21,10 +21,10 @@ class RegisterBtnOnClick(private val accFrag: AccFrag) : View.OnClickListener {
         val pwEt = view.findViewById<EditText>(R.id.pw_et)
 
         val dialog = context.customDialog(R.string.register, view)
-        AccDialogPosBtnWatcher(view, false, dialog.posBtn)
-
+        dialog.posBtn.isEnabled = false
         dialog.posBtn.setOnClickListener {
             Client.register(accFrag, Request.Register(emailEt.str, usernameEt.str, pwEt.str), dialog::dismiss)
         }
+        AccDialogPosBtnWatcher(view, false, dialog.posBtn)
     }
 }

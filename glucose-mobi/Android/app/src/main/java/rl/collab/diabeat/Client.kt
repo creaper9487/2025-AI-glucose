@@ -12,8 +12,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.reflect.KSuspendFunction1
 
 object Client {
-    var hostC = ""
-    var hostD = ""
+    var host = arrayOf("192", "168", "0", "0")
 
     private val okHttpClient by lazy {
         OkHttpClient.Builder()
@@ -25,7 +24,7 @@ object Client {
 
     private val retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl("http://192.168.$hostC.$hostD:8000/")
+            .baseUrl("http://${host.joinToString(".")}:8000/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()

@@ -13,9 +13,9 @@ import rl.collab.diabeat.posBtn
 import rl.collab.diabeat.str
 
 class LogInBtnOnClick(private val accFrag: AccFrag) : View.OnClickListener {
+    private val context = accFrag.requireContext()
 
     override fun onClick(v0: View) {
-        val context = accFrag.requireContext()
         val view = View.inflate(context, R.layout.dialog_login, null)
 
         val accEt = view.findViewById<EditText>(R.id.acc_et)
@@ -27,11 +27,11 @@ class LogInBtnOnClick(private val accFrag: AccFrag) : View.OnClickListener {
         }
 
         val dialog = context.customDialog(R.string.log_in, view, R.string.bio)
-        AccDialogPosBtnWatcher(view, true, dialog.posBtn)
-
+        dialog.posBtn.isEnabled = false
         dialog.posBtn.setOnClickListener {
             Client.logIn(accFrag, Request.LogIn(accEt.str.trim(), pwEt.str), dialog::dismiss, remeCb.isChecked)
         }
+        AccDialogPosBtnWatcher(view, true, dialog.posBtn)
 
         if (accFrag.pwFile.exists()) {
             dialog.neutralBtn.setOnClickListener {

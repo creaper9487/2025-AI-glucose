@@ -21,15 +21,10 @@ import rl.collab.diabeat.onClick.RegisterBtnOnClick
 import java.io.File
 
 class AccFrag : Fragment() {
-    private lateinit var binding: FragAccBinding
-    val accFile by lazy {
-        File(requireContext().filesDir, "acc.txt")
-    }
-    val pwFile by lazy {
-        File(requireContext().filesDir, "pw.txt")
-    }
-
     private val resultLauncher = registerForActivityResult(StartActivityForResult()) {}
+    private lateinit var binding: FragAccBinding
+    val accFile by lazy { File(requireContext().filesDir, "acc.txt") }
+    val pwFile by lazy { File(requireContext().filesDir, "pw.txt") }
 
     companion object {
         var acc: String? = null
@@ -48,11 +43,6 @@ class AccFrag : Fragment() {
         else
             logInEnv(acc!!, pw!!)
 
-        binding.registerBtn.setOnClickListener(RegisterBtnOnClick(this))
-        binding.logInBtn.setOnClickListener(LogInBtnOnClick(this))
-        binding.coffeeBtn.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/creaper9487/2025-AI-glucose")))
-        }
         binding.googleSignInBtn.setOnClickListener {
             val gOption = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -60,9 +50,17 @@ class AccFrag : Fragment() {
             val gClient = GoogleSignIn.getClient(requireActivity(), gOption)
             resultLauncher.launch(gClient.signInIntent)
         }
+        binding.registerBtn.setOnClickListener(RegisterBtnOnClick(this))
+        binding.logInBtn.setOnClickListener(LogInBtnOnClick(this))
+        binding.coffeeBtn.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/creaper9487/2025-AI-glucose")))
+        }
 
         binding.logOutBtn.setOnClickListener { logOutEnv() }
         binding.bioLogInSw.setOnCheckedChangeListener { _, isChecked ->
+            if (binding.profileLy.visibility == View.INVISIBLE)
+                return@setOnCheckedChangeListener
+
             if (isChecked) {
                 accFile.writeText(acc!!)
                 pwFile.writeText(pw!!)
@@ -75,6 +73,7 @@ class AccFrag : Fragment() {
         AccFrag.acc = acc
         AccFrag.pw = pw
         binding.accLy.visibility = View.INVISIBLE
+        binding.profileLy.visibility = View.VISIBLE
 
         val bioMan = BiometricManager.from(requireContext())
         if (bioMan.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) != BiometricManager.BIOMETRIC_SUCCESS)
@@ -86,8 +85,6 @@ class AccFrag : Fragment() {
             binding.bioLogInSw.isChecked = true
             binding.bioLogInSw.jumpDrawablesToCurrentState()  // skip animation
         }
-
-        binding.profileLy.visibility = View.VISIBLE
     }
 
     private fun logOutEnv() {

@@ -2,6 +2,8 @@ package rl.collab.diabeat
 
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
+import android.widget.CheckBox
 import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -15,9 +17,7 @@ import java.io.File
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val hostFile by lazy {
-        File(filesDir, "host.txt")
-    }
+    private val hostFile by lazy { File(filesDir, "host.txt") }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,16 +32,18 @@ class MainActivity : AppCompatActivity() {
         binding.navView.setupWithNavController(findNavController(R.id.container))
 
         if (hostFile.exists())
-            hostFile.readText().split(" ").let {
-                Client.hostC = it[0]
-                Client.hostD = it[1]
+            for ((i, line) in hostFile.readLines().withIndex()) {
+                if (i <= 3)
+                    Client.host[i] = line
+                else if (line.toBoolean())
+                    setHost()
             }
-
-        setHost()
+        else
+            setHost()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             setHost()
             return true
         }
@@ -51,20 +53,34 @@ class MainActivity : AppCompatActivity() {
     private fun setHost() {
         val view = layoutInflater.inflate(R.layout.dialog_host, null)
 
-        val cEt = view.findViewById<EditText>(R.id.host_c).apply { setText(Client.hostC) }
-        val dEt = view.findViewById<EditText>(R.id.host_d).apply { setText(Client.hostD) }
+        val ids = arrayOf(R.id.host_a, R.id.host_b, R.id.host_c, R.id.host_d)
+        val ets = arrayListOf<EditText>()
+        for ((id, hostI) in ids.zip(Client.host))
+            ets.add(view.findViewById<EditText>(id).apply { setText(hostI) })
+
+        val startUpCb = view.findViewById<CheckBox>(R.id.start_up_cb).apply {
+            if (!hostFile.exists() || hostFile.readLines()[4].toBoolean())
+                isChecked = true
+        }
 
         val dialog = customDialog(R.string.host, view)
         dialog.posBtn.setOnClickListener {
-            val c = cEt.str
-            val d = dEt.str
+            if (ets.any { it.str.isEmpty() || it.str.toInt() > 255 })
+                return@setOnClickListener
 
-            if (c.isNotEmpty() && d.isNotEmpty()) {
-                Client.hostC = c
-                Client.hostD = d
-                hostFile.writeText("$c $d")
-                dialog.dismiss()
-            }
+            for ((i, et) in ets.withIndex())
+                Client.host[i] = et.str
+
+            hostFile.writeText(ets.joinToString("\n") { it.str } + "\n${startUpCb.isChecked}")
+            dialog.dismiss()
+        }
+
+        ets[3].setOnEditorActionListener { _, i, _ ->
+            if (i == EditorInfo.IME_ACTION_DONE && dialog.posBtn.isEnabled) {
+                dialog.posBtn.callOnClick()
+                true
+            } else
+                false
         }
     }
 }
