@@ -8,7 +8,6 @@ import android.widget.ImageView
 import androidx.core.widget.addTextChangedListener
 import rl.collab.diabeat.R
 import rl.collab.diabeat.isEmail
-import rl.collab.diabeat.isUsername
 import rl.collab.diabeat.str
 
 class AccDialogPosBtnWatcher(view: View, isLogIn: Boolean, dialogPosBtn: Button) {
@@ -30,10 +29,10 @@ class AccDialogPosBtnWatcher(view: View, isLogIn: Boolean, dialogPosBtn: Button)
 
         for (et in etGroup) {
             et.addTextChangedListener { _ ->
-                var bool = etGroup.all { it.str.isNotEmpty() }
+                var allNotEmpty = etGroup.all { it.str.isNotEmpty() }
                 if (!isLogIn)
-                    bool = bool && etGroup[0].str.isEmail && etGroup[1].str.isUsername
-                dialogPosBtn.isEnabled = bool
+                    allNotEmpty = allNotEmpty && etGroup[0].str.isEmail
+                dialogPosBtn.isEnabled = allNotEmpty
             }
         }
     }

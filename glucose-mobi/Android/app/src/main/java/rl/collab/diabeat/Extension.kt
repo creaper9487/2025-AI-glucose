@@ -12,13 +12,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-fun nacho(vararg msg: Any) {
+fun nacho(vararg msg: Any?) {
     Log.d("nacho", msg.joinToString(" "))
 }
 
 inline val String.isEmail get() = Patterns.EMAIL_ADDRESS.matcher(this).matches()
-
-inline val String.isUsername get() = "^[a-zA-Z0-9_]+$".toRegex().matches(this)
 
 inline val EditText.str get() = text.toString()
 
