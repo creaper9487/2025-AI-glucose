@@ -32,7 +32,7 @@ To see the demo, follow these steps:
     
 To see the Android demo, follow these steps:
 
-1. **Install APK**: Download and install APK from [THERE](https://github.com/creaper9487/2025-AI-glucose/raw/refs/heads/main/glucose-mobi/Android/app/build/outputs/apk/debug/app-debug.apk).
+1. **Install APK**: Download and install APK from [THERE](https://github.com/creaper9487/2025-AI-glucose/blob/main/glucose-mobi/Android/app/build/outputs/apk/debug/app-debug.apk).
 
 2. **USB tether**: Connect your phone to computer, and configure USB tethering. In macOS and Hackintosh, you need to install HoRNDIS Kext to support USB tethering.
 
