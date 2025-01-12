@@ -8,13 +8,10 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
+/app/build/
+/app/src/main/res/values/strings.xml
 /captures
 .externalNativeBuild
 .cxx
 .idea
 local.properties
-
-/app/build/
-!/app/build/outputs/apk/debug/app-debug.apk
-
-/app/src/main/res/values/strings.xml
