@@ -3,33 +3,33 @@
 To see the demo, follow these steps:
 
 1. **Install Node.js**: If you don't have Node.js installed, download and install it from [nodejs.org](https://nodejs.org/).
-2. **Get into glucose-FE**:
+
+2. **Install pnpm**: Once Node.js is installed, you can install `pnpm` by running the following command in your terminal:
 
     ```sh
-    cd glucose-FE
+    2025-AI-glucose>            cd glucose-FE
+    2025-AI-glucose/glucose-FE> npm install -g pnpm
+    2025-AI-glucose/glucose-FE> pnpm install
     ```
 
-3. **Install pnpm**: Once Node.js is installed, you can install `pnpm` by running the following command in your terminal:
+3. **Open Backend Server**: Install the required packages and start the server:
 
     ```sh
-    npm install -g pnpm
-    pnpm install
+    2025-AI-glucose/glucose-FE> cd ../glucose-BE
+    2025-AI-glucose/glucose-BE> pip install -r requirements.txt
+
+    2025-AI-glucose/glucose-BE>           cd glucoseBE
+    2025-AI-glucose/glucose-BE/glucoseBE> python manage.py migrate
+    2025-AI-glucose/glucose-BE/glucoseBE> python manage.py runserver
     ```
 
-4. **Open Backend Server**: Install the required packages and start the server:
+4. **Run the demo**: Open a new terminal and run the demo using the following command:
 
     ```sh
-    pip install -r requirements.txt
-    python manage.py migrate
-    python manage.py runserver
+    2025-AI-glucose/glucose-BE/glucoseBE> cd ../../glucose-FE
+    2025-AI-glucose/glucose-FE>           pnpm dev
     ```
-
-5. **Run the demo**: Open a new terminal and run the demo using the following command:
-
-    ```sh
-    pnpm dev
-    ```
-
+    
 To see the Android demo, follow these steps:
 
 1. **Install APK**: Download and install APK from [THERE](https://github.com/creaper9487/2025-AI-glucose/raw/refs/heads/main/glucose-mobi/Android/app/build/outputs/apk/debug/app-debug.apk).
