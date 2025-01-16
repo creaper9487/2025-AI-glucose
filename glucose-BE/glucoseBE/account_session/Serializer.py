@@ -28,15 +28,24 @@ class CustomLoginSerializer(serializers.Serializer):
         password = data.get('password')
 
         if username_or_email and password:
-            # Check if input is an email
+            # 判斷是否為 email
             if '@' in username_or_email:
                 user = User.objects.filter(email=username_or_email).first()
+                if not user:
+                    raise ValidationError('Email does not exist.')
             else:
                 user = User.objects.filter(username=username_or_email).first()
+                if not user:
+                    raise ValidationError('Username does not exist.')
 
-            if user and user.check_password(password):
-                return user
-        raise ValidationError('Unable to log in with provided credentials.')
+            # 驗證密碼是否正確
+            if user and not user.check_password(password):
+                raise ValidationError('Incorrect password.')
+
+            return user
+
+        raise ValidationError('Username or password must be provided.')
+
     
 class UpdateLangSerializer(serializers.ModelSerializer):
     lang = serializers.CharField(required=True)
