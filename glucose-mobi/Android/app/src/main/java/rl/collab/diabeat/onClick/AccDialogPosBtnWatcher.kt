@@ -10,7 +10,7 @@ import rl.collab.diabeat.R
 import rl.collab.diabeat.isEmail
 import rl.collab.diabeat.str
 
-class AccDialogPosBtnWatcher(view: View, isLogIn: Boolean, dialogPosBtn: Button) {
+class AccDialogPosBtnWatcher(view: View, isLoggedIn: Boolean, dialogPosBtn: Button) {
     private val pwIv = view.findViewById<ImageView>(R.id.show_hide_pw_iv)
     private val pwEt = view.findViewById<EditText>(R.id.pw_et)
 
@@ -22,7 +22,7 @@ class AccDialogPosBtnWatcher(view: View, isLogIn: Boolean, dialogPosBtn: Button)
                 showPw()
         }
 
-        val etGroup = if (isLogIn)
+        val etGroup = if (isLoggedIn)
             arrayOf(view.findViewById(R.id.acc_et), pwEt)
         else
             arrayOf(view.findViewById(R.id.email_et), view.findViewById(R.id.username_et), pwEt)
@@ -30,7 +30,7 @@ class AccDialogPosBtnWatcher(view: View, isLogIn: Boolean, dialogPosBtn: Button)
         for (et in etGroup) {
             et.addTextChangedListener { _ ->
                 var allNotEmpty = etGroup.all { it.str.isNotEmpty() }
-                if (!isLogIn)
+                if (!isLoggedIn)
                     allNotEmpty = allNotEmpty && etGroup[0].str.isEmail
                 dialogPosBtn.isEnabled = allNotEmpty
             }

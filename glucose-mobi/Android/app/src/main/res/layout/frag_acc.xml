@@ -41,11 +41,11 @@
                 android:text="@string/google_sign_in" />
 
             <Button
-                android:id="@+id/log_in_btn"
+                android:id="@+id/login_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/group_padding_margin"
-                android:text="@string/log_in" />
+                android:text="@string/login" />
 
             <Button
                 android:id="@+id/register_btn"
@@ -93,10 +93,10 @@
             app:layout_constraintTop_toBottomOf="@id/profile_tv" />
 
         <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/bio_log_in_sw"
+            android:id="@+id/bio_login_sw"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/bio_log_in"
+            android:text="@string/bio_login"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

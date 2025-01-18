@@ -12,7 +12,7 @@ import rl.collab.diabeat.neutralBtn
 import rl.collab.diabeat.posBtn
 import rl.collab.diabeat.str
 
-class LogInBtnOnClick(private val accFrag: AccFrag) : View.OnClickListener {
+class LoginBtnOnClick(private val accFrag: AccFrag) : View.OnClickListener {
     private val context = accFrag.requireContext()
 
     override fun onClick(v0: View) {
@@ -26,7 +26,7 @@ class LogInBtnOnClick(private val accFrag: AccFrag) : View.OnClickListener {
             remeCb.isChecked = true
         }
 
-        val dialog = context.customDialog(R.string.log_in, view, R.string.bio)
+        val dialog = context.customDialog(R.string.login, view, R.string.bio)
         dialog.posBtn.isEnabled = false
         dialog.posBtn.setOnClickListener {
             Client.logIn(accFrag, Request.LogIn(accEt.str.trim(), pwEt.str), dialog::dismiss, remeCb.isChecked)

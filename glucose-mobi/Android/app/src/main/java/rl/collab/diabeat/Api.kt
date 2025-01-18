@@ -40,4 +40,8 @@ object Err {
         var email: List<String>? = null,
         var username: List<String>? = null,
     )
+
+    data class LogIn(
+        val non_field_errors: List<String>
+    )
 }

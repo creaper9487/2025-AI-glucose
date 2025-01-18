@@ -66,8 +66,16 @@ object Client {
             accFrag.logInEnv(request.username_or_email, request.password)
         }
 
-        val onBadRequest = { _: Response<Result.Token> ->
-            R.string.log_in_fail
+        val onBadRequest = { response: Response<Result.Token> ->
+            val errJson = response.errorBody()?.string()
+            val errRes = Gson().fromJson(errJson, Err.LogIn::class.java)
+
+            when (errRes.non_field_errors[0]) {
+                accFrag.getString(R.string.response_email_dne) -> R.string.email_dne
+                accFrag.getString(R.string.response_username_dne) -> R.string.username_dne
+                accFrag.getString(R.string.response_incorrect_pw) -> R.string.incorrect_pw
+                else -> R.string.login_failed
+            }
         }
 
         request(accFrag, retrofit::logIn, request, 200, onOk, onBadRequest)

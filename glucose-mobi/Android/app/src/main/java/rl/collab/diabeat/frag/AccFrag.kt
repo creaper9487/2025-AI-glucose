@@ -19,8 +19,7 @@ import rl.collab.diabeat.Client
 import rl.collab.diabeat.R
 import rl.collab.diabeat.Request
 import rl.collab.diabeat.databinding.FragAccBinding
-import rl.collab.diabeat.nacho
-import rl.collab.diabeat.onClick.LogInBtnOnClick
+import rl.collab.diabeat.onClick.LoginBtnOnClick
 import rl.collab.diabeat.onClick.RegisterBtnOnClick
 import java.io.File
 
@@ -67,14 +66,14 @@ class AccFrag : Fragment() {
             resultLauncher.launch(googleSignInClient.signInIntent)
         }
         binding.registerBtn.setOnClickListener(RegisterBtnOnClick(this))
-        binding.logInBtn.setOnClickListener(LogInBtnOnClick(this))
+        binding.loginBtn.setOnClickListener(LoginBtnOnClick(this))
         binding.coffeeBtn.setOnClickListener {
             val uri = Uri.parse("https://github.com/creaper9487/2025-AI-glucose")
             startActivity(Intent(Intent.ACTION_VIEW, uri))
         }
 
         binding.logOutBtn.setOnClickListener { logOutEnv() }
-        binding.bioLogInSw.setOnCheckedChangeListener { _, isChecked ->
+        binding.bioLoginSw.setOnCheckedChangeListener { _, isChecked ->
             if (binding.profileLy.visibility == View.VISIBLE) {
                 if (isChecked) {
                     accFile.writeText(acc!!)
@@ -93,13 +92,13 @@ class AccFrag : Fragment() {
 
         val bioMan = BiometricManager.from(requireContext())
         if (bioMan.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) != BiometricManager.BIOMETRIC_SUCCESS) {
-            binding.bioLogInSw.isEnabled = false
+            binding.bioLoginSw.isEnabled = false
         } else if (!pwFile.exists()) {
-            binding.bioLogInSw.isChecked = false
-            binding.bioLogInSw.jumpDrawablesToCurrentState()  // skip animation
+            binding.bioLoginSw.isChecked = false
+            binding.bioLoginSw.jumpDrawablesToCurrentState()  // skip animation
         } else if (pwFile.exists()) {
-            binding.bioLogInSw.isChecked = true
-            binding.bioLogInSw.jumpDrawablesToCurrentState()  // skip animation
+            binding.bioLoginSw.isChecked = true
+            binding.bioLoginSw.jumpDrawablesToCurrentState()  // skip animation
         }
     }
 
@@ -112,7 +111,7 @@ class AccFrag : Fragment() {
 
     fun bioLogIn(request: Request.LogIn, dialogDismiss: () -> Unit, reme: Boolean) {
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(getString(R.string.bio_log_in))
+            .setTitle(getString(R.string.bio_login))
             .setNegativeButtonText(getString(R.string.cancel))
             .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
             .build()
