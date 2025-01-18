@@ -3,7 +3,7 @@
 ## Pre-installation
 - [Node.js](https://nodejs.org/)
 - [Python 3](https://www.python.org/)
-- Git clone the project repo
+- Git clone this project repo
 
 ## Installation
 - Windows: Run `batch\install.bat`.
@@ -17,7 +17,7 @@
     pip install -r requirements.txt
     ```
     
-    If you encounter an **externally-managed-environment** error during `pip install -r requirements.txt`, create a  virtual environment **(venv)** and install the dependencies within it.
+    If you encounter an `externally-managed-environment` error during `pip install -r requirements.txt`, create a virtual environment **(venv)** and install the dependencies within it.
 
 ## Run server
 - Windows: Run `batch\server.bat`.
