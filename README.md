@@ -6,8 +6,8 @@
 - git clone the project
 
 ## Installation
-- Windows: run `batch\install.bat`
-- Linux/macOS: navigate to project root and run the following commands:
+- Windows: Run `batch\install.bat`
+- Linux/macOS: Navigate to project root and run the following commands:
 
     ```sh
     npm install -g pnpm
@@ -20,8 +20,8 @@
     If you get an **externally-managed-environment** error when running `pip install -r requirements.txt`, fix it yourself.
 
 ## Run server
-- Windows: run `batch\server.bat`
-- Linux/macOS: navigate to `glucose-BE/glucoseBE` and run the following commands:
+- Windows: Run `batch\server.bat`
+- Linux/macOS: Navigate to `glucose-BE/glucoseBE` and run the following commands:
 
     ```sh
     python3 manage.py migrate
@@ -29,8 +29,8 @@
     ```
     
 ## Run web demo
-- Windows: run `batch\web.bat`
-- Linux/macOS: navigate to `glucose-FE` and run the following command:
+- Windows: Run `batch\web.bat`
+- Linux/macOS: Navigate to `glucose-FE` and run the following command:
 
     ```sh
     pnpm dev --open
