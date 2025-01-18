@@ -1,36 +1,42 @@
 # 2025-AI-glucose
 
-To see the demo, follow these steps:
+## Requirements
+- [Node.js](https://nodejs.org/)
+- [Python 3](https://www.python.org/)
+- git clone the project
 
-1. **Install Node.js**: If you don't have Node.js installed, download and install it from [nodejs.org](https://nodejs.org/).
-
-2. **Install pnpm**: Once Node.js is installed, you can install `pnpm` by running the following command in your terminal:
-
-    ```sh
-    2025-AI-glucose>            cd glucose-FE
-    2025-AI-glucose/glucose-FE> npm install -g pnpm
-    2025-AI-glucose/glucose-FE> pnpm install
-    ```
-
-3. **Open Backend Server**: Install the required packages and start the server:
+## Installation
+- Windows: run `batch\install.bat`
+- Linux/macOS: navigate to project root and run the following commands:
 
     ```sh
-    2025-AI-glucose/glucose-FE> cd ../glucose-BE
-    2025-AI-glucose/glucose-BE> pip install -r requirements.txt
-
-    2025-AI-glucose/glucose-BE>           cd glucoseBE
-    2025-AI-glucose/glucose-BE/glucoseBE> python manage.py migrate
-    2025-AI-glucose/glucose-BE/glucoseBE> python manage.py runserver
-    ```
-
-4. **Run the demo**: Open a new terminal and run the demo using the following command:
-
-    ```sh
-    2025-AI-glucose/glucose-BE/glucoseBE> cd ../../glucose-FE
-    2025-AI-glucose/glucose-FE>           pnpm dev
+    npm install -g pnpm
+    cd glucose-FE
+    pnpm install
+    cd ../glucose-BE
+    pip install -r requirements.txt
     ```
     
-To see the Android demo, follow these steps:
+    If you get an **externally-managed-environment** error when running `pip install -r requirements.txt`, fix it yourself.
+
+## Run server
+- Windows: run `batch\server.bat`
+- Linux/macOS: navigate to `glucose-BE/glucoseBE` and run the following commands:
+
+    ```sh
+    python3 manage.py migrate
+    python3 manage.py runserver 0.0.0.0:8000
+    ```
+    
+## Run web demo
+- Windows: run `batch\web.bat`
+- Linux/macOS: navigate to `glucose-FE` and run the following command:
+
+    ```sh
+    pnpm dev --open
+    ```
+
+## Run Android demo
 
 1. **Install APK**: Download and install APK from releases.
 
@@ -38,6 +44,6 @@ To see the Android demo, follow these steps:
 
 3. **Check IPv4 address**: Check your phone's IPv4 address using terminal command `ipconfig` (Windows) or `ifconfig` (Unix-like) .
 
-4. **Open backend server**
+4. **Run server**
 
 5. **Open the app**: Finally, open the app and enter IPv4 address in start-up AlertDialog.
