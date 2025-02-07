@@ -38,9 +38,9 @@ CORS_ORIGIN_WHITELIST = [
 
 INSTALLED_APPS = [
     'corsheaders',
+    'getdata',
     'AIchat',
     'account_session',
-    'frontend-getdata-apiport',
     'rest_framework',
     'rest_framework_simplejwt',
     'django.contrib.admin',

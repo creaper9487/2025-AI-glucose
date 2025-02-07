@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class ApiportConfig(AppConfig):
+class GetdataConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'frontend-getdata-apiport'
+    name = 'getdata'
