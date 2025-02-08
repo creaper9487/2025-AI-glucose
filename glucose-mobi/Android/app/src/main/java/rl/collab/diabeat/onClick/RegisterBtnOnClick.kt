@@ -1,4 +1,4 @@
-package rl.collab.diabeat.onClick
+package rl.collab.diabeat.onclick
 
 import android.view.View
 import android.widget.EditText
@@ -20,7 +20,7 @@ class RegisterBtnOnClick(private val accFrag: AccFrag) : View.OnClickListener {
         val usernameEt = view.findViewById<EditText>(R.id.username_et)
         val pwEt = view.findViewById<EditText>(R.id.pw_et)
 
-        val dialog = context.customDialog(R.string.register, view)
+        val dialog = context.customDialog("註冊", view)
         dialog.posBtn.isEnabled = false
         dialog.posBtn.setOnClickListener {
             Client.register(accFrag, Request.Register(emailEt.str, usernameEt.str, pwEt.str), dialog::dismiss)

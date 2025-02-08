@@ -20,15 +20,15 @@ inline val String.isEmail get() = Patterns.EMAIL_ADDRESS.matcher(this).matches()
 
 inline val EditText.str get() = text.toString()
 
-fun Context.customDialog(titleId: Int, view: View, neutralBtnId: Int? = null): AlertDialog {
+fun Context.customDialog(title: String, view: View, neutralBtn: String? = null): AlertDialog {
     val builder = AlertDialog.Builder(this)
         .setCancelable(false)
-        .setTitle(titleId)
+        .setTitle(title)
         .setView(view)
-        .setPositiveButton(R.string.ok, null)
-        .setNegativeButton(R.string.cancel, null)
+        .setPositiveButton("OK", null)
+        .setNegativeButton("取消", null)
 
-    neutralBtnId?.let { builder.setNeutralButton(neutralBtnId, null) }
+    neutralBtn?.let { builder.setNeutralButton(neutralBtn, null) }
     return builder.show()
 }
 
@@ -47,12 +47,8 @@ inline fun Fragment.ui(crossinline block: Fragment.() -> Unit) {
 fun Fragment.errDialog(msg: String) {
     AlertDialog.Builder(requireContext())
         .setCancelable(false)
-        .setTitle(R.string.err)
+        .setTitle("錯誤")
         .setMessage(msg)
-        .setPositiveButton(R.string.ok, null)
+        .setPositiveButton("OK", null)
         .show()
-}
-
-fun Fragment.errDialog(msgId: Int) {
-    errDialog(getString(msgId))
 }

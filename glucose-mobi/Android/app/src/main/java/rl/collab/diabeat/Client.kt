@@ -42,11 +42,11 @@ object Client {
             val errRes = Gson().fromJson(errJson, Err.Register::class.java)
 
             if (errRes.email == null && errRes.username == null)
-                R.string.email_username_registered
+                "此 Email 和 Username 皆已被註冊"
             else if (errRes.email == null)
-                R.string.email_registered
+                "此 Email 已被註冊"
             else
-                R.string.username_registered
+                "此 Username 已被註冊"
         }
 
         request(accFrag, retrofit::register, request, 201, onOk, onBadRequest)
@@ -71,10 +71,10 @@ object Client {
             val errRes = Gson().fromJson(errJson, Err.LogIn::class.java)
 
             when (errRes.non_field_errors[0]) {
-                accFrag.getString(R.string.response_email_dne) -> R.string.email_dne
-                accFrag.getString(R.string.response_username_dne) -> R.string.username_dne
-                accFrag.getString(R.string.response_incorrect_pw) -> R.string.incorrect_pw
-                else -> R.string.login_failed
+                "Email does not exist." -> "Email 不存在"
+                "Username does not exist." -> "Username 不存在"
+                "Incorrect password." -> "密碼錯誤"
+                else -> "登入失敗"
             }
         }
 
@@ -88,7 +88,7 @@ object Client {
         request: A,
         successCode: Int,
         onSucceed: (Response<B>) -> Unit,
-        onBadRequest: (Response<B>) -> Int
+        onBadRequest: (Response<B>) -> String
     ) {
         frag.io {
             try {
@@ -102,7 +102,7 @@ object Client {
                     }
                 }
             } catch (_: SocketTimeoutException) {
-                frag.ui { errDialog(R.string.socket_timeout_exception) }
+                frag.ui { errDialog("連線逾時") }
             } catch (e: Exception) {
                 frag.ui { errDialog(e::class.java.simpleName) }
             }

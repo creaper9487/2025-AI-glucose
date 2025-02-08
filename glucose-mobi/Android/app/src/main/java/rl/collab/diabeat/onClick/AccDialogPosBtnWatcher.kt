@@ -1,4 +1,4 @@
-package rl.collab.diabeat.onClick
+package rl.collab.diabeat.onclick
 
 import android.text.method.PasswordTransformationMethod
 import android.view.View

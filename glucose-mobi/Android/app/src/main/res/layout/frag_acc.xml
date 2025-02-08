@@ -15,7 +15,7 @@
             android:id="@+id/acc_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/acc"
+            android:text="帳號"
             android:textSize="35sp"
             app:layout_constraintBottom_toTopOf="@id/btn_group"
             app:layout_constraintEnd_toEndOf="parent"
@@ -38,20 +38,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/group_padding_margin"
-                android:text="@string/google_sign_in" />
+                android:text="Google 登入" />
 
             <Button
                 android:id="@+id/login_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/group_padding_margin"
-                android:text="@string/login" />
+                android:text="登入" />
 
             <Button
                 android:id="@+id/register_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/register" />
+                android:text="註冊" />
 
         </LinearLayout>
 
@@ -75,7 +75,7 @@
             android:id="@+id/profile_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/profile"
+            android:text="個人資料"
             android:textSize="35sp"
             app:layout_constraintBottom_toTopOf="@id/log_out_btn"
             app:layout_constraintEnd_toEndOf="parent"
@@ -86,7 +86,7 @@
             android:id="@+id/log_out_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/log_out"
+            android:text="登出"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -96,7 +96,7 @@
             android:id="@+id/bio_login_sw"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/bio_login"
+            android:text="生物辨識登入"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

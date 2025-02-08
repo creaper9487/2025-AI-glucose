@@ -7,18 +7,18 @@
     <fragment
         android:id="@+id/recordFrag"
         android:name="rl.collab.diabeat.frag.RecordFrag"
-        android:label="@string/record"
+        android:label="紀錄"
         tools:layout="@layout/frag_record" />
 
     <fragment
         android:id="@+id/figureFrag"
         android:name="rl.collab.diabeat.frag.FigureFrag"
-        android:label="@string/figure"
+        android:label="圖表"
         tools:layout="@layout/frag_figure" />
 
     <fragment
         android:id="@+id/accFrag"
         android:name="rl.collab.diabeat.frag.AccFrag"
-        android:label="@string/acc"
+        android:label="帳號"
         tools:layout="@layout/frag_acc" />
 </navigation>

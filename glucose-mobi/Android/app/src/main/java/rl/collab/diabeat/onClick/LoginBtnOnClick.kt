@@ -1,4 +1,4 @@
-package rl.collab.diabeat.onClick
+package rl.collab.diabeat.onclick
 
 import android.view.View
 import android.widget.CheckBox
@@ -26,7 +26,7 @@ class LoginBtnOnClick(private val accFrag: AccFrag) : View.OnClickListener {
             remeCb.isChecked = true
         }
 
-        val dialog = context.customDialog(R.string.login, view, R.string.bio)
+        val dialog = context.customDialog("登入", view, "生物辨識")
         dialog.posBtn.isEnabled = false
         dialog.posBtn.setOnClickListener {
             Client.logIn(accFrag, Request.LogIn(accEt.str.trim(), pwEt.str), dialog::dismiss, remeCb.isChecked)
