@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
                 isChecked = true
         }
 
-        val dialog = customDialog(R.string.host, view)
+        val dialog = customDialog("Host", view)
         dialog.posBtn.setOnClickListener {
             if (ets.any { it.str.isEmpty() || it.str.toInt() > 255 })
                 return@setOnClickListener

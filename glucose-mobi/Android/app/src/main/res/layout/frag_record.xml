@@ -10,7 +10,7 @@
         android:id="@+id/record_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/record"
+        android:text="紀錄"
         android:textSize="35sp"
         app:layout_constraintBottom_toTopOf="@id/et_group"
         app:layout_constraintEnd_toEndOf="parent"
@@ -35,36 +35,36 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/group_padding_margin"
             android:gravity="center"
-            android:hint="@string/glucose_level"
+            android:hint="血糖值"
             android:inputType="numberDecimal"
-            android:minEms="@integer/min_ems" />
+            android:minEms="11" />
 
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/group_padding_margin"
             android:gravity="center"
-            android:hint="@string/carbohydrate_intake"
+            android:hint="碳水化合物攝取量(g)"
             android:inputType="numberDecimal"
-            android:minEms="@integer/min_ems" />
+            android:minEms="11" />
 
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/group_padding_margin"
             android:gravity="center"
-            android:hint="@string/exercise_duration"
+            android:hint="運動時長(min)"
             android:inputType="numberDecimal"
-            android:minEms="@integer/min_ems" />
+            android:minEms="11" />
 
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/group_padding_margin"
             android:gravity="center"
-            android:hint="@string/insulin_injection_volume"
+            android:hint="胰島素注射量"
             android:inputType="numberDecimal"
-            android:minEms="@integer/min_ems" />
+            android:minEms="11" />
 
     </LinearLayout>
 
@@ -72,7 +72,7 @@
         android:id="@+id/submit_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/submit"
+        android:text="送出"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

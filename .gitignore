@@ -1,4 +1,7 @@
 rest-test/
 glucose-BE/glucoseBE/db.sqlite3
+glucose-mobi/Android/app/release/
+glucose-mobi/Android/app/src/main/res/values/token.xml
+**/node_modules/
 **/__pycache__/
 **/.vscode/

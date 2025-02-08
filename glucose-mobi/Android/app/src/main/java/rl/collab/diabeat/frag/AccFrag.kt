@@ -16,11 +16,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import rl.collab.diabeat.Client
-import rl.collab.diabeat.R
 import rl.collab.diabeat.Request
 import rl.collab.diabeat.databinding.FragAccBinding
-import rl.collab.diabeat.onClick.LoginBtnOnClick
-import rl.collab.diabeat.onClick.RegisterBtnOnClick
+import rl.collab.diabeat.onclick.LoginBtnOnClick
+import rl.collab.diabeat.onclick.RegisterBtnOnClick
 import java.io.File
 
 class AccFrag : Fragment() {
@@ -57,7 +56,7 @@ class AccFrag : Fragment() {
 
         binding.googleSignInBtn.setOnClickListener {
             val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.web_client_id))
+                .requestIdToken("TODO")
                 .requestProfile()
                 .requestEmail()
                 .build()
@@ -111,8 +110,8 @@ class AccFrag : Fragment() {
 
     fun bioLogIn(request: Request.LogIn, dialogDismiss: () -> Unit, reme: Boolean) {
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(getString(R.string.bio_login))
-            .setNegativeButtonText(getString(R.string.cancel))
+            .setTitle("生物辨識登入")
+            .setNegativeButtonText("取消")
             .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
             .build()
 
