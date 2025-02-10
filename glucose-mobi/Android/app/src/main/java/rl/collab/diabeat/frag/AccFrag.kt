@@ -16,6 +16,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import rl.collab.diabeat.Client
+import rl.collab.diabeat.R
 import rl.collab.diabeat.Request
 import rl.collab.diabeat.databinding.FragAccBinding
 import rl.collab.diabeat.onclick.LoginBtnOnClick
@@ -56,7 +57,7 @@ class AccFrag : Fragment() {
 
         binding.googleSignInBtn.setOnClickListener {
             val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken("TODO")
+                .requestIdToken(getString(R.string.token))
                 .requestProfile()
                 .requestEmail()
                 .build()
