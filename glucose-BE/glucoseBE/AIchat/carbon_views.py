@@ -6,11 +6,25 @@ from torchvision import transforms
 from PIL import Image
 import torch
 import torch.nn as nn
+import numpy as np
+import random
 from torchvision import models
 
 # 載入模型
 hidden_units = 512
 dropout_rate = 0.2
+
+def set_seed(seed=42):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False  # 可能會影響效能，但能保證一致性
+
+
+set_seed(42)  # 設定固定種子
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 model = models.resnet18(pretrained=False)
@@ -26,9 +40,7 @@ model.eval()
 
 # 定義轉換
 transform = transforms.Compose([
-    transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),
-    transforms.RandomHorizontalFlip(p=0.5),
-    transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4),
+    transforms.Resize((224, 224)),  # 固定大小，避免隨機縮放影響結果
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
