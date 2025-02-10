@@ -38,12 +38,12 @@ object Client {
         }
 
         val onBadRequest = { response: Response<Result.Token> ->
-            val errJson = response.errorBody()?.string()
-            val errRes = Gson().fromJson(errJson, Err.Register::class.java)
+            val errJsonStr = response.errorBody()?.string()
+            val err = Gson().fromJson(errJsonStr, Err.Register::class.java)
 
-            if (errRes.email == null && errRes.username == null)
+            if (err.email == null && err.username == null)
                 "此 Email 和 Username 皆已被註冊"
-            else if (errRes.email == null)
+            else if (err.email == null)
                 "此 Email 已被註冊"
             else
                 "此 Username 已被註冊"
@@ -52,7 +52,7 @@ object Client {
         request(accFrag, retrofit::register, request, 201, onOk, onBadRequest)
     }
 
-    fun logIn(accFrag: AccFrag, request: Request.LogIn, dialogDismiss: () -> Unit, reme: Boolean) {
+    fun logIn(accFrag: AccFrag, request: Request.Login, dialogDismiss: () -> Unit, reme: Boolean) {
         val onOk = { _: Response<Result.Token> ->
             dialogDismiss()
 
@@ -67,10 +67,10 @@ object Client {
         }
 
         val onBadRequest = { response: Response<Result.Token> ->
-            val errJson = response.errorBody()?.string()
-            val errRes = Gson().fromJson(errJson, Err.LogIn::class.java)
+            val errJsonStr = response.errorBody()?.string()
+            val err = Gson().fromJson(errJsonStr, Err.Login::class.java)
 
-            when (errRes.non_field_errors[0]) {
+            when (err.non_field_errors[0]) {
                 "Email does not exist." -> "Email 不存在"
                 "Username does not exist." -> "Username 不存在"
                 "Incorrect password." -> "密碼錯誤"

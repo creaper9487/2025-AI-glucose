@@ -1,4 +1,4 @@
-package rl.collab.diabeat.onclick
+package rl.collab.diabeat.click
 
 import android.view.View
 import android.widget.CheckBox
@@ -12,7 +12,7 @@ import rl.collab.diabeat.neutralBtn
 import rl.collab.diabeat.posBtn
 import rl.collab.diabeat.str
 
-class LoginBtnOnClick(private val accFrag: AccFrag) : View.OnClickListener {
+class LoginBtnClick(private val accFrag: AccFrag) : View.OnClickListener {
     private val context = accFrag.requireContext()
 
     override fun onClick(v0: View) {
@@ -29,15 +29,15 @@ class LoginBtnOnClick(private val accFrag: AccFrag) : View.OnClickListener {
         val dialog = context.customDialog("登入", view, "生物辨識")
         dialog.posBtn.isEnabled = false
         dialog.posBtn.setOnClickListener {
-            Client.logIn(accFrag, Request.LogIn(accEt.str.trim(), pwEt.str), dialog::dismiss, remeCb.isChecked)
+            Client.logIn(accFrag, Request.Login(accEt.str.trim(), pwEt.str), dialog::dismiss, remeCb.isChecked)
         }
-        AccDialogPosBtnWatcher(view, true, dialog.posBtn)
+        AccPosBtnWatcher(view, true, dialog.posBtn)
 
         if (accFrag.pwFile.exists()) {
             dialog.neutralBtn.setOnClickListener {
                 val acc = accFrag.accFile.readText()
                 val pw = accFrag.pwFile.readText()
-                accFrag.bioLogIn(Request.LogIn(acc, pw), dialog::dismiss, remeCb.isChecked)
+                accFrag.bioLogIn(Request.Login(acc, pw), dialog::dismiss, remeCb.isChecked)
             }
             dialog.neutralBtn.callOnClick()
         } else

@@ -1,4 +1,4 @@
-package rl.collab.diabeat.onclick
+package rl.collab.diabeat.click
 
 import android.text.method.PasswordTransformationMethod
 import android.view.View
@@ -10,7 +10,7 @@ import rl.collab.diabeat.R
 import rl.collab.diabeat.isEmail
 import rl.collab.diabeat.str
 
-class AccDialogPosBtnWatcher(view: View, isLoggedIn: Boolean, dialogPosBtn: Button) {
+class AccPosBtnWatcher(view: View, isLoggedIn: Boolean, dialogPosBtn: Button) {
     private val pwIv = view.findViewById<ImageView>(R.id.show_hide_pw_iv)
     private val pwEt = view.findViewById<EditText>(R.id.pw_et)
 

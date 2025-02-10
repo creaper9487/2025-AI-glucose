@@ -12,9 +12,9 @@
 
     <fragment
         android:id="@+id/figureFrag"
-        android:name="rl.collab.diabeat.frag.FigureFrag"
+        android:name="rl.collab.diabeat.frag.ChartFrag"
         android:label="圖表"
-        tools:layout="@layout/frag_figure" />
+        tools:layout="@layout/frag_chart" />
 
     <fragment
         android:id="@+id/accFrag"

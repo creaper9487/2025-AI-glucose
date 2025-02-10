@@ -10,14 +10,14 @@ import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import rl.collab.diabeat.databinding.FragFigureBinding
+import rl.collab.diabeat.databinding.FragChartBinding
 
-class FigureFrag : Fragment() {
-    private lateinit var binding: FragFigureBinding
+class ChartFrag : Fragment() {
+    private lateinit var binding: FragChartBinding
     private lateinit var lineChart: LineChart
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragFigureBinding.inflate(inflater, container, false)
+        binding = FragChartBinding.inflate(inflater, container, false)
         return binding.root
     }
 

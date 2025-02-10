@@ -19,8 +19,8 @@ import rl.collab.diabeat.Client
 import rl.collab.diabeat.R
 import rl.collab.diabeat.Request
 import rl.collab.diabeat.databinding.FragAccBinding
-import rl.collab.diabeat.onclick.LoginBtnOnClick
-import rl.collab.diabeat.onclick.RegisterBtnOnClick
+import rl.collab.diabeat.click.LoginBtnClick
+import rl.collab.diabeat.click.RegisterBtnClick
 import java.io.File
 
 class AccFrag : Fragment() {
@@ -65,8 +65,8 @@ class AccFrag : Fragment() {
             googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
             resultLauncher.launch(googleSignInClient.signInIntent)
         }
-        binding.registerBtn.setOnClickListener(RegisterBtnOnClick(this))
-        binding.loginBtn.setOnClickListener(LoginBtnOnClick(this))
+        binding.registerBtn.setOnClickListener(RegisterBtnClick(this))
+        binding.loginBtn.setOnClickListener(LoginBtnClick(this))
         binding.coffeeBtn.setOnClickListener {
             val uri = Uri.parse("https://github.com/creaper9487/2025-AI-glucose")
             startActivity(Intent(Intent.ACTION_VIEW, uri))
@@ -109,7 +109,7 @@ class AccFrag : Fragment() {
         binding.accLy.visibility = View.VISIBLE
     }
 
-    fun bioLogIn(request: Request.LogIn, dialogDismiss: () -> Unit, reme: Boolean) {
+    fun bioLogIn(request: Request.Login, dialogDismiss: () -> Unit, reme: Boolean) {
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle("生物辨識登入")
             .setNegativeButtonText("取消")
