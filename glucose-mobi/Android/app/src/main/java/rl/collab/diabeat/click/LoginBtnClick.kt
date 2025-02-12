@@ -29,15 +29,15 @@ class LoginBtnClick(private val accFrag: AccFrag) : View.OnClickListener {
         val dialog = context.customDialog("登入", view, "生物辨識")
         dialog.posBtn.isEnabled = false
         dialog.posBtn.setOnClickListener {
-            Client.logIn(accFrag, Request.Login(accEt.str.trim(), pwEt.str), dialog::dismiss, remeCb.isChecked)
+            val obj = Request.Login(accEt.str.trim(), pwEt.str)
+            Client.logIn(accFrag, obj, dialog::dismiss, remeCb.isChecked)
         }
         AccPosBtnWatcher(view, true, dialog.posBtn)
 
         if (accFrag.pwFile.exists()) {
             dialog.neutralBtn.setOnClickListener {
-                val acc = accFrag.accFile.readText()
-                val pw = accFrag.pwFile.readText()
-                accFrag.bioLogIn(Request.Login(acc, pw), dialog::dismiss, remeCb.isChecked)
+                val obj = Request.Login(accFrag.accFile.readText(), accFrag.pwFile.readText())
+                accFrag.bioLogIn(obj, dialog::dismiss, remeCb.isChecked)
             }
             dialog.neutralBtn.callOnClick()
         } else

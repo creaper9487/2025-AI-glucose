@@ -37,11 +37,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.biometric)
-    implementation(libs.converter.gson)
-    implementation(libs.retrofit)
-    implementation(libs.gms.play.services.auth)
-    implementation(libs.mpandroidchart)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -49,4 +44,10 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.biometric)
+    implementation(libs.converter.gson)
+    implementation(libs.retrofit)
+    implementation(libs.okhttp)
+    implementation(libs.gms.play.services.auth)
+    implementation(libs.mpandroidchart)
 }

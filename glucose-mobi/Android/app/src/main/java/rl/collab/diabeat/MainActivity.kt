@@ -17,7 +17,7 @@ import java.io.File
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val hostFile by lazy { File(filesDir, "host.txt") }
+    private lateinit var hostFile: File
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         }
         binding.navView.setupWithNavController(findNavController(R.id.container))
 
+        hostFile = File(filesDir, "host.txt")
         if (hostFile.exists())
             for ((i, line) in hostFile.readLines().withIndex()) {
                 if (i <= 3)

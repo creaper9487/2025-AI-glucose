@@ -18,6 +18,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import rl.collab.diabeat.Client
 import rl.collab.diabeat.R
 import rl.collab.diabeat.Request
+import rl.collab.diabeat.Result
 import rl.collab.diabeat.databinding.FragAccBinding
 import rl.collab.diabeat.click.LoginBtnClick
 import rl.collab.diabeat.click.RegisterBtnClick
@@ -26,8 +27,10 @@ import java.io.File
 class AccFrag : Fragment() {
     private lateinit var binding: FragAccBinding
     private lateinit var googleSignInClient: GoogleSignInClient
+    lateinit var accFile: File
+    lateinit var pwFile: File
 
-    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+    private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == Activity.RESULT_OK) {
             val acc = GoogleSignIn.getSignedInAccountFromIntent(it.data).result
             Toast.makeText(requireContext(), acc.email, Toast.LENGTH_SHORT).show()
@@ -35,10 +38,8 @@ class AccFrag : Fragment() {
         }
     }
 
-    val accFile by lazy { File(requireContext().filesDir, "acc.txt") }
-    val pwFile by lazy { File(requireContext().filesDir, "pw.txt") }
-
     companion object {
+        var token: Result.Token? = null
         var acc: String? = null
         var pw: String? = null
     }
@@ -50,10 +51,13 @@ class AccFrag : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (acc == null && pw == null)
+        accFile = File(requireContext().filesDir, "acc.txt")
+        pwFile = File(requireContext().filesDir, "pw.txt")
+
+        if (token == null && acc == null && pw == null)
             logOutEnv()
         else
-            logInEnv(acc!!, pw!!)
+            logInEnv(token!!, acc!!, pw!!)
 
         binding.googleSignInBtn.setOnClickListener {
             val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -63,7 +67,7 @@ class AccFrag : Fragment() {
                 .build()
 
             googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
-            resultLauncher.launch(googleSignInClient.signInIntent)
+            googleSignInLauncher.launch(googleSignInClient.signInIntent)
         }
         binding.registerBtn.setOnClickListener(RegisterBtnClick(this))
         binding.loginBtn.setOnClickListener(LoginBtnClick(this))
@@ -84,11 +88,13 @@ class AccFrag : Fragment() {
         }
     }
 
-    fun logInEnv(acc: String, pw: String) {
+    fun logInEnv(token: Result.Token, acc: String, pw: String) {
+        AccFrag.token = token
         AccFrag.acc = acc
         AccFrag.pw = pw
         binding.accLy.visibility = View.INVISIBLE
         binding.profileLy.visibility = View.VISIBLE
+        binding.profileTv.text = "Hi, $acc"
 
         val bioMan = BiometricManager.from(requireContext())
         if (bioMan.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) != BiometricManager.BIOMETRIC_SUCCESS) {
@@ -103,13 +109,14 @@ class AccFrag : Fragment() {
     }
 
     private fun logOutEnv() {
+        token = null
         acc = null
         pw = null
         binding.profileLy.visibility = View.INVISIBLE
         binding.accLy.visibility = View.VISIBLE
     }
 
-    fun bioLogIn(request: Request.Login, dialogDismiss: () -> Unit, reme: Boolean) {
+    fun bioLogIn(obj: Request.Login, dialogDismiss: () -> Unit, reme: Boolean) {
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle("生物辨識登入")
             .setNegativeButtonText("取消")
@@ -119,7 +126,7 @@ class AccFrag : Fragment() {
         val callback = object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 super.onAuthenticationSucceeded(result)
-                Client.logIn(this@AccFrag, request, dialogDismiss, reme)
+                Client.logIn(this@AccFrag, obj, dialogDismiss, reme)
             }
         }
 

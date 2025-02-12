@@ -5,7 +5,6 @@ import android.widget.EditText
 import rl.collab.diabeat.Client
 import rl.collab.diabeat.R
 import rl.collab.diabeat.Request
-import rl.collab.diabeat.click.AccPosBtnWatcher
 import rl.collab.diabeat.customDialog
 import rl.collab.diabeat.frag.AccFrag
 import rl.collab.diabeat.posBtn
@@ -24,7 +23,8 @@ class RegisterBtnClick(private val accFrag: AccFrag) : View.OnClickListener {
         val dialog = context.customDialog("註冊", view)
         dialog.posBtn.isEnabled = false
         dialog.posBtn.setOnClickListener {
-            Client.register(accFrag, Request.Register(emailEt.str, usernameEt.str, pwEt.str), dialog::dismiss)
+            val obj = Request.Register(emailEt.str, usernameEt.str, pwEt.str)
+            Client.register(accFrag, obj, dialog::dismiss)
         }
         AccPosBtnWatcher(view, false, dialog.posBtn)
     }

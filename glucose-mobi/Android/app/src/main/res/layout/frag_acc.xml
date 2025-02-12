@@ -75,7 +75,6 @@
             android:id="@+id/profile_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="個人資料"
             android:textSize="35sp"
             app:layout_constraintBottom_toTopOf="@id/log_out_btn"
             app:layout_constraintEnd_toEndOf="parent"
