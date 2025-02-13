@@ -3,34 +3,23 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { useAuthStore } from '@/stores/authStore';
 import { useChatStore } from '@/stores/chatStore';
+import { useDataStore } from '@/stores/dataStore';
 const authStore = useAuthStore();
 const imageFile = ref(null);
 const chatStore = useChatStore();
+const dataStore = useDataStore();
 const handleFileChange = (event) => {
     imageFile.value = event.target.files[0];
 };
 
-const sendImage = async () => {
-    if (!imageFile.value) return;
-
-    const formData = new FormData();
-    formData.append('image', imageFile.value);
-
-    try {
-        const response = await axios.post('/api/sense/', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        console.log(response.data);
-    } catch (error) {
-        console.error('Error uploading image:', error);
-    }
-};
 const sendAnalysisRequest = async () => {
     chatStore.chatWindow = true;
     console.log(chatStore.chatWindow);
     chatStore.fetchChatContent();
+};
+const sendSense = async (imageFile) => {
+    dataStore.SensePicture(imageFile);
+    chatStore.senseWindow = true;
 };
 </script>
 <template>
@@ -38,7 +27,7 @@ const sendAnalysisRequest = async () => {
         <div class="w-96 p-10 bg-gray-700 shadow-lg rounded-lg relative">
             <h2 class="text-center text-white text-xl mb-4">上傳圖片偵測碳水化合物</h2>
             <input type="file" @change="handleFileChange" accept="image/*" />
-            <button @click="sendImage"
+            <button @click="sendSense(imageFile)"
                 class="w-full p-2 mt-4 text-slate-800 bg-slate-200 rounded-lg hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400">Send
                 Image</button>
         </div>

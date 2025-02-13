@@ -1,5 +1,5 @@
 <script setup>
-import chatbot from '@/components/chatBot.vue';
+import chatbot from '@/components/pop.vue';
 import FoodInput from '@/components/Forms/foodInput.vue';
 import InputForm from '@/components/Forms/inputForm.vue';
 import NavBar from '@/components/NavBar.vue';
