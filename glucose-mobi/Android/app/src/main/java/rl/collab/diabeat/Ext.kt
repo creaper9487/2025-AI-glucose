@@ -60,10 +60,10 @@ inline fun Fragment.ui(crossinline block: Fragment.() -> Unit) {
     requireActivity().runOnUiThread { block() }
 }
 
-fun Fragment.errDialog(msg: String) {
+fun Fragment.errDialog(msg: String, title: String = "錯誤") {
     AlertDialog.Builder(requireContext())
         .setCancelable(false)
-        .setTitle("錯誤")
+        .setTitle(title)
         .setMessage(msg)
         .setPositiveButton("OK", null)
         .show()

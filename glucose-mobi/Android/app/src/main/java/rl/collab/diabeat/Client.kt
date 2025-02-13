@@ -155,7 +155,7 @@ object Client {
             } catch (_: SocketTimeoutException) {
                 frag.ui { errDialog("連線逾時") }
             } catch (e: Exception) {
-                frag.ui { errDialog(e::class.java.simpleName) }
+                frag.ui { errDialog("${e.message}", e::class.java.name) }
             }
         }
     }
