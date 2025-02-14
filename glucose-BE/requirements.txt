@@ -10,3 +10,6 @@ ollama
 pillow 
 torch 
 torchvision
+pandas
+joblib
+scikit-learn
