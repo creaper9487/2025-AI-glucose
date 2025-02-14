@@ -1,6 +1,7 @@
 package rl.collab.diabeat
 
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
 import com.google.gson.Gson
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -8,7 +9,9 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import rl.collab.diabeat.frag.AccFrag
+import rl.collab.diabeat.frag.ChartFrag
 import rl.collab.diabeat.frag.RecordFrag
+import rl.collab.diabeat.frag.TableAdapter
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
@@ -87,6 +90,24 @@ object Client {
         request(accFrag, retroFun, 200, onOk, onBadRequest)
     }
 
+    fun getRecords(chartFrag: ChartFrag) {
+        AccFrag.token?.let {
+            val retroFun = suspend { retrofit.getRecords(AccFrag.token!!.access.bearer) }
+
+            val onOk = { r: Response<List<Result.Records>> ->
+                chartFrag.data.clear()
+                chartFrag.data.addAll(r.body()!!)
+                chartFrag.table.adapter!!.notifyDataSetChanged()
+            }
+
+            val onBadRequest = { _: Response<List<Result.Records>> ->
+                "nig"
+            }
+
+            request(chartFrag, retroFun, 200, onOk, onBadRequest)
+        }
+    }
+
     fun postRecord(recordFrag: RecordFrag, obj: Request.Record) {
         val retroFun = suspend { retrofit.postRecord(AccFrag.token!!.access.bearer, obj) }
 
@@ -105,7 +126,7 @@ object Client {
             "nah"
         }
 
-        request(recordFrag, retroFun, 200, onOk, onBadRequest)
+        request(recordFrag, retroFun, 201, onOk, onBadRequest)
     }
 
     fun predict(recordFrag: RecordFrag, image: MultipartBody.Part) {

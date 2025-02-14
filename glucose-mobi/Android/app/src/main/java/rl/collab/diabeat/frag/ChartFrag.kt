@@ -1,20 +1,22 @@
 package rl.collab.diabeat.frag
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.GridLayout
 import androidx.fragment.app.Fragment
-import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import rl.collab.diabeat.Client
+import rl.collab.diabeat.Result
 import rl.collab.diabeat.databinding.FragChartBinding
+import rl.collab.diabeat.shortToast
 
 class ChartFrag : Fragment() {
     private lateinit var binding: FragChartBinding
-    private lateinit var lineChart: LineChart
+    lateinit var table: RecyclerView
+    val data = mutableListOf<Result.Records>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragChartBinding.inflate(inflater, container, false)
@@ -23,18 +25,10 @@ class ChartFrag : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        lineChart = binding.lineChart
 
-        val entries = arrayListOf(0f en 1f, 1f en 2f, 2f en 0f, 3f en 4f, 4f en 5f)
-        val dataSet = LineDataSet(entries, "Sample Data").apply {
-            color = Color.GREEN
-            valueTextColor = Color.BLACK
-            lineWidth = 2f
-        }
-
-        lineChart.data = LineData(dataSet)
-        lineChart.invalidate()
+        table = binding.table
+        table.layoutManager = GridLayoutManager(requireContext(), 5)
+        table.adapter = TableAdapter(data)
+        Client.getRecords(this)
     }
-
-    private infix fun Float.en(that: Float) = Entry(this, that)
 }
