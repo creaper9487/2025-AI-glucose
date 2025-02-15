@@ -7,6 +7,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import rl.collab.diabeat.R
 import rl.collab.diabeat.Result
+import rl.collab.diabeat.localDT
+import rl.collab.diabeat.tryToInt
 
 class TableAdapter(private val data: List<Result.Records>) : RecyclerView.Adapter<TableAdapter.ViewHolder>() {
 
@@ -26,12 +28,12 @@ class TableAdapter(private val data: List<Result.Records>) : RecyclerView.Adapte
         else
             holder.cellTv.text = data[position / 5 - 1].run {
                 arrayOf(
-                    created_at,
-                    blood_glucose,
-                    carbohydrate_intake,
-                    exercise_duration,
-                    insulin_injection
-                )[position % 5].toString()
+                    createdAt.localDT,
+                    bloodGlucose.tryToInt,
+                    carbohydrateIntake.tryToInt,
+                    exerciseDuration.tryToInt,
+                    insulinInjection.tryToInt
+                )[position % 5]
             }
     }
 

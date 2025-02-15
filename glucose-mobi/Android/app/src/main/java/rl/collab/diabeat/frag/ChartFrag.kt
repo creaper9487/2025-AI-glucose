@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.GridLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,7 +13,7 @@ import rl.collab.diabeat.databinding.FragChartBinding
 import rl.collab.diabeat.shortToast
 
 class ChartFrag : Fragment() {
-    private lateinit var binding: FragChartBinding
+    lateinit var binding: FragChartBinding
     lateinit var table: RecyclerView
     val data = mutableListOf<Result.Records>()
 
@@ -25,6 +24,12 @@ class ChartFrag : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.chatBtn.setOnClickListener {
+            it.isEnabled = false
+            shortToast("max wait time 30s")
+            Client.chat(this)
+        }
 
         table = binding.table
         table.layoutManager = GridLayoutManager(requireContext(), 5)

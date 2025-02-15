@@ -1,8 +1,9 @@
 package rl.collab.diabeat
 
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
+import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import retrofit2.Response
@@ -11,7 +12,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import rl.collab.diabeat.frag.AccFrag
 import rl.collab.diabeat.frag.ChartFrag
 import rl.collab.diabeat.frag.RecordFrag
-import rl.collab.diabeat.frag.TableAdapter
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
@@ -19,18 +19,22 @@ import kotlin.math.roundToInt
 object Client {
     var host = arrayOf("192", "168", "0", "0")
 
+    private val gson = GsonBuilder()
+        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        .create()
+
     private val okHttpClient by lazy {
         OkHttpClient.Builder()
-            .connectTimeout(1000, TimeUnit.MILLISECONDS)
-            .readTimeout(1000, TimeUnit.MILLISECONDS)
-            .writeTimeout(1000, TimeUnit.MILLISECONDS)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
             .build()
     }
 
     private val retrofit by lazy {
         Retrofit.Builder()
             .baseUrl("http://${host.joinToString(".")}:8000/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .client(okHttpClient)
             .build()
             .create(Api::class.java)
@@ -39,7 +43,7 @@ object Client {
     fun register(accFrag: AccFrag, obj: Request.Register, dialogDismiss: () -> Unit) {
         val retroFun = suspend { retrofit.register(obj) }
 
-        val onOk = { r: Response<Result.Token> ->
+        val onSucceed = { r: Response<Result.Token> ->
             dialogDismiss()
             accFrag.logInEnv(r.body()!!, obj.username, obj.password)
         }
@@ -56,30 +60,30 @@ object Client {
                 "此 Username 已被註冊"
         }
 
-        request(accFrag, retroFun, 201, onOk, onBadRequest)
+        request(accFrag, retroFun, onSucceed, onBadRequest)
     }
 
     fun logIn(accFrag: AccFrag, obj: Request.Login, dialogDismiss: () -> Unit, reme: Boolean) {
         val retroFun = suspend { retrofit.logIn(obj) }
 
-        val onOk = { r: Response<Result.Token> ->
+        val onSucceed = { r: Response<Result.Token> ->
             dialogDismiss()
 
             if (reme)
-                accFrag.accFile.writeText(obj.username_or_email)
+                accFrag.accFile.writeText(obj.usernameOrEmail)
             else {
                 accFrag.accFile.delete()
                 accFrag.pwFile.delete()
             }
 
-            accFrag.logInEnv(r.body()!!, obj.username_or_email, obj.password)
+            accFrag.logInEnv(r.body()!!, obj.usernameOrEmail, obj.password)
         }
 
         val onBadRequest = { r: Response<Result.Token> ->
             val errStr = r.errorBody()?.string()
             val err = Gson().fromJson(errStr, Err.Login::class.java)
 
-            when (err.non_field_errors[0]) {
+            when (err.nonFieldErrors[0]) {
                 "Email does not exist." -> "Email 不存在"
                 "Username does not exist." -> "Username 不存在"
                 "Incorrect password." -> "密碼錯誤"
@@ -87,31 +91,27 @@ object Client {
             }
         }
 
-        request(accFrag, retroFun, 200, onOk, onBadRequest)
+        request(accFrag, retroFun, onSucceed, onBadRequest)
     }
 
     fun getRecords(chartFrag: ChartFrag) {
         AccFrag.token?.let {
             val retroFun = suspend { retrofit.getRecords(AccFrag.token!!.access.bearer) }
 
-            val onOk = { r: Response<List<Result.Records>> ->
+            val onSucceed = { r: Response<List<Result.Records>> ->
                 chartFrag.data.clear()
                 chartFrag.data.addAll(r.body()!!)
                 chartFrag.table.adapter!!.notifyDataSetChanged()
             }
 
-            val onBadRequest = { _: Response<List<Result.Records>> ->
-                "nig"
-            }
-
-            request(chartFrag, retroFun, 200, onOk, onBadRequest)
+            request(chartFrag, retroFun, onSucceed, null)
         }
     }
 
     fun postRecord(recordFrag: RecordFrag, obj: Request.Record) {
         val retroFun = suspend { retrofit.postRecord(AccFrag.token!!.access.bearer, obj) }
 
-        val onOk = { _: Response<Result.Records> ->
+        val onSucceed = { _: Response<Result.Records> ->
             recordFrag.shortToast("已儲存")
             recordFrag.binding.run {
                 glucoseEt.setText("")
@@ -122,33 +122,37 @@ object Client {
             }
         }
 
-        val onBadRequest = { _: Response<Result.Records> ->
-            "nah"
-        }
-
-        request(recordFrag, retroFun, 201, onOk, onBadRequest)
+        request(recordFrag, retroFun, onSucceed, null)
     }
 
     fun predict(recordFrag: RecordFrag, image: MultipartBody.Part) {
         val retroFun = suspend { retrofit.predict(AccFrag.token!!.access.bearer, image) }
 
-        val onOk = { r: Response<Result.Predict> ->
-            recordFrag.binding.carbohydrateEt.setText("${r.body()!!.predicted_value.roundToInt()}")
+        val onSucceed = { r: Response<Result.Predict> ->
+            recordFrag.binding.carbohydrateEt.setText(
+                r.body()!!.predictedValue.roundToInt().toString()
+            )
         }
 
-        val onBadRequest = { _: Response<Result.Predict> ->
-            "bad request"
+        request(recordFrag, retroFun, onSucceed, null)
+    }
+
+    fun chat(chartFrag: ChartFrag) {
+        val retroFun = suspend { retrofit.chat(AccFrag.token!!.access.bearer) }
+
+        val onSucceed = { r: Response<Result.ChatRoot> ->
+            chartFrag.dialog("AI Assistant", r.body()!!.response.message.content)
+            chartFrag.binding.chatBtn.isEnabled = true
         }
 
-        request(recordFrag, retroFun, 200, onOk, onBadRequest)
+        request(chartFrag, retroFun, onSucceed, null)
     }
 
     private fun <T> request(
         frag: Fragment,
         retroFun: suspend () -> Response<T>,
-        okCode: Int,
-        onOk: (Response<T>) -> Unit,
-        onBadRequest: (Response<T>) -> String
+        onSucceed: (Response<T>) -> Unit,
+        onBadRequest: ((Response<T>) -> String)?
     ) {
         frag.io {
             try {
@@ -168,15 +172,18 @@ object Client {
 
                 frag.ui {
                     when (status) {
-                        okCode -> onOk(r)
-                        400 -> errDialog(onBadRequest(r))
+                        200, 201 -> onSucceed(r)
+                        400 -> errDialog(
+                            if (onBadRequest == null) "請求錯誤" else onBadRequest(r)
+                        )
+
                         else -> errDialog("HTTP $status")
                     }
                 }
             } catch (_: SocketTimeoutException) {
                 frag.ui { errDialog("連線逾時") }
             } catch (e: Exception) {
-                frag.ui { errDialog("${e.message}", e::class.java.name) }
+                frag.ui { dialog(e::class.java.name, e.message.toString()) }
             }
         }
     }

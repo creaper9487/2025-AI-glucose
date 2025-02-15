@@ -12,23 +12,33 @@ import retrofit2.http.Part
 // ends with '/'
 interface Api {
     @POST("/api/register/")
-    suspend fun register(@Body obj: Request.Register): Response<Result.Token>
+    suspend fun register(@Body obj: Request.Register)
+            : Response<Result.Token>
 
     @POST("/api/token/")
-    suspend fun logIn(@Body obj: Request.Login): Response<Result.Token>
+    suspend fun logIn(@Body obj: Request.Login)
+            : Response<Result.Token>
 
     @POST("/api/token/refresh/")
-    suspend fun refresh(@Body obj: Request.Refresh): Response<Result.Token>
+    suspend fun refresh(@Body obj: Request.Refresh)
+            : Response<Result.Token>
 
     @GET("/api/records/")
-    suspend fun getRecords(@Header("Authorization") token: String): Response<List<Result.Records>>
+    suspend fun getRecords(@Header("Authorization") token: String)
+            : Response<List<Result.Records>>
 
     @POST("/api/records/")
-    suspend fun postRecord(@Header("Authorization") token: String, @Body obj: Request.Record): Response<Result.Records>
+    suspend fun postRecord(@Header("Authorization") token: String, @Body obj: Request.Record)
+            : Response<Result.Records>
 
     @Multipart
     @POST("/api/predict/")
-    suspend fun predict(@Header("Authorization") token: String, @Part image: MultipartBody.Part): Response<Result.Predict>
+    suspend fun predict(@Header("Authorization") token: String, @Part image: MultipartBody.Part)
+            : Response<Result.Predict>
+
+    @GET("/api/chat/")
+    suspend fun chat(@Header("Authorization") token: String)
+            : Response<Result.ChatRoot>
 }
 
 object Request {
@@ -39,7 +49,7 @@ object Request {
     )
 
     data class Login(
-        val username_or_email: String,
+        val usernameOrEmail: String,
         val password: String
     )
 
@@ -48,10 +58,10 @@ object Request {
     )
 
     data class Record(
-        val blood_glucose: Double,
-        val carbohydrate_intake: Double?,
-        val exercise_duration: Double?,
-        val insulin_injection: Double?
+        val bloodGlucose: Double,
+        val carbohydrateIntake: Double?,
+        val exerciseDuration: Double?,
+        val insulinInjection: Double?
     )
 }
 
@@ -65,18 +75,43 @@ object Result {
     )
 
     data class Records(
-        val id: Int,
-        val user: Int,
-        val blood_glucose: Double,
-        val carbohydrate_intake: Double?,
-        val exercise_duration: Double?,
-        val insulin_injection: Double?,
-        val created_at: String,
-        val time_slot: String
+        val id: Long,
+        val user: Long,
+        val bloodGlucose: Double,
+        val carbohydrateIntake: Double?,
+        val exerciseDuration: Double?,
+        val insulinInjection: Double?,
+        val createdAt: String,
+        val timeSlot: String
     )
 
     data class Predict(
-        val predicted_value: Double
+        val predictedValue: Double
+    )
+
+    data class ChatRoot(
+        val response: Chat
+    )
+
+    data class Chat(
+        val model: String,
+        val createdAt: String,
+        val done: Boolean,
+        val doneReason: String,
+        val totalDuration: Long,
+        val loadDuration: Long,
+        val promptEvalCount: Long,
+        val promptEvalDuration: Long,
+        val evalCount: Long,
+        val evalDuration: Long,
+        val message: ChatMsg
+    )
+
+    data class ChatMsg(
+        val role: String,
+        val content: String,
+        val images: String?,
+        val toolCalls: String?
     )
 }
 
@@ -87,6 +122,6 @@ object Err {
     )
 
     data class Login(
-        val non_field_errors: List<String>
+        val nonFieldErrors: List<String>
     )
 }

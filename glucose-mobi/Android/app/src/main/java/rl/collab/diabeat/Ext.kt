@@ -12,6 +12,10 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 fun nacho(vararg msg: Any?) {
     Log.d("nacho", msg.joinToString(" "))
@@ -23,9 +27,40 @@ inline val Long.fmt
         else String.format("%.1f KB", this / 1024.0)
     }
 
+inline val Double?.tryToInt: String
+    get() {
+        return if (this == null)
+            "-"
+        else if (this % 1.0 == 0.0)
+            toInt().toString()
+        else
+            toString()
+    }
+
 inline val String.isEmail get() = Patterns.EMAIL_ADDRESS.matcher(this).matches()
 
 inline val String.bearer get() = "Bearer $this"
+
+inline val String.localDT: String
+    get() {
+        val localDateTime = Instant.parse(this)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime()
+
+        val now = LocalDate.now()
+
+        return localDateTime.format(
+            DateTimeFormatter.ofPattern(
+                if (localDateTime.year == now.year)
+                    if (localDateTime.dayOfYear == now.dayOfYear)
+                        "HH:mm"
+                    else
+                        "MM/dd HH:mm"
+                else
+                    "yyyy/MM/dd HH:mm"
+            )
+        )
+    }
 
 inline val EditText.str get() = text.toString()
 
@@ -60,10 +95,19 @@ inline fun Fragment.ui(crossinline block: Fragment.() -> Unit) {
     requireActivity().runOnUiThread { block() }
 }
 
-fun Fragment.errDialog(msg: String, title: String = "錯誤") {
+fun Fragment.dialog(title: String, msg: String) {
     AlertDialog.Builder(requireContext())
         .setCancelable(false)
         .setTitle(title)
+        .setMessage(msg)
+        .setPositiveButton("OK", null)
+        .show()
+}
+
+fun Fragment.errDialog(msg: String) {
+    AlertDialog.Builder(requireContext())
+        .setCancelable(false)
+        .setTitle("錯誤")
         .setMessage(msg)
         .setPositiveButton("OK", null)
         .show()

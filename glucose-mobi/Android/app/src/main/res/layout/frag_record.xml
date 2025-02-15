@@ -25,10 +25,10 @@
         android:gravity="center"
         android:orientation="vertical"
         android:padding="@dimen/group_padding_margin"
-        app:layout_constraintBottom_toTopOf="@id/btn_group"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/record_tv">
+        app:layout_constraintTop_toTopOf="parent">
 
         <EditText
             android:id="@+id/glucose_et"
@@ -72,31 +72,26 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/btn_group"
+    <Button
+        android:id="@+id/predict_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:drawableLeft="@drawable/awesome"
+        android:text="AI 預測碳水量"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/save_btn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/et_group" />
+
+    <Button
+        android:id="@+id/save_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/save"
+        android:text="儲存"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/et_group">
-
-        <Button
-            android:id="@+id/predict_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/awesome"
-            android:text="AI 預測碳水量" />
-
-        <Button
-            android:id="@+id/save_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:drawableLeft="@drawable/save"
-            android:text="儲存" />
-
-    </LinearLayout>
+        app:layout_constraintStart_toEndOf="@id/predict_btn"
+        app:layout_constraintTop_toBottomOf="@id/et_group" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
