@@ -1,9 +1,7 @@
 package rl.collab.diabeat
 
 import androidx.fragment.app.Fragment
-import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import retrofit2.Response
@@ -19,15 +17,13 @@ import kotlin.math.roundToInt
 object Client {
     var host = arrayOf("192", "168", "0", "0")
 
-    private val gson = GsonBuilder()
-        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-        .create()
+    private val gson = Gson()
 
     private val okHttpClient by lazy {
         OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
             .build()
     }
 
@@ -50,7 +46,7 @@ object Client {
 
         val onBadRequest = { r: Response<Result.Token> ->
             val errStr = r.errorBody()?.string()
-            val err = Gson().fromJson(errStr, Err.Register::class.java)
+            val err = gson.fromJson(errStr, Err.Register::class.java)
 
             if (err.email == null && err.username == null)
                 "此 Email 和 Username 皆已被註冊"
@@ -70,20 +66,20 @@ object Client {
             dialogDismiss()
 
             if (reme)
-                accFrag.accFile.writeText(obj.usernameOrEmail)
+                accFrag.accFile.writeText(obj.username_or_email)
             else {
                 accFrag.accFile.delete()
                 accFrag.pwFile.delete()
             }
 
-            accFrag.logInEnv(r.body()!!, obj.usernameOrEmail, obj.password)
+            accFrag.logInEnv(r.body()!!, obj.username_or_email, obj.password)
         }
 
         val onBadRequest = { r: Response<Result.Token> ->
             val errStr = r.errorBody()?.string()
-            val err = Gson().fromJson(errStr, Err.Login::class.java)
+            val err = gson.fromJson(errStr, Err.Login::class.java)
 
-            when (err.nonFieldErrors[0]) {
+            when (err.non_field_errors[0]) {
                 "Email does not exist." -> "Email 不存在"
                 "Username does not exist." -> "Username 不存在"
                 "Incorrect password." -> "密碼錯誤"
@@ -125,27 +121,37 @@ object Client {
         request(recordFrag, retroFun, onSucceed, null)
     }
 
-    fun predict(recordFrag: RecordFrag, image: MultipartBody.Part) {
-        val retroFun = suspend { retrofit.predict(AccFrag.token!!.access.bearer, image) }
+    fun predictCarbohydrate(recordFrag: RecordFrag, image: MultipartBody.Part) {
+        val retroFun = suspend { retrofit.predictCarbohydrate(AccFrag.token!!.access.bearer, image) }
 
         val onSucceed = { r: Response<Result.Predict> ->
             recordFrag.binding.carbohydrateEt.setText(
-                r.body()!!.predictedValue.roundToInt().toString()
+                r.body()!!.predicted_value.roundToInt().toString()
             )
         }
 
         request(recordFrag, retroFun, onSucceed, null)
     }
 
-    fun chat(chartFrag: ChartFrag) {
-        val retroFun = suspend { retrofit.chat(AccFrag.token!!.access.bearer) }
+    fun suggest(accFrag: AccFrag) {
+        val retroFun = suspend { retrofit.suggest(AccFrag.token!!.access.bearer) }
 
         val onSucceed = { r: Response<Result.ChatRoot> ->
-            chartFrag.dialog("AI Assistant", r.body()!!.response.message.content)
-            chartFrag.binding.chatBtn.isEnabled = true
+            accFrag.dialog("AI Assistant", r.body()!!.response.message.content)
+            accFrag.binding.suggestBtn.isEnabled = true
         }
 
-        request(chartFrag, retroFun, onSucceed, null)
+        request(accFrag, retroFun, onSucceed, null)
+    }
+
+    fun predictDiabetes(accFrag: AccFrag, obj: Request.Diabetes) {
+        val retroFun = suspend { retrofit.predictDiabetes(AccFrag.token!!.access.bearer, obj) }
+
+        val onSucceed = { r: Response<Result.Diabetes> ->
+            accFrag.dialog("TODO: 預測結果", if (r.body()!!.prediction == 1L) "是" else "否")
+        }
+
+        request(accFrag, retroFun, onSucceed, null)
     }
 
     private fun <T> request(

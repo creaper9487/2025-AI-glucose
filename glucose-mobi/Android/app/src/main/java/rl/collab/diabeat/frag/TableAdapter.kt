@@ -28,11 +28,11 @@ class TableAdapter(private val data: List<Result.Records>) : RecyclerView.Adapte
         else
             holder.cellTv.text = data[position / 5 - 1].run {
                 arrayOf(
-                    createdAt.localDT,
-                    bloodGlucose.tryToInt,
-                    carbohydrateIntake.tryToInt,
-                    exerciseDuration.tryToInt,
-                    insulinInjection.tryToInt
+                    created_at.localDT,
+                    blood_glucose.tryToInt,
+                    carbohydrate_intake.tryToInt,
+                    exercise_duration.tryToInt,
+                    insulin_injection.tryToInt
                 )[position % 5]
             }
     }

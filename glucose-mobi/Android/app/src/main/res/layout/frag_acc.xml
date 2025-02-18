@@ -9,6 +9,7 @@
         android:id="@+id/acc_ly"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:visibility="gone"
         tools:context=".frag.AccFrag">
 
         <TextView
@@ -17,13 +18,13 @@
             android:layout_height="wrap_content"
             android:text="帳號"
             android:textSize="35sp"
-            app:layout_constraintBottom_toTopOf="@id/btn_group"
+            app:layout_constraintBottom_toTopOf="@id/acc_btn_group"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
-            android:id="@+id/btn_group"
+            android:id="@+id/acc_btn_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -76,30 +77,67 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="35sp"
-            app:layout_constraintBottom_toTopOf="@id/log_out_btn"
+            app:layout_constraintBottom_toTopOf="@id/profile_btn_group"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/log_out_btn"
+        <LinearLayout
+            android:id="@+id/profile_btn_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="登出"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/profile_tv" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/bio_login_sw"
+            <Button
+                android:id="@+id/suggest_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:drawableLeft="@drawable/bulb"
+                android:drawableTint="?colorSurface"
+                android:text="AI 建議"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/predict_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/question"
+                android:drawableTint="?colorSurface"
+                android:text="預測是否得糖尿病" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/profile_sw_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="生物辨識登入"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/log_out_btn" />
+            app:layout_constraintTop_toBottomOf="@id/profile_btn_group">
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/bio_login_sw"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:text="生物辨識登入" />
+
+            <Button
+                android:id="@+id/log_out_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="登出" />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

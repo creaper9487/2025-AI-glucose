@@ -33,12 +33,16 @@ interface Api {
 
     @Multipart
     @POST("/api/predict/")
-    suspend fun predict(@Header("Authorization") token: String, @Part image: MultipartBody.Part)
+    suspend fun predictCarbohydrate(@Header("Authorization") token: String, @Part image: MultipartBody.Part)
             : Response<Result.Predict>
 
     @GET("/api/chat/")
-    suspend fun chat(@Header("Authorization") token: String)
+    suspend fun suggest(@Header("Authorization") token: String)
             : Response<Result.ChatRoot>
+
+    @POST("/api/predictform/")
+    suspend fun predictDiabetes(@Header("Authorization") token: String, @Body obj: Request.Diabetes)
+            : Response<Result.Diabetes>
 }
 
 object Request {
@@ -49,7 +53,7 @@ object Request {
     )
 
     data class Login(
-        val usernameOrEmail: String,
+        val username_or_email: String,
         val password: String
     )
 
@@ -58,10 +62,21 @@ object Request {
     )
 
     data class Record(
-        val bloodGlucose: Double,
-        val carbohydrateIntake: Double?,
-        val exerciseDuration: Double?,
-        val insulinInjection: Double?
+        val blood_glucose: Double,
+        val carbohydrate_intake: Double?,
+        val exercise_duration: Double?,
+        val insulin_injection: Double?
+    )
+
+    data class Diabetes(
+        val gender: String,
+        val age: Long,
+        val hypertension: Double,
+        val heart_disease: Long,
+        val smoking_history: String,
+        val bmi: Double,
+        val HbA1c_level: Double,
+        val blood_glucose_level: Long
     )
 }
 
@@ -77,16 +92,16 @@ object Result {
     data class Records(
         val id: Long,
         val user: Long,
-        val bloodGlucose: Double,
-        val carbohydrateIntake: Double?,
-        val exerciseDuration: Double?,
-        val insulinInjection: Double?,
-        val createdAt: String,
-        val timeSlot: String
+        val blood_glucose: Double,
+        val carbohydrate_intake: Double?,
+        val exercise_duration: Double?,
+        val insulin_injection: Double?,
+        val created_at: String,
+        val time_slot: String
     )
 
     data class Predict(
-        val predictedValue: Double
+        val predicted_value: Double
     )
 
     data class ChatRoot(
@@ -95,15 +110,15 @@ object Result {
 
     data class Chat(
         val model: String,
-        val createdAt: String,
+        val created_at: String,
         val done: Boolean,
-        val doneReason: String,
-        val totalDuration: Long,
-        val loadDuration: Long,
-        val promptEvalCount: Long,
-        val promptEvalDuration: Long,
-        val evalCount: Long,
-        val evalDuration: Long,
+        val done_reason: String,
+        val total_duration: Long,
+        val load_duration: Long,
+        val prompt_evalCount: Long,
+        val prompt_eval_duration: Long,
+        val eval_count: Long,
+        val eval_duration: Long,
         val message: ChatMsg
     )
 
@@ -111,7 +126,11 @@ object Result {
         val role: String,
         val content: String,
         val images: String?,
-        val toolCalls: String?
+        val tool_calls: String?
+    )
+
+    data class Diabetes(
+        val prediction: Long
     )
 }
 
@@ -122,6 +141,6 @@ object Err {
     )
 
     data class Login(
-        val nonFieldErrors: List<String>
+        val non_field_errors: List<String>
     )
 }

@@ -10,10 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import rl.collab.diabeat.Client
 import rl.collab.diabeat.Result
 import rl.collab.diabeat.databinding.FragChartBinding
-import rl.collab.diabeat.shortToast
 
 class ChartFrag : Fragment() {
-    lateinit var binding: FragChartBinding
+    private lateinit var binding: FragChartBinding
     lateinit var table: RecyclerView
     val data = mutableListOf<Result.Records>()
 
@@ -24,12 +23,6 @@ class ChartFrag : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.chatBtn.setOnClickListener {
-            it.isEnabled = false
-            shortToast("max wait time 30s")
-            Client.chat(this)
-        }
 
         table = binding.table
         table.layoutManager = GridLayoutManager(requireContext(), 5)

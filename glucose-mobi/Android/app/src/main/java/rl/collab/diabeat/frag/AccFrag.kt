@@ -19,16 +19,18 @@ import rl.collab.diabeat.Client
 import rl.collab.diabeat.R
 import rl.collab.diabeat.Request
 import rl.collab.diabeat.Result
-import rl.collab.diabeat.databinding.FragAccBinding
 import rl.collab.diabeat.click.LoginBtnClick
 import rl.collab.diabeat.click.RegisterBtnClick
+import rl.collab.diabeat.databinding.FragAccBinding
+import rl.collab.diabeat.shortToast
 import java.io.File
 
 class AccFrag : Fragment() {
-    private lateinit var binding: FragAccBinding
-    private lateinit var googleSignInClient: GoogleSignInClient
+    lateinit var binding: FragAccBinding
     lateinit var accFile: File
     lateinit var pwFile: File
+
+    private lateinit var googleSignInClient: GoogleSignInClient
 
     private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == Activity.RESULT_OK) {
@@ -76,6 +78,15 @@ class AccFrag : Fragment() {
             startActivity(Intent(Intent.ACTION_VIEW, uri))
         }
 
+        binding.suggestBtn.setOnClickListener {
+            it.isEnabled = false
+            shortToast("TODO: max wait time 60s")
+            Client.suggest(this)
+        }
+        binding.predictBtn.setOnClickListener {
+            val obj = Request.Diabetes("male", 18, 1.0, 0, "never", 24.0, 5.7, 100)
+            Client.predictDiabetes(this, obj)
+        }
         binding.logOutBtn.setOnClickListener { logOutEnv() }
         binding.bioLoginSw.setOnCheckedChangeListener { _, isChecked ->
             if (binding.profileLy.visibility == View.VISIBLE) {
