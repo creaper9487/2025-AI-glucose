@@ -1,56 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="?dialogPreferredPadding"
-    android:paddingEnd="?dialogPreferredPadding"
+    android:orientation="vertical"
+    android:padding="?dialogPreferredPadding"
     tools:context=".frag.AccFrag">
 
-    <EditText
-        android:id="@+id/acc_et"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="?dialogPreferredPadding"
-        android:hint="帳號"
-        android:inputType="textEmailAddress"
-        app:layout_constraintBottom_toTopOf="@id/pw_et"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginBottom="?dialogPreferredPadding"
+        android:hint="帳號">
 
-    <EditText
-        android:id="@+id/pw_et"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/acc_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="?dialogPreferredPadding"
+        android:layout_marginBottom="?dialogPreferredPadding"
         android:hint="密碼"
-        android:imeOptions="actionDone"
-        android:inputType="textPassword"
-        app:layout_constraintBottom_toTopOf="@id/reme_cb"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/acc_et" />
+        app:endIconMode="password_toggle">
 
-    <ImageView
-        android:id="@+id/show_hide_pw_iv"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginEnd="3dp"
-        android:src="@drawable/invisible"
-        app:layout_constraintBottom_toBottomOf="@id/pw_et"
-        app:layout_constraintEnd_toEndOf="@id/pw_et"
-        app:layout_constraintTop_toTopOf="@id/pw_et" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/pw_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword" />
 
-    <CheckBox
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/reme_cb"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="?dialogPreferredPadding"
-        android:text="記住我"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pw_et" />
+        android:text="記住我" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

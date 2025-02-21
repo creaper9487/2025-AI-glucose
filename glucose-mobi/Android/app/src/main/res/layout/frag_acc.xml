@@ -9,10 +9,9 @@
         android:id="@+id/acc_ly"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
         tools:context=".frag.AccFrag">
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/acc_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -34,21 +33,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/acc_tv">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/google_sign_in_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/group_padding_margin"
+                android:layout_marginBottom="15dp"
                 android:text="Google 登入" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/login_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/group_padding_margin"
+                android:layout_marginBottom="15dp"
                 android:text="登入" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/register_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -56,12 +55,13 @@
 
         </LinearLayout>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/coffee_btn"
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/about_us_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
-            android:src="@drawable/coffee"
+            android:text="關於我們"
+            app:icon="@drawable/coffee"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -72,7 +72,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/profile_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -92,24 +92,24 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/suggest_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="15dp"
-                android:drawableLeft="@drawable/bulb"
-                android:drawableTint="?colorSurface"
                 android:text="AI 建議"
+                app:icon="@drawable/bulb"
+                app:iconTint="?colorSurface"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-            <Button
-                android:id="@+id/predict_btn"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/predict_diabetes_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/question"
-                android:drawableTint="?colorSurface"
-                android:text="預測是否得糖尿病" />
+                android:text="預測是否得糖尿病"
+                app:icon="@drawable/question"
+                app:iconTint="?colorSurface" />
 
         </LinearLayout>
 
@@ -130,7 +130,7 @@
                 android:layout_marginBottom="15dp"
                 android:text="生物辨識登入" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/log_out_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

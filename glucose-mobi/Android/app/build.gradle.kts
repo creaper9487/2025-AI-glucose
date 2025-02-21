@@ -9,18 +9,10 @@ android {
 
     defaultConfig {
         applicationId = "rl.collab.diabeat"
-        minSdk = 28
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-        }
     }
 
     buildFeatures {
@@ -50,4 +42,5 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.gms.play.services.auth)
     implementation(libs.mpandroidchart)
+    implementation(libs.androidx.material3)
 }

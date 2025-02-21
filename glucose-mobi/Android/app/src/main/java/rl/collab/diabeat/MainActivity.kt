@@ -1,12 +1,9 @@
 package rl.collab.diabeat
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
-import android.view.inputmethod.EditorInfo
-import android.widget.CheckBox
-import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -14,6 +11,7 @@ import androidx.core.view.updatePadding
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import rl.collab.diabeat.databinding.ActivityMainBinding
+import rl.collab.diabeat.databinding.DialogHostBinding
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -53,42 +51,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setHost(onKeyDown: Boolean) {
-        val view = layoutInflater.inflate(R.layout.dialog_host, null)
+        val binding = DialogHostBinding.inflate(layoutInflater)
 
-        val ids = arrayOf(R.id.host_a, R.id.host_b, R.id.host_c, R.id.host_d)
-        val ets = arrayListOf<EditText>()
-        for ((id, hostI) in ids.zip(Client.host))
-            ets.add(view.findViewById<EditText>(id).apply { setText(hostI) })
+        binding.run {
+            val ets = arrayOf(hostA, hostB, hostC, hostD)
+            for (i in 0..3)
+                ets[i].setText(Client.host[i])
 
-        val startUpCb = view.findViewById<CheckBox>(R.id.start_up_cb)
-        if (!hostFile.exists() || hostFile.readLines()[4].toBoolean())
-            startUpCb.isChecked = true
+            if (!hostFile.exists() || hostFile.readLines()[4].toBoolean())
+                startUpCb.isChecked = true
 
-        val dialog = customDialog("Host", view)
-        dialog.posBtn.setOnClickListener {
-            if (ets.any { it.str.isEmpty() || it.str.toInt() > 255 })
-                return@setOnClickListener
+            val dialog = viewDialog("Host", root, null)
+            val posBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            posBtn.setOnClickListener {
+                if (ets.any { it.str.isEmpty() || it.str.toInt() > 255 })
+                    return@setOnClickListener
 
-            for ((i, et) in ets.withIndex())
-                Client.host[i] = et.str
+                for (i in 0..3)
+                    Client.host[i] = ets[i].str
 
-            hostFile.writeText(ets.joinToString("\n") { it.str } + "\n${startUpCb.isChecked}")
-            dialog.dismiss()
+                hostFile.writeText(ets.joinToString("\n") { it.str } + "\n${startUpCb.isChecked}")
+                dialog.dismiss()
 
-            if (onKeyDown) {
-                val intent = packageManager.getLaunchIntentForPackage(packageName)
-                intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
-                Runtime.getRuntime().exit(0)
+                if (onKeyDown)
+                    Client.resetRetro()
             }
-        }
-
-        ets[3].setOnEditorActionListener { _, i, _ ->
-            if (i == EditorInfo.IME_ACTION_DONE && dialog.posBtn.isEnabled) {
-                dialog.posBtn.callOnClick()
-                true
-            } else
-                false
         }
     }
 }

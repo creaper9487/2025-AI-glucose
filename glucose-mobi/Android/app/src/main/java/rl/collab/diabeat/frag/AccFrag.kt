@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -19,31 +18,33 @@ import rl.collab.diabeat.Client
 import rl.collab.diabeat.R
 import rl.collab.diabeat.Request
 import rl.collab.diabeat.Result
-import rl.collab.diabeat.click.LoginBtnClick
-import rl.collab.diabeat.click.RegisterBtnClick
 import rl.collab.diabeat.databinding.FragAccBinding
-import rl.collab.diabeat.shortToast
+import rl.collab.diabeat.onclick.LoginBtnListener
+import rl.collab.diabeat.onclick.PredictDiabetesBtnListener
+import rl.collab.diabeat.onclick.RegisterBtnListener
+import rl.collab.diabeat.toast
 import java.io.File
 
 class AccFrag : Fragment() {
-    lateinit var binding: FragAccBinding
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var binding: FragAccBinding
     lateinit var accFile: File
     lateinit var pwFile: File
-
-    private lateinit var googleSignInClient: GoogleSignInClient
 
     private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == Activity.RESULT_OK) {
             val acc = GoogleSignIn.getSignedInAccountFromIntent(it.data).result
-            Toast.makeText(requireContext(), acc.email, Toast.LENGTH_SHORT).show()
+            toast(acc.email!!)
             googleSignInClient.signOut()
         }
     }
 
     companion object {
-        var token: Result.Token? = null
+        var tokens: Result.Tokens? = null
         var acc: String? = null
         var pw: String? = null
+
+        val key get() = "Bearer ${tokens!!.access}"
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -56,71 +57,72 @@ class AccFrag : Fragment() {
         accFile = File(requireContext().filesDir, "acc.txt")
         pwFile = File(requireContext().filesDir, "pw.txt")
 
-        if (token == null && acc == null && pw == null)
+        if (tokens == null && acc == null && pw == null)
             logOutEnv()
         else
-            logInEnv(token!!, acc!!, pw!!)
+            logInEnv(tokens!!, acc!!, pw!!)
 
-        binding.googleSignInBtn.setOnClickListener {
-            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.token))
-                .requestProfile()
-                .requestEmail()
-                .build()
+        binding.run {
+            googleSignInBtn.setOnClickListener {
+                val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.token))
+                    .requestProfile()
+                    .requestEmail()
+                    .build()
 
-            googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
-            googleSignInLauncher.launch(googleSignInClient.signInIntent)
-        }
-        binding.registerBtn.setOnClickListener(RegisterBtnClick(this))
-        binding.loginBtn.setOnClickListener(LoginBtnClick(this))
-        binding.coffeeBtn.setOnClickListener {
-            val uri = Uri.parse("https://github.com/creaper9487/2025-AI-glucose")
-            startActivity(Intent(Intent.ACTION_VIEW, uri))
-        }
+                googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
+                googleSignInLauncher.launch(googleSignInClient.signInIntent)
+            }
+            registerBtn.setOnClickListener(RegisterBtnListener(this@AccFrag))
+            loginBtn.setOnClickListener(LoginBtnListener(this@AccFrag))
+            aboutUsBtn.setOnClickListener {
+                val uri = Uri.parse("https://github.com/creaper9487/2025-AI-glucose")
+                startActivity(Intent(Intent.ACTION_VIEW, uri))
+            }
 
-        binding.suggestBtn.setOnClickListener {
-            it.isEnabled = false
-            shortToast("TODO: max wait time 60s")
-            Client.suggest(this)
-        }
-        binding.predictBtn.setOnClickListener {
-            val obj = Request.Diabetes("male", 18, 1.0, 0, "never", 24.0, 5.7, 100)
-            Client.predictDiabetes(this, obj)
-        }
-        binding.logOutBtn.setOnClickListener { logOutEnv() }
-        binding.bioLoginSw.setOnCheckedChangeListener { _, isChecked ->
-            if (binding.profileLy.visibility == View.VISIBLE) {
-                if (isChecked) {
-                    accFile.writeText(acc!!)
-                    pwFile.writeText(pw!!)
-                } else
-                    pwFile.delete()
+            suggestBtn.setOnClickListener {
+                Client.suggest(this@AccFrag)
+            }
+            predictDiabetesBtn.setOnClickListener(PredictDiabetesBtnListener(this@AccFrag))
+            logOutBtn.setOnClickListener { logOutEnv() }
+            bioLoginSw.setOnCheckedChangeListener { _, isChecked ->
+                if (profileLy.visibility == View.VISIBLE) {
+                    if (isChecked) {
+                        accFile.writeText(acc!!)
+                        pwFile.writeText(pw!!)
+                    } else
+                        pwFile.delete()
+                }
             }
         }
     }
 
-    fun logInEnv(token: Result.Token, acc: String, pw: String) {
-        AccFrag.token = token
+    fun logInEnv(tokens: Result.Tokens, acc: String, pw: String) {
+        AccFrag.tokens = tokens
         AccFrag.acc = acc
         AccFrag.pw = pw
-        binding.accLy.visibility = View.INVISIBLE
-        binding.profileLy.visibility = View.VISIBLE
-        binding.profileTv.text = "Hi, $acc"
 
-        val bioMan = BiometricManager.from(requireContext())
-        if (bioMan.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) != BiometricManager.BIOMETRIC_SUCCESS) {
-            binding.bioLoginSw.isEnabled = false
-        } else if (!pwFile.exists()) {
-            binding.bioLoginSw.isChecked = false
-            binding.bioLoginSw.jumpDrawablesToCurrentState()  // skip animation
-        } else if (pwFile.exists()) {
-            binding.bioLoginSw.isChecked = true
-            binding.bioLoginSw.jumpDrawablesToCurrentState()  // skip animation
+        binding.run {
+            accLy.visibility = View.INVISIBLE
+            profileLy.visibility = View.VISIBLE
+            profileTv.text = "Hi, $acc"
+
+            val bioMan = BiometricManager.from(requireContext())
+            val canAuth = bioMan.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+            if (canAuth != BiometricManager.BIOMETRIC_SUCCESS) {
+                bioLoginSw.isEnabled = false
+            } else if (!pwFile.exists()) {
+                bioLoginSw.isChecked = false
+                bioLoginSw.jumpDrawablesToCurrentState()  // skip animation
+            } else if (pwFile.exists()) {
+                bioLoginSw.isChecked = true
+                bioLoginSw.jumpDrawablesToCurrentState()  // skip animation
+            }
         }
     }
 
     private fun logOutEnv() {
-        token = null
+        tokens = null
         acc = null
         pw = null
         binding.profileLy.visibility = View.INVISIBLE

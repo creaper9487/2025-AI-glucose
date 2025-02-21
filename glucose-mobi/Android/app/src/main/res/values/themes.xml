@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="Base.Theme.Diabeat" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar">
+    <style name="Theme.Diabeat" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar">
         <item name="editTextStyle">@style/monoEt</item>
     </style>
 

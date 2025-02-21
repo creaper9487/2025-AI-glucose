@@ -13,15 +13,15 @@ import retrofit2.http.Part
 interface Api {
     @POST("/api/register/")
     suspend fun register(@Body obj: Request.Register)
-            : Response<Result.Token>
+            : Response<Result.Tokens>
 
     @POST("/api/token/")
     suspend fun logIn(@Body obj: Request.Login)
-            : Response<Result.Token>
+            : Response<Result.Tokens>
 
     @POST("/api/token/refresh/")
     suspend fun refresh(@Body obj: Request.Refresh)
-            : Response<Result.Token>
+            : Response<Result.Tokens>
 
     @GET("/api/records/")
     suspend fun getRecords(@Header("Authorization") token: String)
@@ -70,18 +70,18 @@ object Request {
 
     data class Diabetes(
         val gender: String,
-        val age: Long,
-        val hypertension: Double,
-        val heart_disease: Long,
+        val age: Int,
+        val hypertension: Boolean,
+        val heart_disease: Boolean,
         val smoking_history: String,
         val bmi: Double,
         val HbA1c_level: Double,
-        val blood_glucose_level: Long
+        val blood_glucose_level: Int
     )
 }
 
 object Result {
-    data class Token(
+    data class Tokens(
         val access: String,
         val refresh: String,
         val username: String?,
@@ -90,8 +90,8 @@ object Result {
     )
 
     data class Records(
-        val id: Long,
-        val user: Long,
+        val id: Int,
+        val user: Int,
         val blood_glucose: Double,
         val carbohydrate_intake: Double?,
         val exercise_duration: Double?,
@@ -115,9 +115,9 @@ object Result {
         val done_reason: String,
         val total_duration: Long,
         val load_duration: Long,
-        val prompt_evalCount: Long,
+        val prompt_evalCount: Int,
         val prompt_eval_duration: Long,
-        val eval_count: Long,
+        val eval_count: Int,
         val eval_duration: Long,
         val message: ChatMsg
     )
@@ -130,7 +130,7 @@ object Result {
     )
 
     data class Diabetes(
-        val prediction: Long
+        val prediction: Int
     )
 }
 

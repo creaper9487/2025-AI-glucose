@@ -1,7 +1,14 @@
 package rl.collab.diabeat
 
+import android.app.Service
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Intent
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
+import kotlinx.coroutines.delay
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import retrofit2.Response
@@ -21,14 +28,16 @@ object Client {
 
     private val okHttpClient by lazy {
         OkHttpClient.Builder()
-            .connectTimeout(60, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
-            .writeTimeout(60, TimeUnit.SECONDS)
+            .connectTimeout(1, TimeUnit.SECONDS)
+            .writeTimeout(1, TimeUnit.SECONDS)
+            .readTimeout(1, TimeUnit.SECONDS)
             .build()
     }
 
-    private val retrofit by lazy {
-        Retrofit.Builder()
+    private var retrofit = lazy(::retroInit)
+
+    private fun retroInit(): Api {
+        return Retrofit.Builder()
             .baseUrl("http://${host.joinToString(".")}:8000/")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(okHttpClient)
@@ -36,15 +45,19 @@ object Client {
             .create(Api::class.java)
     }
 
-    fun register(accFrag: AccFrag, obj: Request.Register, dialogDismiss: () -> Unit) {
-        val retroFun = suspend { retrofit.register(obj) }
+    fun resetRetro() {
+        retrofit = lazy(::retroInit)
+    }
 
-        val onSucceed = { r: Response<Result.Token> ->
+    fun register(accFrag: AccFrag, obj: Request.Register, dialogDismiss: () -> Unit) {
+        val retroFun = suspend { retrofit.value.register(obj) }
+
+        val onSucceed = { r: Response<Result.Tokens> ->
             dialogDismiss()
             accFrag.logInEnv(r.body()!!, obj.username, obj.password)
         }
 
-        val onBadRequest = { r: Response<Result.Token> ->
+        val onBadRequest = { r: Response<Result.Tokens> ->
             val errStr = r.errorBody()?.string()
             val err = gson.fromJson(errStr, Err.Register::class.java)
 
@@ -60,9 +73,9 @@ object Client {
     }
 
     fun logIn(accFrag: AccFrag, obj: Request.Login, dialogDismiss: () -> Unit, reme: Boolean) {
-        val retroFun = suspend { retrofit.logIn(obj) }
+        val retroFun = suspend { retrofit.value.logIn(obj) }
 
-        val onSucceed = { r: Response<Result.Token> ->
+        val onSucceed = { r: Response<Result.Tokens> ->
             dialogDismiss()
 
             if (reme)
@@ -75,7 +88,7 @@ object Client {
             accFrag.logInEnv(r.body()!!, obj.username_or_email, obj.password)
         }
 
-        val onBadRequest = { r: Response<Result.Token> ->
+        val onBadRequest = { r: Response<Result.Tokens> ->
             val errStr = r.errorBody()?.string()
             val err = gson.fromJson(errStr, Err.Login::class.java)
 
@@ -91,13 +104,10 @@ object Client {
     }
 
     fun getRecords(chartFrag: ChartFrag) {
-        AccFrag.token?.let {
-            val retroFun = suspend { retrofit.getRecords(AccFrag.token!!.access.bearer) }
+        AccFrag.tokens?.let {
+            val retroFun = suspend { retrofit.value.getRecords(AccFrag.key) }
 
-            val onSucceed = { r: Response<List<Result.Records>> ->
-                chartFrag.data.clear()
-                chartFrag.data.addAll(r.body()!!)
-                chartFrag.table.adapter!!.notifyDataSetChanged()
+            val onSucceed = { _: Response<List<Result.Records>> ->
             }
 
             request(chartFrag, retroFun, onSucceed, null)
@@ -105,10 +115,10 @@ object Client {
     }
 
     fun postRecord(recordFrag: RecordFrag, obj: Request.Record) {
-        val retroFun = suspend { retrofit.postRecord(AccFrag.token!!.access.bearer, obj) }
+        val retroFun = suspend { retrofit.value.postRecord(AccFrag.key, obj) }
 
         val onSucceed = { _: Response<Result.Records> ->
-            recordFrag.shortToast("已儲存")
+            recordFrag.toast("已儲存")
             recordFrag.binding.run {
                 glucoseEt.setText("")
                 carbohydrateEt.setText("")
@@ -122,7 +132,7 @@ object Client {
     }
 
     fun predictCarbohydrate(recordFrag: RecordFrag, image: MultipartBody.Part) {
-        val retroFun = suspend { retrofit.predictCarbohydrate(AccFrag.token!!.access.bearer, image) }
+        val retroFun = suspend { retrofit.value.predictCarbohydrate(AccFrag.key, image) }
 
         val onSucceed = { r: Response<Result.Predict> ->
             recordFrag.binding.carbohydrateEt.setText(
@@ -134,21 +144,80 @@ object Client {
     }
 
     fun suggest(accFrag: AccFrag) {
-        val retroFun = suspend { retrofit.suggest(AccFrag.token!!.access.bearer) }
+        var content = ""
+
+        val dialog = MaterialAlertDialogBuilder(accFrag.requireContext())
+            .setCancelable(false)
+            .setTitle("AI 建議")
+            .setMessage("耐心等待 60s\n\n/")
+            .setPositiveButton("取消", null)
+            .setNegativeButton(" ", null)
+            .setNeutralButton(" ", null)
+            .show()
+
+        accFrag.io {
+            var i = 480
+            while (i >= 0 && content == "") {
+                accFrag.ui { dialog.setMessage("耐心等待 ${i / 8}s\n\n${"/-\\|"[i % 4]}") }
+                delay(125)
+                i--
+            }
+            accFrag.ui { dialog.setMessage(content) }
+        }
+
+        val retroFun = suspend {
+            val customOkHttpClient = okHttpClient.newBuilder()
+                .readTimeout(60, TimeUnit.SECONDS)
+                .build()
+
+            val customRetrofit = Retrofit.Builder()
+                .baseUrl("http://${host.joinToString(".")}:8000/")
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .client(customOkHttpClient)
+                .build()
+                .create(Api::class.java)
+
+            customRetrofit.suggest(AccFrag.key)
+        }
 
         val onSucceed = { r: Response<Result.ChatRoot> ->
-            accFrag.dialog("AI Assistant", r.body()!!.response.message.content)
-            accFrag.binding.suggestBtn.isEnabled = true
+            val res = r.body()!!.response
+            content = res.message.content
+
+            dialog.setTitle("${res.model} 建議")
+
+            val posBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            val negBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            val neutralBtn = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
+
+            posBtn.text = "OK"
+
+            negBtn.text = "複製"
+            negBtn.setOnClickListener {
+                val clip = ClipData.newPlainText("", content)
+                val clipboard = accFrag.requireContext().getSystemService(Service.CLIPBOARD_SERVICE) as ClipboardManager
+                clipboard.setPrimaryClip(clip)
+                accFrag.toast("已複製✅")
+            }
+
+            neutralBtn.text = "分享"
+            neutralBtn.setOnClickListener {
+                val intent = Intent(Intent.ACTION_SEND)
+                intent.putExtra(Intent.EXTRA_TEXT, content)
+                intent.type = "text/plain"
+
+                accFrag.startActivity(Intent.createChooser(intent, null))
+            }
         }
 
         request(accFrag, retroFun, onSucceed, null)
     }
 
     fun predictDiabetes(accFrag: AccFrag, obj: Request.Diabetes) {
-        val retroFun = suspend { retrofit.predictDiabetes(AccFrag.token!!.access.bearer, obj) }
+        val retroFun = suspend { retrofit.value.predictDiabetes(AccFrag.key, obj) }
 
         val onSucceed = { r: Response<Result.Diabetes> ->
-            accFrag.dialog("TODO: 預測結果", if (r.body()!!.prediction == 1L) "是" else "否")
+            accFrag.dialog("TODO: 預測結果", if (r.body()!!.prediction == 1) "是" else "否")
         }
 
         request(accFrag, retroFun, onSucceed, null)
@@ -169,10 +238,9 @@ object Client {
                     r = retroFun()
                     status = r.code()
 
-                    if (status == 401) {
-                        val refreshResponse = retrofit.refresh(Request.Refresh(AccFrag.token!!.refresh))
-                        AccFrag.token = refreshResponse.body()
-                    } else
+                    if (status == 401)
+                        refresh()
+                    else
                         break
                 }
 
@@ -189,8 +257,14 @@ object Client {
             } catch (_: SocketTimeoutException) {
                 frag.ui { errDialog("連線逾時") }
             } catch (e: Exception) {
-                frag.ui { dialog(e::class.java.name, e.message.toString()) }
+                frag.ui { errDialog("${e::class.java.name}\n\n${e.message}") }
             }
         }
+    }
+
+    private suspend fun refresh() {
+        val obj = Request.Refresh(AccFrag.tokens!!.refresh)
+        val r = retrofit.value.refresh(obj)
+        AccFrag.tokens = r.body()
     }
 }
