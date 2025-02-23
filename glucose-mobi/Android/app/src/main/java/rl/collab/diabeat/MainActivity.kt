@@ -1,6 +1,7 @@
 package rl.collab.diabeat
 
 import android.os.Bundle
+import android.text.Editable
 import android.view.KeyEvent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
@@ -8,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.core.widget.doAfterTextChanged
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import rl.collab.diabeat.databinding.ActivityMainBinding
@@ -55,17 +57,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.run {
             val ets = arrayOf(hostA, hostB, hostC, hostD)
-            for (i in 0..3)
-                ets[i].setText(Client.host[i])
-
-            if (!hostFile.exists() || hostFile.readLines()[4].toBoolean())
-                startUpCb.isChecked = true
-
             val dialog = viewDialog("Host", root, null)
             val posBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             posBtn.setOnClickListener {
-                if (ets.any { it.str.isEmpty() || it.str.toInt() > 255 })
-                    return@setOnClickListener
+                toast("修改完成✅")
 
                 for (i in 0..3)
                     Client.host[i] = ets[i].str
@@ -76,6 +71,22 @@ class MainActivity : AppCompatActivity() {
                 if (onKeyDown)
                     Client.resetRetro()
             }
+
+            val watcher = { _: Editable? ->
+                posBtn.isEnabled = ets.all { it.str.isNotEmpty() && it.str.toInt() <= 255 }
+            }
+            for (i in 0..3)
+                ets[i].run {
+                    setText(Client.host[i])
+                    doAfterTextChanged(watcher)
+                }
+            hostD.setOnEditorActionListener { _, _, _ ->
+                posBtn.callOnClick()
+                true
+            }
+
+            if (!hostFile.exists() || hostFile.readLines()[4].toBoolean())
+                startUpCb.isChecked = true
         }
     }
 }

@@ -89,13 +89,13 @@
         android:layout_marginBottom="?dialogPreferredPadding"
         android:drawableStart="@drawable/bulb"
         android:drawableTint="#FFFF00"
-        android:text=" 按音量上顯示此設定"
+        android:text=" 按音量上顯示此視窗"
         android:typeface="monospace" />
 
     <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/start_up_cb"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="啟動時顯示" />
+        android:text=" 啟動時顯示" />
 
 </LinearLayout>

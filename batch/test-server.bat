@@ -4,7 +4,7 @@ cls
 
 echo === del db ===
 cd ..\glucose-BE\glucoseBE
-del db.sqlite3
+del db.sqlite3 2>nul
 echo === del completed ===
 echo.
 

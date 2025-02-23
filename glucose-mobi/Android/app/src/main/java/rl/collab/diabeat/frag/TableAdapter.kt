@@ -7,11 +7,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
 import rl.collab.diabeat.R
 import rl.collab.diabeat.Result
-import rl.collab.diabeat.localDT
+import rl.collab.diabeat.localDateTime
 import rl.collab.diabeat.tryToInt
 
 class TableAdapter(private val data: List<Result.Records>) : RecyclerView.Adapter<TableAdapter.ViewHolder>() {
-
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val cellTv: MaterialTextView = view.findViewById(R.id.cell_tv)
     }
@@ -28,7 +27,7 @@ class TableAdapter(private val data: List<Result.Records>) : RecyclerView.Adapte
         else
             holder.cellTv.text = data[position / 5 - 1].run {
                 arrayOf(
-                    created_at.localDT(),
+                    created_at.localDateTime(),
                     blood_glucose.tryToInt(),
                     carbohydrate_intake.tryToInt(),
                     exercise_duration.tryToInt(),

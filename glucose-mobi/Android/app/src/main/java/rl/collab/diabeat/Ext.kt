@@ -8,7 +8,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -42,12 +41,12 @@ fun Double?.tryToInt(): String {
 
 val String.isEmail get() = Patterns.EMAIL_ADDRESS.matcher(this).matches()
 
-fun String.localDT(): String {
+fun String.localDateTime(): String {
     val localDateTime = Instant.parse(this)
         .atZone(ZoneId.systemDefault())
         .toLocalDateTime()
 
-    val now = LocalDate.now()
+    val now = LocalDateTime.now()
 
     return localDateTime.format(
         DateTimeFormatter.ofPattern(
@@ -64,21 +63,8 @@ fun String.localDT(): String {
 
 val EditText.str get() = text.toString()
 
-fun Fragment.toast(msg: String) {
-    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-}
-
-fun Fragment.dialog(title: String, msg: String) {
-    MaterialAlertDialogBuilder(requireContext())
-        .setCancelable(false)
-        .setTitle(title)
-        .setMessage(msg)
-        .setPositiveButton("OK", null)
-        .show()
-}
-
-fun Fragment.errDialog(msg: String) {
-    dialog("錯誤", msg)
+fun Context.toast(msg: String) {
+    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
 }
 
 fun Context.viewDialog(title: String, view: View?, neutralBtn: String?): AlertDialog {
@@ -99,10 +85,27 @@ fun Context.viewDialog(title: String, view: View?, neutralBtn: String?): AlertDi
     return builder.show()
 }
 
+fun Fragment.toast(msg: String) {
+    requireContext().toast(msg)
+}
+
+fun Fragment.dialog(title: String, msg: String) {
+    MaterialAlertDialogBuilder(requireContext())
+        .setCancelable(false)
+        .setTitle(title)
+        .setMessage(msg)
+        .setPositiveButton("OK", null)
+        .show()
+}
+
+fun Fragment.errDialog(msg: String) {
+    dialog("錯誤", msg)
+}
+
 fun Fragment.viewDialog(title: String, view: View?, neutralBtn: String?): AlertDialog =
     requireContext().viewDialog(title, view, neutralBtn)
 
-fun LifecycleOwner.io(block: suspend CoroutineScope.() -> Unit) {
+fun Fragment.io(block: suspend CoroutineScope.() -> Unit) {
     lifecycleScope.launch(Dispatchers.IO, block = block)
 }
 

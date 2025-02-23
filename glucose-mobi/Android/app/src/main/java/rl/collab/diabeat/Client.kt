@@ -149,17 +149,25 @@ object Client {
         val dialog = MaterialAlertDialogBuilder(accFrag.requireContext())
             .setCancelable(false)
             .setTitle("AI 建議")
-            .setMessage("耐心等待 60s\n\n/")
+            .setMessage("耐心等待6️⃣0️⃣秒")
             .setPositiveButton("取消", null)
             .setNegativeButton(" ", null)
             .setNeutralButton(" ", null)
             .show()
 
         accFrag.io {
-            var i = 480
-            while (i >= 0 && content == "") {
-                accFrag.ui { dialog.setMessage("耐心等待 ${i / 8}s\n\n${"/-\\|"[i % 4]}") }
-                delay(125)
+            var i = 60
+            while (i >= 0 && content.isEmpty()) {
+                val nums = arrayOf("0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣")
+                val fruits = arrayOf("🥝", "🍇", "🍈", "🍉", "🍊", "🍌", "🍍")
+                val foods = arrayOf("🍕", "🍔", "🍟", "🌭", "🥘", "🥞", "🍤")
+                val a = i / 8
+                val msg = "耐心等待${nums[i / 10]}${nums[i % 10]}秒\n\n" +
+                        "${fruits.take(a).joinToString("")}\n${foods.take(i - a * 8).joinToString("")}\n\n" +
+                        i.toString(2).replace("0", "🌑").replace("1", "🌕")
+
+                accFrag.ui { dialog.setMessage(msg) }
+                delay(1000)
                 i--
             }
             accFrag.ui { dialog.setMessage(content) }
