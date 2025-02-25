@@ -18,7 +18,7 @@ const sendAnalysisRequest = async () => {
     chatStore.fetchChatContent();
 };
 const sendSense = async (imageFile) => {
-    dataStore.SensePicture(imageFile);
+    chatStore.SensePicture(imageFile);
     chatStore.senseWindow = true;
 };
 </script>
