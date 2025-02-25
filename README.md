@@ -1,31 +1,72 @@
 # 2025-AI-glucose
 
-To see the demo, follow these steps:
+## Pre-installation
+- [Node.js](https://nodejs.org/)
+- [Python 3](https://www.python.org/)
+- Git clone this project repo
 
-1. **Install Node.js**: If you don't have Node.js installed, download and install it from [nodejs.org](https://nodejs.org/).
-2. **Get into glucose-FE**:
-
-    ```sh
-    cd glucose-FE
-    ```
-
-3. **Install pnpm**: Once Node.js is installed, you can install `pnpm` by running the following command in your terminal:
+## Installation
+- Windows: Run `batch\install.bat`.
+- Linux/macOS: From the project root directory, run:
 
     ```sh
     npm install -g pnpm
+    cd glucose-FE
     pnpm install
-    ```
-
-4. **Open Backend Server**: Install the required packages and start the server:
-
-    ```sh
+    cd ../glucose-BE
     pip install -r requirements.txt
-    python manage.py migrate
-    python manage.py runserver
     ```
+    
+    If you encounter an `externally-managed-environment` error during `pip install -r requirements.txt`, create a virtual environment **(venv)** and install the dependencies within it.
 
-5. **Run the demo**: Open a new terminal and run the demo using the following command:
+## Run server
+- Windows: Run `batch\server.bat`.
+- Linux/macOS: From the `glucose-BE/glucoseBE` directory, run:
 
     ```sh
-    pnpm dev
+    python3 manage.py migrate
+    python3 manage.py runserver 0.0.0.0:8000
     ```
+
+## Test server
+This process will delete the existing database and restart the server.
+
+- Windows: Run `batch\test-server.bat`.
+- Linux/macOS: From the `glucose-BE/glucoseBE` directory, run:
+
+    ```sh
+    rm db.sqlite3
+    python3 manage.py migrate
+    python3 manage.py runserver 0.0.0.0:8000
+    ```
+
+## Run web demo
+- Windows: Run `batch\web.bat`.
+- Linux/macOS: From the `glucose-FE` directory, run:
+
+    ```sh
+    pnpm dev --open
+    ```
+
+## Run Android demo
+
+1. Download the APK from [releases](https://github.com/creaper9487/2025-AI-glucose/releases) and install it.
+
+2. Connect your phone to the computer, and configure **USB tethering**. On macOS and Hackintosh, you need to install **HoRNDIS Kext** to support USB tethering.
+
+3. Use the following commands to check the IPv4 address assigned to your computer by your phone. This address is required to connect the app to the server.
+- Windows:
+
+    ```sh
+    ipconfig
+    ```
+
+- Linux/macOS:
+
+    ```sh
+    ifconfig
+    ```
+
+4. Run the server.
+
+5. Open the app and enter the IPv4 address you found in step 3 into the start-up AlertDialog to connect to the server.

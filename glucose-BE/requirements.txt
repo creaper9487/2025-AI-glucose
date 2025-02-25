@@ -7,3 +7,9 @@ django-cors-headers
 google-auth
 google-auth-oauthlib
 ollama
+pillow 
+torch 
+torchvision
+pandas
+joblib
+scikit-learn

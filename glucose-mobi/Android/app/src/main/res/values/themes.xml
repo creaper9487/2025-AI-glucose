@@ -1,12 +1,10 @@
 <resources>
 
-    <style name="Base.Theme.AIGlucose" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar" />
-
-    <style name="Theme.AIGlucose" parent="Base.Theme.AIGlucose">
+    <style name="Theme.Diabeat" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar">
         <item name="editTextStyle">@style/monoEt</item>
     </style>
 
     <style name="monoEt" parent="Widget.AppCompat.EditText">
-        <item name="android:fontFamily">monospace</item>
+        <item name="android:typeface">monospace</item>
     </style>
 </resources>

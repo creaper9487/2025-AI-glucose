@@ -2,16 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/recordFrag"
-        android:icon="@drawable/record_selector"
-        android:title="@string/record" />
+        android:icon="@drawable/pen_selector"
+        android:title="紀錄" />
 
     <item
         android:id="@+id/figureFrag"
-        android:icon="@drawable/figure_selector"
-        android:title="@string/figure" />
+        android:icon="@drawable/chart_selector"
+        android:title="圖表" />
 
     <item
         android:id="@+id/accFrag"
         android:icon="@drawable/acc_selector"
-        android:title="@string/acc" />
+        android:title="帳號" />
 </menu>
