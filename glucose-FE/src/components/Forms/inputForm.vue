@@ -9,15 +9,13 @@ const formRef = ref(null);
 const glucose = ref('');
 const carbs = ref('');
 const exercise = ref('');
-const insulin = ref('');
 const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-        const response = await axiosInstance.post('/api/submit/', {
-            glucose: glucose.value,
-            carbs: carbs.value,
-            exercise: exercise.value,
-            insulin: insulin.value
+        const response = await axiosInstance.post('/api/records/', {
+            blood_glucose: glucose.value,
+            carbohydrate_intake: carbs.value,
+            exercise_duration: exercise.value,
         });
         console.log(response.data);
     } catch (error) {
@@ -51,12 +49,7 @@ const handleSubmit = async (event) => {
                 <label
                     class="absolute top-0 left-0 p-2 text-white transition-all duration-500 pointer-events-none">運動時長(分鐘)</label>
             </div>
-            <div class="relative mb-8">
-                <input type="text" v-model="insulin" required
-                    class="w-full p-2 text-white bg-transparent border-b border-white outline-none focus:border-cyan-400">
-                <label
-                    class="absolute top-0 left-0 p-2 text-white transition-all duration-500 pointer-events-none">胰島素注射量</label>
-            </div>
+
             <button type="submit" class="w-full p-2 mt-4 text-slate-800 bg-slate-200 rounded-lg hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400">
                 送出
             </button>
