@@ -36,11 +36,15 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+
     implementation(libs.androidx.biometric)
     implementation(libs.converter.gson)
     implementation(libs.retrofit)
     implementation(libs.okhttp)
-    implementation(libs.gms.play.services.auth)
     implementation(libs.mpandroidchart)
-    implementation(libs.androidx.material3)
+
+    // Credential Manager
+    implementation(libs.googleid)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
 }
