@@ -3,7 +3,7 @@ import NavBar from '@/components/NavBar.vue';
 import lineChart from '@/components/charts/lineChart.vue';
 import { useDataStore } from '@/stores/dataStore';
 const dataStore = useDataStore();
-dataStore.fetchglucose();
+dataStore.fetchGlucose();
 </script>
 
 <template>

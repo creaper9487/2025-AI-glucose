@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axiosInstance from '../components/axiosInstance'
+import axios from 'axios'
 export const useChatStore = defineStore('ChatStore', {
   state: () => ({
     chatContent: [],
@@ -9,19 +9,32 @@ export const useChatStore = defineStore('ChatStore', {
   }),
   actions: {
     async fetchChatContent() {
-      axiosInstance.post('/api/chat/', { content: "hello"}).then((response) => {
+      axios.post('/api/chat/', { content: "hello"}).then((response) => {
         this.chatContent = response.data
       }).catch((error) => {
         console.error('Error fetching chat content:', error)
       })
     },
-    async SensePicture(data) {
-      try {
-        const response = await axiosInstance.post('/api/predict/', data)
-        this.gram = response.data.predicted_value
-      } catch (error) {
-        console.error('Error fetching data:', error)
+    async SensePicture(imageFile) {
+      if (!imageFile) {
+          console.error('No file provided.');
+          return;
       }
-    },
+  
+      const formData = new FormData();
+      formData.append('image', imageFile);
+  
+      try {
+          const response = await axios.post('/api/predict/', formData, {
+              headers: {
+                  'Content-Type': 'multipart/form-data',
+              },
+          });
+          this.gram = response.data.predicted_value;
+      } catch (error) {
+          console.error('Error uploading image:', error);
+      }
+  }
+  ,
   },
 })

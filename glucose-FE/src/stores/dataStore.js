@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axiosInstance from '../components/axiosInstance'
+import axios from 'axios'
 export const useDataStore = defineStore('DataStore', {
   state: () => ({
     CH: [],
@@ -19,34 +19,20 @@ export const useDataStore = defineStore('DataStore', {
     }
   }),
   actions: {
-    async fetchData(dataType) {
-      try {
-        const response = await axiosInstance.get('/api/user/' + dataType)
-        return response.data
-      } catch (error) {
-        console.error('Error fetching data:', error)
-      }
+    fetchGlucose() {
+      axios.get('/api/records/').then((response) => {
+        console.log(response.data)
+      }).catch((error) => {
+        console.error('Error fetching glucose:', error)
+      })
     },
-    async fetchglucose() {
+    async postGlucose(datoid){
       try {
-        const response = await this.fetchData('glucose')
-        const glucoseData = response;
-        console.log(glucoseData);
-        const labels = [];
-        const data = [];
-        for (const key in glucoseData) {
-          if (Object.prototype.hasOwnProperty.call(glucoseData, key)) {
-            labels.push(key);
-            data.push(glucoseData[key]);
-          }
-        }
-        this.glucoseCfg.labels = labels;
-        this.glucoseCfg.datasets[0].data = data;
-        console.log(this.glucoseCfg.labels, this.glucoseCfg.datasets[0].data);
+          const response = await axios.post('/api/token/refresh/', datoid);
+          if(response!=null)alert("上傳成功");
       } catch (error) {
-        console.error('Error fetching data:', error)
+          console.error('Error refreshing tokens:', error);
       }
-    },
-    
+  }
   },
 })

@@ -5,9 +5,11 @@ import { useAuthStore } from '@/stores/authStore';
 const authStore = useAuthStore();
 const username_or_email = ref('');
 const password = ref('');
-const handleRegister = async (event) => {
+const handleLogin = async (event) => {
+    // console.log(username_or_email.value,password.value)
     event.preventDefault(); 
-    authStore.login({username_or_email:username_or_email.value, password:password.value});
+    authStore.login({"username_or_email":username_or_email.value,
+                     "password":password.value});
 };
 const handleGoogleLogin = async () => {
     const clientId = '887111954782-4ak0653kmakl505jo33d7c23tpps1rge.apps.googleusercontent.com';
@@ -31,7 +33,7 @@ const handleGoogleLogin = async () => {
     <h2 class="text-center text-white text-2xl mb-1">登入</h2>
     <p class="text-center text-slate-300 text-l mb-8">登入查看你的血糖健康紀錄
     </p>
-    <form ref="formRef" @submit="handleRegister">
+    <form ref="formRef" @submit="handleLogin">
         <div class="relative mb-8">
             <input type="text" v-model="username_or_email" required
                 class="w-full p-2 text-white bg-transparent border-b border-white outline-none focus:border-cyan-400">
