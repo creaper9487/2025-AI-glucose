@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useAuthStore } from './authStore'
 export const useChatStore = defineStore('ChatStore', {
   state: () => ({
+    img:null,
     chatContent: [],
     gram: 0,
     chatWindow: false,
@@ -34,7 +35,7 @@ export const useChatStore = defineStore('ChatStore', {
             'Content-Type': 'multipart/form-data',
           },
         });
-        this.gram = response.data.predicted_value;
+        this.gram = (response.data.predicted_value).toFixed(2);
       } catch (error) {
         if (error.response && error.response.status === 401) {
           useAuthStore.refreshTokens();

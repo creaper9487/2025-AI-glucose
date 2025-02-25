@@ -26,6 +26,7 @@ const chatStore = useChatStore();
             <div class="my-2 h-48 overflow-y-auto border bg-gray-300 rounded p-2">
                 <p> 預測該照片中的碳水化合物含量是 {{ chatStore.gram }} 克。</p>
             </div>
+            <img :src="chatStore.img" alt="food" class="w-48 h-48">
         </div>
     </div>
 </template>
