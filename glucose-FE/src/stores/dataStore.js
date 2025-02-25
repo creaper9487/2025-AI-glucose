@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useAuthStore } from './authStore'
 import axios from 'axios'
 export const useDataStore = defineStore('DataStore', {
   state: () => ({
@@ -23,12 +24,16 @@ export const useDataStore = defineStore('DataStore', {
       axios.get('/api/records/').then((response) => {
         console.log(response.data)
       }).catch((error) => {
-        console.error('Error fetching glucose:', error)
+        if (error.response && error.response.status === 401) {
+          useAuthStore.refreshTokens();
+        } else {
+          console.error('Error get glucose:', error);
+        }
       })
     },
     async postGlucose(datoid){
       try {
-          const response = await axios.post('/api/token/refresh/', datoid);
+          const response = await axios.post('/api/records/', datoid);
           if(response!=null)alert("上傳成功");
       } catch (error) {
           console.error('Error refreshing tokens:', error);

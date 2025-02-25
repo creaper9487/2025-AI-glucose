@@ -31,23 +31,13 @@ export const useAuthStore = defineStore('auth', {
         },
         async refreshTokens(){
             try {
-                const response = await axios.post('/api/refresh/', {refresh: this.token[1]});
+                const response = await axios.post('/api/token/refresh/', {refresh: this.token[1]});
                 this.token = [ response.access,response.refresh];
                 axios.defaults.headers.common['Authorization'] = `Bearer ${this.token[0]}`;
             } catch (error) {
                 console.error('Error refreshing tokens:', error);
             }
         },
-        async fetchUser(){
-            try {
-                const response = await axios.get('/api/user/');
-                this.username = response.data.username;
-            // eslint-disable-next-line no-unused-vars
-            } catch (error) {
-                this.refreshTokens();
-            }
-        },
-        
         logout() {
             this.token = null;
             this.username = '';
