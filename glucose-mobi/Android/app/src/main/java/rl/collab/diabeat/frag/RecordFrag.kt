@@ -89,13 +89,11 @@ class RecordFrag : Fragment() {
                     toast("請先登入")
                 else {
                     val binding = DialogSrcBinding.inflate(layoutInflater)
-                    val dialog = viewDialog("選擇來源", binding.root, null)
-
+                    val dialog = viewDialog("選擇來源", binding.root)
                     binding.photoTv.setOnClickListener {
                         pickImageLauncher.launch("image/*")
                         dialog.dismiss()
                     }
-
                     binding.cameraTv.setOnClickListener {
                         takePicFilename = "${System.currentTimeMillis()}.jpg"
                         val file = File(requireContext().cacheDir, takePicFilename)

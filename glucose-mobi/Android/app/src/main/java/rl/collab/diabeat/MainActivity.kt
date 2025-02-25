@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.view.KeyEvent
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -52,13 +51,13 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    private fun setHost(onKeyDown: Boolean) {
+    fun setHost(onKeyDown: Boolean) {
         val binding = DialogHostBinding.inflate(layoutInflater)
 
         binding.run {
             val ets = arrayOf(hostA, hostB, hostC, hostD)
-            val dialog = viewDialog("Host", root, null)
-            val posBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            val dialog = viewDialog("Host", root)
+            val posBtn = dialog.pos()
             posBtn.setOnClickListener {
                 toast("修改完成✅")
 
@@ -82,7 +81,6 @@ class MainActivity : AppCompatActivity() {
                 }
             hostD.setOnEditorActionListener { _, _, _ ->
                 posBtn.callOnClick()
-                true
             }
 
             if (!hostFile.exists() || hostFile.readLines()[4].toBoolean())

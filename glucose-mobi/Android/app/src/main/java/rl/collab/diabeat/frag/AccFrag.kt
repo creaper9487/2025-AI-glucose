@@ -1,7 +1,5 @@
 package rl.collab.diabeat.frag
 
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,16 +7,16 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.widget.doAfterTextChanged
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.fragment.app.Fragment
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import rl.collab.diabeat.Client
 import rl.collab.diabeat.R
 import rl.collab.diabeat.Request
@@ -27,25 +25,23 @@ import rl.collab.diabeat.databinding.DialogDiabetesBinding
 import rl.collab.diabeat.databinding.DialogLoginBinding
 import rl.collab.diabeat.databinding.DialogRegisterBinding
 import rl.collab.diabeat.databinding.FragAccBinding
+import rl.collab.diabeat.excDialog
+import rl.collab.diabeat.hideKb
+import rl.collab.diabeat.io
 import rl.collab.diabeat.isEmail
+import rl.collab.diabeat.nacho
+import rl.collab.diabeat.pos
 import rl.collab.diabeat.str
 import rl.collab.diabeat.toast
+import rl.collab.diabeat.ui
 import rl.collab.diabeat.viewDialog
 import java.io.File
 
 class AccFrag : Fragment() {
-    private lateinit var googleSignInClient: GoogleSignInClient
+    private val credentialManager by lazy { CredentialManager.create(requireContext()) }
     private lateinit var binding: FragAccBinding
     lateinit var accFile: File
     lateinit var pwFile: File
-
-    private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == Activity.RESULT_OK) {
-            val acc = GoogleSignIn.getSignedInAccountFromIntent(it.data).result
-            toast(acc.email!!)
-            googleSignInClient.signOut()
-        }
-    }
 
     companion object {
         var tokens: Result.Tokens? = null
@@ -70,16 +66,7 @@ class AccFrag : Fragment() {
             logInEnv(tokens!!, acc!!, pw!!)
 
         binding.run {
-            googleSignInBtn.setOnClickListener {
-                val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(getString(R.string.token))
-                    .requestProfile()
-                    .requestEmail()
-                    .build()
-
-                googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
-                googleSignInLauncher.launch(googleSignInClient.signInIntent)
-            }
+            googleSignInBtn.setOnClickListener { googleSignInBtnOnClick() }
             registerBtn.setOnClickListener { registerBtnOnClick() }
             loginBtn.setOnClickListener { logInBtnOnClick() }
             aboutUsBtn.setOnClickListener {
@@ -152,13 +139,40 @@ class AccFrag : Fragment() {
         binding.accLy.visibility = View.VISIBLE
     }
 
+    private fun googleSignInBtnOnClick() {
+        val opt = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(false)
+            .setServerClientId(getString(R.string.token))
+            .build()
+
+        val obj = GetCredentialRequest.Builder()
+            .addCredentialOption(opt)
+            .build()
+
+        io {
+            try {
+                val credential = credentialManager.getCredential(requireContext(), obj)
+                    .credential as GoogleIdTokenCredential
+
+                val idToken = credential.idToken
+                val email = credential.id
+                val name = credential.displayName
+                ui { toast("$email\n$name") }
+                nacho(idToken)
+
+            } catch (_: GetCredentialCancellationException) {
+            } catch (e: Exception) {
+                ui { excDialog(e) }
+            }
+        }
+    }
+
     private fun registerBtnOnClick() {
         val binding = DialogRegisterBinding.inflate(layoutInflater)
 
         binding.run {
-            val dialog = viewDialog("註冊", root, null)
-
-            val posBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            val dialog = viewDialog("註冊", root)
+            val posBtn = dialog.pos()
             posBtn.isEnabled = false
             posBtn.setOnClickListener {
                 val obj = Request.Register(emailEt.str, usernameEt.str, pwEt.str)
@@ -183,7 +197,7 @@ class AccFrag : Fragment() {
             }
 
             val dialog = viewDialog("登入", root, "生物辨識")
-            val posBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            val posBtn = dialog.pos()
             posBtn.isEnabled = false
             posBtn.setOnClickListener {
                 val obj = Request.Login(accEt.str.trim(), pwEt.str)
@@ -195,10 +209,8 @@ class AccFrag : Fragment() {
             accEt.doAfterTextChanged(watcher)
             pwEt.doAfterTextChanged(watcher)
             pwEt.setOnEditorActionListener { _, _, _ ->
+                pwEt.hideKb()
                 posBtn.callOnClick()
-                val imm = pwEt.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.hideSoftInputFromWindow(pwEt.windowToken, 0)
-                true
             }
 
             val neutralBtn = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
@@ -222,9 +234,8 @@ class AccFrag : Fragment() {
                 arrayOf("從不吸菸", "曾經吸菸", "目前沒有吸菸", "目前有吸菸")
             )
 
-            val dialog = viewDialog("預測是否得糖尿病", root, null)
-
-            val posBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            val dialog = viewDialog("預測是否得糖尿病", root)
+            val posBtn = dialog.pos()
             posBtn.isEnabled = false
             posBtn.setOnClickListener {
                 val obj = Request.Diabetes(
