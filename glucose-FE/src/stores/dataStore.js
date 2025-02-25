@@ -35,7 +35,7 @@ export const useDataStore = defineStore('DataStore', {
         const labels = [];
         const data = [];
         for (const key in glucoseData) {
-          if (glucoseData.hasOwnProperty(key)) {
+          if (Object.prototype.hasOwnProperty.call(glucoseData, key)) {
             labels.push(key);
             data.push(glucoseData[key]);
           }
@@ -47,5 +47,6 @@ export const useDataStore = defineStore('DataStore', {
         console.error('Error fetching data:', error)
       }
     },
+    
   },
 })
