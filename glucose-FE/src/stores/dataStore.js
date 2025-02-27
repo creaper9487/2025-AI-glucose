@@ -21,25 +21,38 @@ export const useDataStore = defineStore('DataStore', {
   }),
   actions: {
     fetchGlucose() {
+      const authStore = useAuthStore()
+
       axios
         .get('/api/records/')
         .then(response => {
           console.log(response.data)
+          this.dataProc(response.data)
+          this.glucoseCfg.labels = response.data.map(item => item.created_at)
+          this.glucoseCfg.datasets[0].data = response.data.map(item => item.blood_glucose)
+          console.log(this.glucoseCfg.labels)
+          console.log(this.glucoseCfg.datasets[0].data)
         })
         .catch(error => {
           if (error.response && error.response.status === 401) {
-            useAuthStore.refreshTokens()
+            authStore.refreshTokens()
           } else {
             console.error('Error get glucose:', error)
           }
         })
     },
     async postGlucose(datoid) {
+      const authStore = useAuthStore()
+
       try {
         const response = await axios.post('/api/records/', datoid)
         if (response != null) alert('上傳成功')
       } catch (error) {
-        console.error('Error refreshing tokens:', error)
+        if (error.response && error.response.status === 401) {
+          authStore.refreshTokens()
+        } else {
+          console.error('Error pst glucose:', error)
+        }
       }
     },
     dataProc(data) {
@@ -55,11 +68,6 @@ export const useDataStore = defineStore('DataStore', {
         // For descending order (newest to oldest), use:
         // return dateB - dateA;
       })
-      this.glucoseCfg.labels = data.map(item => item.created_at)
-      this.glucoseCfg.datasets[0].data = data.map(item => item.blood_glucose)
-        },
-      },
-    })
     },
   },
 })
