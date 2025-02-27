@@ -1,3 +1,8 @@
+//testuser
+// 用戶名: default_user
+// 密碼: defaultpassword123
+// 電子郵件: default@example.com
+
 import { defineStore } from 'pinia';
 import axios from 'axios';
 import axiosInstance from '@/components/axiosInstance';
