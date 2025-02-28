@@ -21,6 +21,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var hostPref: SharedPreferences
     private val hostStartup get() = hostPref.getBoolean("startup", true)
 
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            setHost()
+            return true
+        }
+        return false
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -39,14 +47,6 @@ class MainActivity : AppCompatActivity() {
         hostPref = getSharedPreferences("host", Context.MODE_PRIVATE)
         if (hostStartup)
             setHost()
-    }
-
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-            setHost()
-            return true
-        }
-        return false
     }
 
     fun setHost() {

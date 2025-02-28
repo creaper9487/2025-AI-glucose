@@ -1,6 +1,5 @@
 package rl.collab.diabeat.frag
 
-import android.content.ContentResolver
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
@@ -28,7 +27,6 @@ class RecordFrag : Fragment() {
     val binding get() = _binding!!
     private lateinit var takePicFilename: String
     private lateinit var takePicUri: Uri
-    private lateinit var contentResolver: ContentResolver
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragRecordBinding.inflate(inflater, container, false)
@@ -40,76 +38,84 @@ class RecordFrag : Fragment() {
         _binding = null
     }
 
-    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let {
-            lateinit var filename: String
-            var fileSize = 0L
-
-            val cursor = contentResolver.query(uri, null, null, null, null)
-            cursor?.use {
-                cursor.moveToFirst()
-                filename = cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
-                fileSize = cursor.getLong(cursor.getColumnIndexOrThrow(OpenableColumns.SIZE))
-            }
-
-            toast("上傳 ${fileSize.fmt()}")
-
-            val byteArr = contentResolver.openInputStream(uri)!!.readBytes()
-            val obj = byteArr.toRequestBody("image/*".toMediaType())
-            val image = MultipartBody.Part.createFormData("image", filename, obj)
-            Client.predictCarbohydrate(this, image)
-        }
-    }
-    private val takePicLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success) {
-            val byteArr = contentResolver.openInputStream(takePicUri)!!.readBytes()
-            val obj = byteArr.toRequestBody("image/jpeg".toMediaType())
-            val image = MultipartBody.Part.createFormData("image", takePicFilename, obj)
-            Client.predictCarbohydrate(this, image)
-        }
-    }
-
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        contentResolver = requireContext().contentResolver
 
         binding.run {
+
             saveBtn.setOnClickListener {
-                if (AccFrag.tokens == null)
+                AccFrag.tokens ?: run {
                     toast("請先登入")
-                else if (glucoseEt.str.isEmpty())
-                    toast("血糖值不能為空")
-                else {
-                    val obj = Request.Record(
-                        glucoseEt.str.toDouble(),
-                        carbohydrateEt.str.toDoubleOrNull(),
-                        exerciseEt.str.toDoubleOrNull(),
-                        insulinEt.str.toDoubleOrNull()
-                    )
-                    Client.postRecord(this@RecordFrag, obj)
+                    return@setOnClickListener
                 }
+
+                if (glucoseEt.str.isEmpty()) {
+                    toast("血糖值不能為空")
+                    return@setOnClickListener
+                }
+
+                val obj = Request.Record(
+                    glucoseEt.str.toDouble(),
+                    carbohydrateEt.str.toDoubleOrNull(),
+                    exerciseEt.str.toDoubleOrNull(),
+                    insulinEt.str.toDoubleOrNull()
+                )
+                Client.postRecord(this@RecordFrag, obj)
             }
 
             predictCarbohydrateBtn.setOnClickListener {
-                if (AccFrag.tokens == null)
+                AccFrag.tokens ?: run {
                     toast("請先登入")
-                else {
-                    val binding = DialogSrcBinding.inflate(layoutInflater)
-                    val dialog = viewDialog("選擇來源", binding.root)
-                    binding.photoTv.setOnClickListener {
-                        pickImageLauncher.launch("image/*")
-                        dialog.dismiss()
-                    }
-                    binding.cameraTv.setOnClickListener {
-                        takePicFilename = "${System.currentTimeMillis()}.jpg"
-                        val file = File(requireContext().cacheDir, takePicFilename)
-                        takePicUri = FileProvider.getUriForFile(requireContext(), "rl.collab.diabeat.fileprovider", file)
-                        takePicLauncher.launch(takePicUri)
-                        dialog.dismiss()
-                    }
+                    return@setOnClickListener
+                }
+
+                val binding = DialogSrcBinding.inflate(layoutInflater)
+                val dialog = viewDialog("選擇來源", binding.root)
+                binding.photoTv.setOnClickListener {
+                    pickImageLauncher.launch("image/*")
+                    dialog.dismiss()
+                }
+                binding.cameraTv.setOnClickListener {
+                    takePicFilename = "${System.currentTimeMillis()}.jpg"
+                    val file = File(requireContext().cacheDir, takePicFilename)
+                    takePicUri = FileProvider.getUriForFile(requireContext(), "rl.collab.diabeat.fileprovider", file)
+                    takePicLauncher.launch(takePicUri)
+                    dialog.dismiss()
                 }
             }
         }
+    }
+
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri ?: return@registerForActivityResult
+
+        var filename = ""
+        var fileSize = 0L
+        val resolver = requireContext().contentResolver
+        val cursor = resolver.query(uri, null, null, null, null)
+        cursor?.use {
+            cursor.moveToFirst()
+            filename = cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
+            fileSize = cursor.getLong(cursor.getColumnIndexOrThrow(OpenableColumns.SIZE))
+        }
+
+        toast("上傳 ${fileSize.fmt()}")
+
+        val byteArr = resolver.openInputStream(uri)!!.readBytes()
+        val obj = byteArr.toRequestBody("image/*".toMediaType())
+        val image = MultipartBody.Part.createFormData("image", filename, obj)
+        Client.predictCarbohydrate(this, image)
+    }
+
+    private val takePicLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (!success)
+            return@registerForActivityResult
+
+        val resolver = requireContext().contentResolver
+
+        val byteArr = resolver.openInputStream(takePicUri)!!.readBytes()
+        val obj = byteArr.toRequestBody("image/jpeg".toMediaType())
+        val image = MultipartBody.Part.createFormData("image", takePicFilename, obj)
+        Client.predictCarbohydrate(this, image)
     }
 }
