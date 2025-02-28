@@ -9,11 +9,17 @@ import rl.collab.diabeat.R
 import rl.collab.diabeat.databinding.FragChartBinding
 
 class ChartFrag : Fragment() {
-    private lateinit var binding: FragChartBinding
+    private var _binding: FragChartBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragChartBinding.inflate(inflater, container, false)
+        _binding = FragChartBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

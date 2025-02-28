@@ -73,11 +73,11 @@ fun Context.toast(msg: String) =
 fun Fragment.toast(msg: String) =
     Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
 
-fun AlertDialog.pos() =
-    getButton(AlertDialog.BUTTON_POSITIVE)!!
+val AlertDialog.pos
+    get() = getButton(AlertDialog.BUTTON_POSITIVE)!!
 
-fun AlertDialog.neutral() =
-    getButton(AlertDialog.BUTTON_NEUTRAL)!!
+val AlertDialog.neutral
+    get() = getButton(AlertDialog.BUTTON_NEUTRAL)!!
 
 fun Context.dialog(
     title: String,

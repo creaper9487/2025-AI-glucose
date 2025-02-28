@@ -38,21 +38,28 @@ import rl.collab.diabeat.viewDialog
 import java.io.File
 
 class AccFrag : Fragment() {
+    private var _binding: FragAccBinding? = null
+    private val binding get() = _binding!!
+
     private val credentialManager by lazy { CredentialManager.create(requireContext()) }
-    private lateinit var binding: FragAccBinding
     lateinit var accFile: File
     lateinit var pwFile: File
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragAccBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
     companion object {
         var tokens: Result.Tokens? = null
         var acc: String? = null
         var pw: String? = null
         val key get() = "Bearer ${tokens!!.access}"
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragAccBinding.inflate(inflater, container, false)
-        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -172,7 +179,7 @@ class AccFrag : Fragment() {
 
         binding.run {
             val dialog = viewDialog("註冊", root)
-            val posBtn = dialog.pos()
+            val posBtn = dialog.pos
             posBtn.isEnabled = false
             posBtn.setOnClickListener {
                 val obj = Request.Register(emailEt.str, usernameEt.str, pwEt.str)
@@ -197,7 +204,7 @@ class AccFrag : Fragment() {
             }
 
             val dialog = viewDialog("登入", root, "生物辨識")
-            val posBtn = dialog.pos()
+            val posBtn = dialog.pos
             posBtn.isEnabled = false
             posBtn.setOnClickListener {
                 val obj = Request.Login(accEt.str.trim(), pwEt.str)
@@ -235,7 +242,7 @@ class AccFrag : Fragment() {
             )
 
             val dialog = viewDialog("預測是否得糖尿病", root)
-            val posBtn = dialog.pos()
+            val posBtn = dialog.pos
             posBtn.isEnabled = false
             posBtn.setOnClickListener {
                 val obj = Request.Diabetes(

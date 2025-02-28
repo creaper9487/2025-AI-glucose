@@ -22,40 +22,28 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 object Client {
-    var host = arrayOf("192", "168", "0", "0")
-
-    private val gson = Gson()
-
-    private val okHttp by lazy {
-        OkHttpClient.Builder()
-            .connectTimeout(1, TimeUnit.SECONDS)
-            .writeTimeout(1, TimeUnit.SECONDS)
-            .readTimeout(1, TimeUnit.SECONDS)
-            .build()
+    const val DEFAULT_ADDR = "192.168.0.0"
+    private val gson by lazy { Gson() }
+    private var retro = lazy { retroInit(false, DEFAULT_ADDR) }
+    private var retroLong = lazy { retroInit(true, DEFAULT_ADDR) }
+    fun resetRetro(addr: String) {
+        retro = lazy { retroInit(false, addr) }
+        retroLong = lazy { retroInit(true, addr) }
     }
 
-    private val okHttpLong by lazy {
-        okHttp.newBuilder()
-            .readTimeout(60, TimeUnit.SECONDS)
+    private fun retroInit(isLong: Boolean, addr: String): Api {
+        val okHttpClient = OkHttpClient.Builder()
+            .connectTimeout(3, TimeUnit.SECONDS)
+            .writeTimeout(3, TimeUnit.SECONDS)
+            .readTimeout(if (isLong) 60 else 3, TimeUnit.SECONDS)
             .build()
-    }
 
-    private var retro = lazy { retroInit(okHttp) }
-
-    private var retroLong = lazy { retroInit(okHttpLong) }
-
-    private fun retroInit(client: OkHttpClient): Api {
         return Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .baseUrl("http://${host.joinToString(".")}:8000/")
-            .client(client)
+            .baseUrl("http://$addr:8000/")
+            .client(okHttpClient)
             .build()
             .create(Api::class.java)
-    }
-
-    fun resetRetro() {
-        retro = lazy { retroInit(okHttp) }
-        retroLong = lazy { retroInit(okHttpLong) }
     }
 
     fun register(accFrag: AccFrag, obj: Request.Register, dialogDismiss: () -> Unit) {
@@ -260,8 +248,8 @@ object Client {
                 }
             } catch (_: SocketTimeoutException) {
                 frag.ui {
-                    errDialog("連線逾時", "設定 Host").neutral().setOnClickListener {
-                        (frag.requireActivity() as MainActivity).setHost(true)
+                    errDialog("連線逾時", "設定 Host").neutral.setOnClickListener {
+                        (frag.requireActivity() as MainActivity).setHost()
                     }
                 }
             } catch (e: Exception) {

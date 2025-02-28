@@ -24,10 +24,21 @@ import rl.collab.diabeat.viewDialog
 import java.io.File
 
 class RecordFrag : Fragment() {
-    lateinit var binding: FragRecordBinding
+    private var _binding: FragRecordBinding? = null
+    val binding get() = _binding!!
     private lateinit var takePicFilename: String
     private lateinit var takePicUri: Uri
     private lateinit var contentResolver: ContentResolver
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragRecordBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
@@ -58,10 +69,6 @@ class RecordFrag : Fragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragRecordBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
