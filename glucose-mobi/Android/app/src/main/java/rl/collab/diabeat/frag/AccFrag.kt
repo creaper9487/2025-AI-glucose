@@ -120,7 +120,7 @@ class AccFrag : Fragment() {
         }
     }
 
-    private fun bioLogIn(obj: Request.Login, dialogDismiss: () -> Unit, reme: Boolean) {
+    private fun bioLogIn(obj: Request.Login, dialog: AlertDialog, reme: Boolean) {
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle("生物辨識登入")
             .setNegativeButtonText("取消")
@@ -130,7 +130,7 @@ class AccFrag : Fragment() {
         val callback = object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 super.onAuthenticationSucceeded(result)
-                Client.logIn(this@AccFrag, obj, dialogDismiss, reme)
+                Client.logIn(this@AccFrag, obj, dialog, reme)
             }
         }
 
@@ -183,7 +183,7 @@ class AccFrag : Fragment() {
             posBtn.isEnabled = false
             posBtn.setOnClickListener {
                 val obj = Request.Register(emailEt.str, usernameEt.str, pwEt.str)
-                Client.register(this@AccFrag, obj, dialog::dismiss)
+                Client.register(this@AccFrag, obj, dialog)
             }
             val watcher = { _: Editable? ->
                 posBtn.isEnabled = emailEt.str.isEmail && usernameEt.str.isNotEmpty() && pwEt.str.isNotEmpty()
@@ -208,7 +208,7 @@ class AccFrag : Fragment() {
             posBtn.isEnabled = false
             posBtn.setOnClickListener {
                 val obj = Request.Login(accEt.str.trim(), pwEt.str)
-                Client.logIn(this@AccFrag, obj, dialog::dismiss, remeCb.isChecked)
+                Client.logIn(this@AccFrag, obj, dialog, remeCb.isChecked)
             }
             val watcher = { _: Editable? ->
                 posBtn.isEnabled = accEt.str.isNotEmpty() && pwEt.str.isNotEmpty()
@@ -224,7 +224,7 @@ class AccFrag : Fragment() {
             if (pwFile.exists()) {
                 neutralBtn.setOnClickListener {
                     val obj = Request.Login(accFile.readText(), pwFile.readText())
-                    bioLogIn(obj, dialog::dismiss, remeCb.isChecked)
+                    bioLogIn(obj, dialog, remeCb.isChecked)
                 }
                 neutralBtn.callOnClick()
             } else

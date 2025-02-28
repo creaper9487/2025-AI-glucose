@@ -46,11 +46,11 @@ object Client {
             .create(Api::class.java)
     }
 
-    fun register(accFrag: AccFrag, obj: Request.Register, dialogDismiss: () -> Unit) {
+    fun register(accFrag: AccFrag, obj: Request.Register, dialog: AlertDialog) {
         val retroFun = suspend { retro.value.register(obj) }
 
         val onSucceed = { r: Response<Result.Tokens> ->
-            dialogDismiss()
+            dialog.dismiss()
             accFrag.logInEnv(r.body()!!, obj.username, obj.password)
         }
 
@@ -69,11 +69,11 @@ object Client {
         request(accFrag, retroFun, onSucceed, onBadRequest)
     }
 
-    fun logIn(accFrag: AccFrag, obj: Request.Login, dialogDismiss: () -> Unit, reme: Boolean) {
+    fun logIn(accFrag: AccFrag, obj: Request.Login, dialog: AlertDialog, reme: Boolean) {
         val retroFun = suspend { retro.value.logIn(obj) }
 
         val onSucceed = { r: Response<Result.Tokens> ->
-            dialogDismiss()
+            dialog.dismiss()
 
             if (reme)
                 accFrag.accFile.writeText(obj.username_or_email)
