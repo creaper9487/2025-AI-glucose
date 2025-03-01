@@ -7,9 +7,10 @@ import NavBar from '@/components/NavBar.vue';
 <template>
   <NavBar />
   <div class="h-screen flex items-center justify-center flex-row bg-gray-800">
-  <InputForm class="mx-10" />
-  <FoodInput class="mx-10" />
-  <chatbot />
+  <InputForm class="m-2" />
+  <FoodInput class="m-2" />
+  <chatbot class="m-2" />
+
   </div>
 </template>
 

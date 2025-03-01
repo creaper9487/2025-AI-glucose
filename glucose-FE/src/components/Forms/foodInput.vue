@@ -22,6 +22,8 @@ const sendSense = async () => {
     chatStore.SensePicture(imageFile.value);
     chatStore.senseWindow = true;
 };
+const doTest = async () => {
+    chatStore.testWindow = true;};
 </script>
 <template>
     <div class="flex flex-col">
@@ -47,5 +49,22 @@ const sendSense = async () => {
                     產生建議
             </button>
         </div>
+        <div class="flex flex-col">
+        <div class="w-96 p-10 bg-gray-700 shadow-lg rounded-lg mt-4 relative">
+            <h2 class="text-center text-white text-xl mb-4">✨進行糖尿病傾向測試</h2>
+            <button
+                    class="w-full p-2 mt-4 text-slate-800 bg-slate-200 rounded-lg hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400 opacity-50"
+                    v-if="authStore.username"
+                    >
+                    登入後使用…
+            </button>
+            <button @click="doTest"
+                    class="w-full p-2 mt-4 text-slate-800 bg-slate-200 rounded-lg hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400"
+                    v-if="!authStore.username"
+                    >
+                    填寫資料
+            </button>
+        </div>
+    </div>
     </div>
 </template>

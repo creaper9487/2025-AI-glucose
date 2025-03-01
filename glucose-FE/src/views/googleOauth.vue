@@ -2,10 +2,13 @@
 import axios from 'axios';
 import { useAuthStore } from '@/stores/authStore';
 import { onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+
 const authStore = useAuthStore();
+const route = useRoute();
 
 onMounted(async () => {
-    const code = this.$route.query.code;
+    const code = route.query.code;
     if (code) {
         const decodedCode = decodeURIComponent(code);
         try {
