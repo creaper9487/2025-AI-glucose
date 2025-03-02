@@ -7,12 +7,11 @@ import android.text.Editable
 import android.view.KeyEvent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.core.widget.doAfterTextChanged
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import rl.collab.diabeat.databinding.ActivityMainBinding
 import rl.collab.diabeat.databinding.DialogHostBinding
@@ -34,14 +33,16 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         val binding = ActivityMainBinding.inflate(layoutInflater)
 
-        binding.run {
+        binding.apply {
             setContentView(root)
             ViewCompat.setOnApplyWindowInsetsListener(main) { v, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
                 v.updatePadding(systemBars.left, systemBars.top, systemBars.right)
                 insets
             }
-            navView.setupWithNavController(findNavController(R.id.container))
+
+            val navHostFragment = supportFragmentManager.findFragmentById(R.id.container) as NavHostFragment
+            navView.setupWithNavController(navHostFragment.navController)
         }
 
         hostPref = getSharedPreferences("host", Context.MODE_PRIVATE)
@@ -52,7 +53,7 @@ class MainActivity : AppCompatActivity() {
     fun setHost() {
         val binding = DialogHostBinding.inflate(layoutInflater)
 
-        binding.run {
+        binding.apply {
             startUpCb.isChecked = hostStartup
 
             val ets = arrayOf(hostA, hostB, hostC, hostD)
@@ -63,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                 dialog.dismiss()
 
                 val addr = ets.joinToString(".") { it.str }
-                hostPref.edit(true) {
+                hostPref.syncEdit {
                     putBoolean("startup", startUpCb.isChecked)
                     putString("addr", addr)
                 }
@@ -75,7 +76,7 @@ class MainActivity : AppCompatActivity() {
                 posBtn.isEnabled = ets.all { it.str.isNotEmpty() && it.str.toInt() <= 255 }
             }
             for (i in 0..3)
-                ets[i].run {
+                ets[i].apply {
                     setText(parts[i])
                     doAfterTextChanged(watcher)
                 }

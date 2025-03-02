@@ -21,7 +21,7 @@ interface Api {
 
     @POST("/api/token/refresh/")
     suspend fun refresh(@Body obj: Request.Refresh)
-            : Response<Result.Tokens>
+            : Response<Result.Refresh>
 
     @GET("/api/records/")
     suspend fun getRecords(@Header("Authorization") token: String)
@@ -43,9 +43,16 @@ interface Api {
     @POST("/api/predictform/")
     suspend fun predictDiabetes(@Header("Authorization") token: String, @Body obj: Request.Diabetes)
             : Response<Result.Diabetes>
+
+    @POST("/api/auth/google/")
+    suspend fun googleSignIn(@Body obj: Request.GoogleSignIn)
 }
 
 object Request {
+    data class GoogleSignIn(
+        val code: String
+    )
+
     data class Register(
         val email: String,
         val username: String,
@@ -84,7 +91,14 @@ object Result {
     data class Tokens(
         val access: String,
         val refresh: String,
-        val username: String?,
+        val message: String,
+        val success: Boolean
+    )
+
+    data class Refresh(
+        val access: String,
+        val refresh: String,
+        val username: String,
         val message: String,
         val success: Boolean
     )

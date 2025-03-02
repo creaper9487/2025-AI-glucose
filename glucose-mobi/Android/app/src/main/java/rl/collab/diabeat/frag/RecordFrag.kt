@@ -41,10 +41,9 @@ class RecordFrag : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.run {
-
+        binding.apply {
             saveBtn.setOnClickListener {
-                AccFrag.tokens ?: run {
+                AccFrag.authData ?: run {
                     toast("請先登入")
                     return@setOnClickListener
                 }
@@ -64,7 +63,7 @@ class RecordFrag : Fragment() {
             }
 
             predictCarbohydrateBtn.setOnClickListener {
-                AccFrag.tokens ?: run {
+                AccFrag.authData ?: run {
                     toast("請先登入")
                     return@setOnClickListener
                 }

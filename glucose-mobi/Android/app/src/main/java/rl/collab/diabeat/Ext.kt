@@ -1,6 +1,7 @@
 package rl.collab.diabeat
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import android.util.Patterns
 import android.view.View
@@ -8,6 +9,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -40,6 +42,9 @@ fun Double?.tryToInt() =
 val String.isEmail
     get() = Patterns.EMAIL_ADDRESS.matcher(this).matches()
 
+val String.bearer
+    get() = "Bearer $this"
+
 fun String.localDateTime(): String {
     val localDateTime = Instant.parse(this)
         .atZone(ZoneId.systemDefault())
@@ -59,6 +64,9 @@ fun String.localDateTime(): String {
         )
     )
 }
+
+fun SharedPreferences.syncEdit(action: SharedPreferences.Editor.() -> Unit) =
+    edit(true, action)
 
 val EditText.str
     get() = text.toString()

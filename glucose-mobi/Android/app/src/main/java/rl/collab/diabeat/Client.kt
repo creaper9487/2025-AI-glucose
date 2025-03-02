@@ -17,6 +17,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import rl.collab.diabeat.frag.AccFrag
 import rl.collab.diabeat.frag.ChartFrag
 import rl.collab.diabeat.frag.RecordFrag
+import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
@@ -24,7 +25,9 @@ import kotlin.math.roundToInt
 object Client {
     const val DEFAULT_ADDR = "192.168.0.0"
     private val gson by lazy { Gson() }
-    private var retro = lazy { retroInit(false, DEFAULT_ADDR) }
+
+    //    private var retro = lazy { retroInit(false, DEFAULT_ADDR) }
+    var retro = lazy { retroInit(false, DEFAULT_ADDR) }
     private var retroLong = lazy { retroInit(true, DEFAULT_ADDR) }
     fun resetRetro(addr: String) {
         retro = lazy { retroInit(false, addr) }
@@ -51,7 +54,8 @@ object Client {
 
         val onSucceed = { r: Response<Result.Tokens> ->
             dialog.dismiss()
-            accFrag.logInEnv(r.body()!!, obj.username, obj.password)
+            val authData = AccFrag.authDataBuilder(obj.username, r.body()!!)
+            accFrag.logInEnv(authData, null)
         }
 
         val onBadRequest = { r: Response<Result.Tokens> ->
@@ -74,15 +78,8 @@ object Client {
 
         val onSucceed = { r: Response<Result.Tokens> ->
             dialog.dismiss()
-
-            if (reme)
-                accFrag.accFile.writeText(obj.username_or_email)
-            else {
-                accFrag.accFile.delete()
-                accFrag.pwFile.delete()
-            }
-
-            accFrag.logInEnv(r.body()!!, obj.username_or_email, obj.password)
+            val authData = AccFrag.authDataBuilder(obj.username_or_email, r.body()!!)
+            accFrag.logInEnv(authData, reme)
         }
 
         val onBadRequest = { r: Response<Result.Tokens> ->
@@ -101,8 +98,8 @@ object Client {
     }
 
     fun getRecords(chartFrag: ChartFrag) {
-        AccFrag.tokens?.let {
-            val retroFun = suspend { retro.value.getRecords(AccFrag.key) }
+        AccFrag.authData?.also {
+            val retroFun = suspend { retro.value.getRecords(AccFrag.authData!!.access) }
 
             val onSucceed = { _: Response<List<Result.Records>> ->
             }
@@ -112,7 +109,7 @@ object Client {
     }
 
     fun postRecord(recordFrag: RecordFrag, obj: Request.Record) {
-        val retroFun = suspend { retro.value.postRecord(AccFrag.key, obj) }
+        val retroFun = suspend { retro.value.postRecord(AccFrag.authData!!.access, obj) }
 
         val onSucceed = { _: Response<Result.Records> ->
             recordFrag.toast("已儲存")
@@ -129,7 +126,7 @@ object Client {
     }
 
     fun predictCarbohydrate(recordFrag: RecordFrag, image: MultipartBody.Part) {
-        val retroFun = suspend { retro.value.predictCarbohydrate(AccFrag.key, image) }
+        val retroFun = suspend { retro.value.predictCarbohydrate(AccFrag.authData!!.access, image) }
 
         val onSucceed = { r: Response<Result.Predict> ->
             recordFrag.binding.carbohydrateEt.setText(
@@ -170,7 +167,7 @@ object Client {
             accFrag.ui { dialog.setMessage(content) }
         }
 
-        val retroFun = suspend { retroLong.value.suggest(AccFrag.key) }
+        val retroFun = suspend { retroLong.value.suggest(AccFrag.authData!!.access) }
 
         val onSucceed = { r: Response<Result.ChatRoot> ->
             val res = r.body()!!.response
@@ -206,7 +203,7 @@ object Client {
     }
 
     fun predictDiabetes(accFrag: AccFrag, obj: Request.Diabetes) {
-        val retroFun = suspend { retro.value.predictDiabetes(AccFrag.key, obj) }
+        val retroFun = suspend { retro.value.predictDiabetes(AccFrag.authData!!.access, obj) }
 
         val onSucceed = { r: Response<Result.Diabetes> ->
             accFrag.dialog("TODO: 預測結果", if (r.body()!!.prediction == 1) "是" else "否")
@@ -223,7 +220,7 @@ object Client {
     ) {
         frag.io {
             try {
-                lateinit var r: Response<T>
+                var r: Response<T>? = null
                 var status = 0
 
                 for (i in 0..1) {
@@ -231,21 +228,23 @@ object Client {
                     status = r.code()
 
                     if (status == 401)
-                        refresh()
+                        refresh(frag)
                     else
                         break
                 }
 
                 frag.ui {
                     when (status) {
-                        200, 201 -> onSucceed(r)
+                        200, 201 -> onSucceed(r!!)
                         400 -> errDialog(
-                            if (onBadRequest == null) "請求錯誤" else onBadRequest(r)
+                            if (onBadRequest == null) "請求錯誤" else onBadRequest(r!!)
                         )
 
                         else -> errDialog("HTTP $status")
                     }
                 }
+            } catch (e: ConnectException) {
+                frag.ui { excDialog(e) }
             } catch (_: SocketTimeoutException) {
                 frag.ui {
                     errDialog("連線逾時", "設定 Host").neutral.setOnClickListener {
@@ -258,9 +257,19 @@ object Client {
         }
     }
 
-    private suspend fun refresh() {
-        val obj = Request.Refresh(AccFrag.tokens!!.refresh)
-        val r = retro.value.refresh(obj)
-        AccFrag.tokens = r.body()
+    fun refresh(frag: Fragment, refresh: String? = null, dialog: AlertDialog? = null, reme: Boolean? = null) {
+        val obj = Request.Refresh(refresh ?: AccFrag.authData!!.refresh)
+        val retroFun = suspend { retro.value.refresh(obj) }
+
+        val onSucceed = { r: Response<Result.Refresh> ->
+            AccFrag.authData = AccFrag.authDataBuilder(r.body()!!)
+
+            if (refresh != null && frag is AccFrag) {
+                dialog!!.dismiss()
+                frag.logInEnv(null, reme)
+            }
+        }
+
+        request(frag, retroFun, onSucceed, null)
     }
 }
