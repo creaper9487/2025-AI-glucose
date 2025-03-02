@@ -19,6 +19,7 @@ import rl.collab.diabeat.databinding.DialogHostBinding
 class MainActivity : AppCompatActivity() {
     private lateinit var hostPref: SharedPreferences
     private val hostStartup get() = hostPref.getBoolean("startup", true)
+    private val hostAddr get() = hostPref.getString("addr", "192.168.0.0")!!
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
@@ -48,6 +49,8 @@ class MainActivity : AppCompatActivity() {
         hostPref = getSharedPreferences("host", Context.MODE_PRIVATE)
         if (hostStartup)
             setHost()
+        else
+            Client.resetRetro(hostAddr)
     }
 
     fun setHost() {
@@ -71,7 +74,7 @@ class MainActivity : AppCompatActivity() {
                 Client.resetRetro(addr)
             }
 
-            val parts = hostPref.getString("addr", Client.DEFAULT_ADDR)!!.split('.')
+            val parts = hostAddr.split('.')
             val watcher = { _: Editable? ->
                 posBtn.isEnabled = ets.all { it.str.isNotEmpty() && it.str.toInt() <= 255 }
             }

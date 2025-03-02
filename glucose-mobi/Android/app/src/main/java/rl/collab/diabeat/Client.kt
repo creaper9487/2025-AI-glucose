@@ -23,13 +23,12 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 object Client {
-    const val DEFAULT_ADDR = "192.168.0.0"
     private val gson by lazy { Gson() }
-
-    //    private var retro = lazy { retroInit(false, DEFAULT_ADDR) }
-    var retro = lazy { retroInit(false, DEFAULT_ADDR) }
-    private var retroLong = lazy { retroInit(true, DEFAULT_ADDR) }
+    private lateinit var addr: String
+    lateinit var retro: Lazy<Api>
+    private lateinit var retroLong: Lazy<Api>
     fun resetRetro(addr: String) {
+        Client.addr = addr
         retro = lazy { retroInit(false, addr) }
         retroLong = lazy { retroInit(true, addr) }
     }
@@ -218,6 +217,14 @@ object Client {
         onSucceed: (Response<T>) -> Any?,
         onBadRequest: ((Response<T>) -> String)?
     ) {
+        val setHostErrDialog = { msg: String ->
+            val dialog = frag.errDialog(msg, "設定 Host")
+            dialog.neutral.setOnClickListener {
+                dialog.dismiss()
+                (frag.requireActivity() as MainActivity).setHost()
+            }
+        }
+
         frag.io {
             try {
                 var r: Response<T>? = null
@@ -244,13 +251,9 @@ object Client {
                     }
                 }
             } catch (e: ConnectException) {
-                frag.ui { excDialog(e) }
+                frag.ui { setHostErrDialog("無法連線到$addr") }
             } catch (_: SocketTimeoutException) {
-                frag.ui {
-                    errDialog("連線逾時", "設定 Host").neutral.setOnClickListener {
-                        (frag.requireActivity() as MainActivity).setHost()
-                    }
-                }
+                frag.ui { setHostErrDialog("連線逾時") }
             } catch (e: Exception) {
                 frag.ui { excDialog(e) }
             }
