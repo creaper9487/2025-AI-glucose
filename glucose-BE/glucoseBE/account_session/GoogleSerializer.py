@@ -58,7 +58,7 @@ class GoogleLoginSerializer(serializers.Serializer):
                 pass
         
         refresh = RefreshToken.for_user(user)
-        refresh['username'] = username
+        refresh['username'] = user.username
         return {
             'refresh': str(refresh),
             'access': str(refresh.access_token),
