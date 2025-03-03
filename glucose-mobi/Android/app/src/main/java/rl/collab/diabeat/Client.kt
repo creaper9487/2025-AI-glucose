@@ -15,8 +15,12 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import rl.collab.diabeat.frag.AccFrag
+import rl.collab.diabeat.frag.Api
 import rl.collab.diabeat.frag.ChartFrag
+import rl.collab.diabeat.frag.Err
 import rl.collab.diabeat.frag.RecordFrag
+import rl.collab.diabeat.frag.Request
+import rl.collab.diabeat.frag.Result
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
@@ -24,8 +28,9 @@ import kotlin.math.roundToInt
 
 object Client {
     private val gson by lazy { Gson() }
+
     private lateinit var addr: String
-    lateinit var retro: Lazy<Api>
+    private lateinit var retro: Lazy<Api>
     private lateinit var retroLong: Lazy<Api>
     fun resetRetro(addr: String) {
         Client.addr = addr
@@ -53,8 +58,9 @@ object Client {
 
         val onSucceed = { r: Response<Result.Tokens> ->
             dialog.dismiss()
-            val authData = AccFrag.authDataBuilder(obj.username, r.body()!!)
-            accFrag.logInEnv(authData, null)
+
+            val rr = r.body()!!
+            accFrag.logInEnv(false, obj.username, rr.access, rr.refresh)
         }
 
         val onBadRequest = { r: Response<Result.Tokens> ->
@@ -77,8 +83,9 @@ object Client {
 
         val onSucceed = { r: Response<Result.Tokens> ->
             dialog.dismiss()
-            val authData = AccFrag.authDataBuilder(obj.username_or_email, r.body()!!)
-            accFrag.logInEnv(authData, reme)
+
+            val rr = r.body()!!
+            accFrag.logInEnv(reme, obj.username_or_email, rr.access, rr.refresh)
         }
 
         val onBadRequest = { r: Response<Result.Tokens> ->
@@ -96,9 +103,36 @@ object Client {
         request(accFrag, retroFun, onSucceed, onBadRequest)
     }
 
+    fun refresh(frag: Fragment, refresh: String? = null, dialog: AlertDialog? = null, reme: Boolean? = null) {
+        val obj = Request.Refresh(refresh ?: AccFrag.refresh!!)
+        val retroFun = suspend { retro.value.refresh(obj) }
+
+        val onSucceed = { r: Response<Result.Refresh> ->
+            AccFrag.access = "Bearer ${r.body()}"
+
+            refresh?.also {
+                dialog!!.dismiss()
+
+                val rr = r.body()!!
+                (frag as AccFrag).logInEnv(reme, rr.username, rr.access, rr.refresh)
+            }
+        }
+
+        request(frag, retroFun, onSucceed, null)
+    }
+
+    fun googleSignIn(accFrag: AccFrag, obj: Request.GoogleSignIn) {
+        val retroFun = suspend { retro.value.googleSignIn(obj) }
+
+        val onSucceed = { _: Response<Unit> ->
+        }
+
+        request(accFrag, retroFun, onSucceed, null)
+    }
+
     fun getRecords(chartFrag: ChartFrag) {
-        AccFrag.authData?.also {
-            val retroFun = suspend { retro.value.getRecords(AccFrag.authData!!.access) }
+        AccFrag.acc?.also {
+            val retroFun = suspend { retro.value.getRecords(AccFrag.access!!) }
 
             val onSucceed = { _: Response<List<Result.Records>> ->
             }
@@ -108,10 +142,10 @@ object Client {
     }
 
     fun postRecord(recordFrag: RecordFrag, obj: Request.Record) {
-        val retroFun = suspend { retro.value.postRecord(AccFrag.authData!!.access, obj) }
+        val retroFun = suspend { retro.value.postRecord(AccFrag.access!!, obj) }
 
         val onSucceed = { _: Response<Result.Records> ->
-            recordFrag.toast("已儲存")
+            recordFrag.toast("已儲存 ✅")
             recordFrag.binding.run {
                 glucoseEt.setText("")
                 carbohydrateEt.setText("")
@@ -125,7 +159,7 @@ object Client {
     }
 
     fun predictCarbohydrate(recordFrag: RecordFrag, image: MultipartBody.Part) {
-        val retroFun = suspend { retro.value.predictCarbohydrate(AccFrag.authData!!.access, image) }
+        val retroFun = suspend { retro.value.predictCarbohydrate(AccFrag.access!!, image) }
 
         val onSucceed = { r: Response<Result.Predict> ->
             recordFrag.binding.carbohydrateEt.setText(
@@ -166,35 +200,32 @@ object Client {
             accFrag.ui { dialog.setMessage(content) }
         }
 
-        val retroFun = suspend { retroLong.value.suggest(AccFrag.authData!!.access) }
+        val retroFun = suspend { retroLong.value.suggest(AccFrag.access!!) }
 
         val onSucceed = { r: Response<Result.ChatRoot> ->
             val res = r.body()!!.response
             content = res.message.content
 
             dialog.setTitle("${res.model} 建議")
-
-            val posBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            val negBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-            val neutralBtn = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
-
-            posBtn.text = "OK"
-
-            negBtn.text = "複製"
-            negBtn.setOnClickListener {
-                val clip = ClipData.newPlainText("", content)
-                val clipboard = accFrag.requireContext().getSystemService(Service.CLIPBOARD_SERVICE) as ClipboardManager
-                clipboard.setPrimaryClip(clip)
-                accFrag.toast("已複製✅")
+            dialog.pos.text = "OK"
+            dialog.neg.apply {
+                text = "複製"
+                setOnClickListener {
+                    val clip = ClipData.newPlainText("", content)
+                    val clipboard = accFrag.requireContext().getSystemService(Service.CLIPBOARD_SERVICE) as ClipboardManager
+                    clipboard.setPrimaryClip(clip)
+                    accFrag.toast("已複製✅")
+                }
             }
+            dialog.neutral.apply {
+                text = "分享"
+                setOnClickListener {
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.putExtra(Intent.EXTRA_TEXT, content)
+                    intent.type = "text/plain"
 
-            neutralBtn.text = "分享"
-            neutralBtn.setOnClickListener {
-                val intent = Intent(Intent.ACTION_SEND)
-                intent.putExtra(Intent.EXTRA_TEXT, content)
-                intent.type = "text/plain"
-
-                accFrag.startActivity(Intent.createChooser(intent, null))
+                    accFrag.startActivity(Intent.createChooser(intent, null))
+                }
             }
         }
 
@@ -202,10 +233,10 @@ object Client {
     }
 
     fun predictDiabetes(accFrag: AccFrag, obj: Request.Diabetes) {
-        val retroFun = suspend { retro.value.predictDiabetes(AccFrag.authData!!.access, obj) }
+        val retroFun = suspend { retro.value.predictDiabetes(AccFrag.access!!, obj) }
 
         val onSucceed = { r: Response<Result.Diabetes> ->
-            accFrag.dialog("TODO: 預測結果", if (r.body()!!.prediction == 1) "是" else "否")
+            accFrag.dialog("預測結果", if (r.body()!!.prediction == 1) "是" else "否")
         }
 
         request(accFrag, retroFun, onSucceed, null)
@@ -217,14 +248,6 @@ object Client {
         onSucceed: (Response<T>) -> Any?,
         onBadRequest: ((Response<T>) -> String)?
     ) {
-        val setHostErrDialog = { msg: String ->
-            val dialog = frag.errDialog(msg, "設定 Host")
-            dialog.neutral.setOnClickListener {
-                dialog.dismiss()
-                (frag.requireActivity() as MainActivity).setHost()
-            }
-        }
-
         frag.io {
             try {
                 var r: Response<T>? = null
@@ -243,9 +266,11 @@ object Client {
                 frag.ui {
                     when (status) {
                         200, 201 -> onSucceed(r!!)
-                        400 -> errDialog(
-                            if (onBadRequest == null) "請求錯誤" else onBadRequest(r!!)
-                        )
+                        400 -> errDialog(onBadRequest?.invoke(r!!) ?: "請求錯誤")
+                        401 -> {
+                            errDialog("無密碼登入憑證過期，請重新登入")
+                            AccFrag.remePref.syncEdit { clear() }
+                        }
 
                         else -> errDialog("HTTP $status")
                     }
@@ -255,24 +280,8 @@ object Client {
             } catch (_: SocketTimeoutException) {
                 frag.ui { setHostErrDialog("連線逾時") }
             } catch (e: Exception) {
-                frag.ui { excDialog(e) }
+                frag.ui { exceptionDialog(e) }
             }
         }
-    }
-
-    fun refresh(frag: Fragment, refresh: String? = null, dialog: AlertDialog? = null, reme: Boolean? = null) {
-        val obj = Request.Refresh(refresh ?: AccFrag.authData!!.refresh)
-        val retroFun = suspend { retro.value.refresh(obj) }
-
-        val onSucceed = { r: Response<Result.Refresh> ->
-            AccFrag.authData = AccFrag.authDataBuilder(r.body()!!)
-
-            if (refresh != null && frag is AccFrag) {
-                dialog!!.dismiss()
-                frag.logInEnv(null, reme)
-            }
-        }
-
-        request(frag, retroFun, onSucceed, null)
     }
 }

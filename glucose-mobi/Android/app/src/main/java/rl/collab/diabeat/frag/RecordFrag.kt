@@ -13,10 +13,8 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import rl.collab.diabeat.Client
-import rl.collab.diabeat.Request
 import rl.collab.diabeat.databinding.DialogSrcBinding
 import rl.collab.diabeat.databinding.FragRecordBinding
-import rl.collab.diabeat.fmt
 import rl.collab.diabeat.str
 import rl.collab.diabeat.toast
 import rl.collab.diabeat.viewDialog
@@ -43,7 +41,7 @@ class RecordFrag : Fragment() {
 
         binding.apply {
             saveBtn.setOnClickListener {
-                AccFrag.authData ?: run {
+                AccFrag.acc ?: run {
                     toast("請先登入")
                     return@setOnClickListener
                 }
@@ -63,7 +61,7 @@ class RecordFrag : Fragment() {
             }
 
             predictCarbohydrateBtn.setOnClickListener {
-                AccFrag.authData ?: run {
+                AccFrag.acc ?: run {
                     toast("請先登入")
                     return@setOnClickListener
                 }
@@ -98,7 +96,12 @@ class RecordFrag : Fragment() {
             fileSize = cursor.getLong(cursor.getColumnIndexOrThrow(OpenableColumns.SIZE))
         }
 
-        toast("上傳 ${fileSize.fmt()}")
+        toast(
+            if (fileSize > 1048576)
+                "上傳 %.1f MB".format(fileSize / 1048576.0)
+            else
+                "上傳 %.1f KB".format(fileSize / 1024.0)
+        )
 
         val byteArr = resolver.openInputStream(uri)!!.readBytes()
         val obj = byteArr.toRequestBody("image/*".toMediaType())

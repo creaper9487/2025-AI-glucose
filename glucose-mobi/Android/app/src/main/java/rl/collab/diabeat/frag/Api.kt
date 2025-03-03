@@ -1,4 +1,4 @@
-package rl.collab.diabeat
+package rl.collab.diabeat.frag
 
 import okhttp3.MultipartBody
 import retrofit2.Response
@@ -23,6 +23,10 @@ interface Api {
     suspend fun refresh(@Body obj: Request.Refresh)
             : Response<Result.Refresh>
 
+    @POST("/api/auth/google/")
+    suspend fun googleSignIn(@Body obj: Request.GoogleSignIn)
+            : Response<Unit>
+
     @GET("/api/records/")
     suspend fun getRecords(@Header("Authorization") token: String)
             : Response<List<Result.Records>>
@@ -43,16 +47,9 @@ interface Api {
     @POST("/api/predictform/")
     suspend fun predictDiabetes(@Header("Authorization") token: String, @Body obj: Request.Diabetes)
             : Response<Result.Diabetes>
-
-    @POST("/api/auth/google/")
-    suspend fun googleSignIn(@Body obj: Request.GoogleSignIn)
 }
 
 object Request {
-    data class GoogleSignIn(
-        val code: String
-    )
-
     data class Register(
         val email: String,
         val username: String,
@@ -66,6 +63,10 @@ object Request {
 
     data class Refresh(
         val refresh: String
+    )
+
+    data class GoogleSignIn(
+        val code: String
     )
 
     data class Record(

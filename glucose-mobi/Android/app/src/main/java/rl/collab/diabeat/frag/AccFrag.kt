@@ -6,9 +6,11 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AlertDialog
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -22,17 +24,12 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import rl.collab.diabeat.Client
 import rl.collab.diabeat.R
-import rl.collab.diabeat.Request
-import rl.collab.diabeat.Result
-import rl.collab.diabeat.bearer
 import rl.collab.diabeat.databinding.DialogDiabetesBinding
 import rl.collab.diabeat.databinding.DialogLoginBinding
 import rl.collab.diabeat.databinding.DialogRegisterBinding
 import rl.collab.diabeat.databinding.FragAccBinding
-import rl.collab.diabeat.excDialog
-import rl.collab.diabeat.hideKb
+import rl.collab.diabeat.exceptionDialog
 import rl.collab.diabeat.io
-import rl.collab.diabeat.isEmail
 import rl.collab.diabeat.nacho
 import rl.collab.diabeat.pos
 import rl.collab.diabeat.str
@@ -46,24 +43,14 @@ class AccFrag : Fragment() {
     private var _binding: FragAccBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var remePref: SharedPreferences
-    private val remeAcc get() = remePref.getString("acc", null)
-    private val remeRefresh get() = remePref.getString("refresh", null)
-
     companion object {
-        data class AuthData(
-            val acc: String,
-            val access: String,
-            val refresh: String
-        )
+        lateinit var remePref: SharedPreferences
+        private val remeAcc get() = remePref.getString("acc", null)
+        private val remeRefresh get() = remePref.getString("refresh", null)
 
-        fun authDataBuilder(acc: String, r: Result.Tokens) =
-            AuthData(acc, r.access.bearer, r.refresh)
-
-        fun authDataBuilder(r: Result.Refresh) =
-            AuthData(r.username, r.access.bearer, r.refresh)
-
-        var authData: AuthData? = null
+        var acc: String? = null
+        var access: String? = null
+        var refresh: String? = null
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -79,8 +66,7 @@ class AccFrag : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        remePref = requireContext().getSharedPreferences("reme", Context.MODE_PRIVATE)
-        authData?.also { logInEnv(null, null) } ?: logOutEnv()
+        acc?.also { logInEnv(null) } ?: logOutEnv()
 
         binding.apply {
             googleSignInBtn.setOnClickListener { googleSignInBtnOnClick() }
@@ -100,8 +86,8 @@ class AccFrag : Fragment() {
 
                 remePref.syncEdit {
                     if (isChecked) {
-                        putString("acc", authData!!.acc)
-                        putString("refresh", authData!!.refresh)
+                        putString("acc", acc)
+                        putString("refresh", refresh)
                     } else
                         clear()
                 }
@@ -109,15 +95,17 @@ class AccFrag : Fragment() {
         }
     }
 
-    fun logInEnv(authData: AuthData?, reme: Boolean?) {
-        authData?.also {
-            AccFrag.authData = authData
+    fun logInEnv(reme: Boolean?, pAcc: String? = null, pAccessRaw: String? = null, pRefresh: String? = null) {
+        pAcc?.also {
+            acc = pAcc
+            access = "Bearer $pAccessRaw"
+            refresh = pRefresh
         }
 
         reme?.also {
             remePref.syncEdit {
                 if (reme)
-                    putString("acc", AccFrag.authData!!.acc)
+                    putString("acc", acc)
                 else {
                     remove("acc")
                     remove("refresh")
@@ -128,7 +116,7 @@ class AccFrag : Fragment() {
         binding.apply {
             accLy.visibility = View.INVISIBLE
             profileLy.visibility = View.VISIBLE
-            profileTv.text = "Hi, ${AccFrag.authData!!.acc}"
+            profileTv.text = "Hi, $acc"
 
             val bioMan = BiometricManager.from(requireContext())
             val canAuth = bioMan.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
@@ -141,7 +129,7 @@ class AccFrag : Fragment() {
         }
     }
 
-    private fun bioLogIn(refresh: String, dialog: AlertDialog, reme: Boolean) {
+    private fun bioLogIn(dialog: AlertDialog, reme: Boolean) {
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle("生物辨識登入")
             .setNegativeButtonText("取消")
@@ -151,7 +139,7 @@ class AccFrag : Fragment() {
         val callback = object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 super.onAuthenticationSucceeded(result)
-                Client.refresh(this@AccFrag, refresh, dialog, reme)
+                Client.refresh(this@AccFrag, remeRefresh, dialog, reme)
             }
         }
 
@@ -160,7 +148,9 @@ class AccFrag : Fragment() {
     }
 
     private fun logOutEnv() {
-        authData = null
+        acc = null
+        access = null
+        refresh = null
         binding.profileLy.visibility = View.INVISIBLE
         binding.accLy.visibility = View.VISIBLE
     }
@@ -171,35 +161,26 @@ class AccFrag : Fragment() {
             .setServerClientId(getString(R.string.token))
             .build()
 
-        val obj = GetCredentialRequest.Builder()
+        val credentialObj = GetCredentialRequest.Builder()
             .addCredentialOption(opt)
             .build()
 
         io {
             try {
-                val x = credentialManager.getCredential(requireContext(), obj)
+                val credentialResponse = credentialManager.getCredential(requireContext(), credentialObj)
 
-                // 正確處理憑證類型
-                if (x.credential is CustomCredential) {
-                    val customCredential = x.credential as CustomCredential
+                if (credentialResponse.credential is CustomCredential) {
+                    val customCredential = credentialResponse.credential as CustomCredential
 
-                    // 檢查是否為 Google ID 類型
                     if (customCredential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                        // 從 JSON 字符串解析 Google 憑證
                         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(customCredential.data)
 
                         val email = googleIdTokenCredential.id
                         val idToken = googleIdTokenCredential.idToken
                         val name = googleIdTokenCredential.displayName
 
-                        nacho("---start")
-                        nacho(id)
-                        nacho(idToken)
-                        nacho(email)
-                        nacho(name)
-
-                        Client.retro.value.googleSignIn(Request.GoogleSignIn(idToken))
-
+                        val obj = Request.GoogleSignIn(idToken)
+                        Client.googleSignIn(this@AccFrag, obj)
 
                         ui { toast("$email\n$name") }
                         nacho(idToken)
@@ -210,9 +191,8 @@ class AccFrag : Fragment() {
                     ui { toast("無法獲取有效憑證") }
                 }
             } catch (_: GetCredentialCancellationException) {
-                // 用戶取消操作，不做處理
             } catch (e: Exception) {
-                ui { excDialog(e) }
+                ui { exceptionDialog(e) }
             }
         }
     }
@@ -229,7 +209,9 @@ class AccFrag : Fragment() {
                 Client.register(this@AccFrag, obj, dialog)
             }
             val watcher = { _: Editable? ->
-                posBtn.isEnabled = emailEt.str.isEmail && usernameEt.str.isNotEmpty() && pwEt.str.isNotEmpty()
+                posBtn.isEnabled = Patterns.EMAIL_ADDRESS.matcher(emailEt.str).matches() &&
+                        usernameEt.str.isNotEmpty() &&
+                        pwEt.str.isNotEmpty()
             }
             emailEt.doAfterTextChanged(watcher)
             usernameEt.doAfterTextChanged(watcher)
@@ -259,19 +241,21 @@ class AccFrag : Fragment() {
             accEt.doAfterTextChanged(watcher)
             pwEt.doAfterTextChanged(watcher)
             pwEt.setOnEditorActionListener { _, _, _ ->
-                pwEt.hideKb()
+                val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(pwEt.windowToken, 0)
+
                 posBtn.callOnClick()
             }
 
             val neutralBtn = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
-            remeRefresh?.also {
+
+            if (remeRefresh != null) {
                 neutralBtn.setOnClickListener { _ ->
-                    bioLogIn(it, dialog, remeCb.isChecked)
+                    bioLogIn(dialog, remeCb.isChecked)
                 }
                 neutralBtn.callOnClick()
-            } ?: run {
+            } else
                 neutralBtn.isEnabled = false
-            }
         }
     }
 

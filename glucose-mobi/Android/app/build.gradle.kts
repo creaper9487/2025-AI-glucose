@@ -37,14 +37,20 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
+    // Bio Login & Master Key & Encrypted Shared Pref
     implementation(libs.androidx.biometric)
-    implementation(libs.converter.gson)
-    implementation(libs.retrofit)
-    implementation(libs.okhttp)
-    implementation(libs.mpandroidchart)
+    implementation(libs.androidx.security.crypto)
 
     // Credential Manager
     implementation(libs.googleid)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
+
+    // Chart
+    implementation(libs.mpandroidchart)
+
+    // Http Request
+    implementation(libs.okhttp)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 }

@@ -3,9 +3,7 @@ package rl.collab.diabeat
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
-import android.util.Patterns
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -17,72 +15,24 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 fun nacho(vararg msg: Any?) =
     Log.d("nacho", msg.joinToString(" "))
 
-fun Long.fmt() =
-    if (this > 1048576)
-        "%.1f MB".format(this / 1048576.0)
-    else
-        "%.1f KB".format(this / 1024.0)
-
-fun Double?.tryToInt() =
-    if (this == null)
-        "-"
-    else if (this % 1.0 == 0.0)
-        toInt().toString()
-    else
-        toString()
-
-val String.isEmail
-    get() = Patterns.EMAIL_ADDRESS.matcher(this).matches()
-
-val String.bearer
-    get() = "Bearer $this"
-
-fun String.localDateTime(): String {
-    val localDateTime = Instant.parse(this)
-        .atZone(ZoneId.systemDefault())
-        .toLocalDateTime()
-
-    val now = LocalDateTime.now()
-
-    return localDateTime.format(
-        DateTimeFormatter.ofPattern(
-            if (localDateTime.year == now.year)
-                if (localDateTime.dayOfYear == now.dayOfYear)
-                    "HH:mm"
-                else
-                    "MM/dd HH:mm"
-            else
-                "yyyy/MM/dd HH:mm"
-        )
-    )
-}
-
-fun SharedPreferences.syncEdit(action: SharedPreferences.Editor.() -> Unit) =
-    edit(true, action)
-
 val EditText.str
     get() = text.toString()
-
-fun EditText.hideKb() =
-    (context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-        .hideSoftInputFromWindow(windowToken, 0)
 
 fun Context.toast(msg: String) =
     Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
 
 fun Fragment.toast(msg: String) =
-    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+    requireContext().toast(msg)
 
 val AlertDialog.pos
     get() = getButton(AlertDialog.BUTTON_POSITIVE)!!
+
+val AlertDialog.neg
+    get() = getButton(AlertDialog.BUTTON_NEGATIVE)!!
 
 val AlertDialog.neutral
     get() = getButton(AlertDialog.BUTTON_NEUTRAL)!!
@@ -120,9 +70,17 @@ fun Fragment.dialog(
 fun Fragment.errDialog(msg: String, neutral: String? = null) =
     dialog("錯誤", msg, neutral = neutral)
 
-fun Fragment.excDialog(e: Exception) {
+fun Fragment.setHostErrDialog(msg: String) {
+    val dialog = errDialog(msg, "設定 Host")
+    dialog.neutral.setOnClickListener {
+        dialog.dismiss()
+        (requireActivity() as MainActivity).setHost()
+    }
+}
+
+fun Fragment.exceptionDialog(e: Exception) {
     val z = e::class.java
-    dialog("錯誤", "${z.`package`?.name}\n${z.simpleName}\n\n${e.localizedMessage}")
+    errDialog("${z.`package`?.name}\n${z.simpleName}\n\n${e.localizedMessage}")
 }
 
 fun Context.viewDialog(title: String, view: View) =
@@ -134,5 +92,8 @@ fun Fragment.viewDialog(title: String, view: View, neutral: String? = null) =
 fun Fragment.io(block: suspend CoroutineScope.() -> Any?) =
     lifecycleScope.launch(Dispatchers.IO) { block() }
 
-suspend inline fun Fragment.ui(crossinline block: Fragment.() -> Any?) =
+suspend fun Fragment.ui(block: suspend Fragment.() -> Any?) =
     withContext(Dispatchers.Main) { block() }
+
+inline fun SharedPreferences.syncEdit(action: SharedPreferences.Editor.() -> Unit) =
+    edit(true, action)
