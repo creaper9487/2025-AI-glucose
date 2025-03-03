@@ -147,7 +147,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="?dialogPreferredPadding"
-        android:hint="Hb1Ac"
+        android:hint="Hb1Ac值"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/glucose_il"
         app:layout_constraintStart_toStartOf="parent"

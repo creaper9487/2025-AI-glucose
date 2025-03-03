@@ -26,7 +26,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import rl.collab.diabeat.Client
 import rl.collab.diabeat.R
 import rl.collab.diabeat.Request
-import rl.collab.diabeat.databinding.DialogDiabetesBinding
+import rl.collab.diabeat.databinding.DialogDiabetesInBinding
 import rl.collab.diabeat.databinding.DialogLoginBinding
 import rl.collab.diabeat.databinding.DialogRegisterBinding
 import rl.collab.diabeat.databinding.FragAccBinding
@@ -175,7 +175,8 @@ class AccFrag : Fragment() {
 
                 val credential = credentialResponse.credential
                 if (credential is CustomCredential &&
-                    credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                ) {
 
                     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
 
@@ -238,7 +239,7 @@ class AccFrag : Fragment() {
                 remeCb.isChecked = true
             }
 
-            val dialog = viewDialog("登入", root, "生物辨識")
+            val dialog = viewDialog("登入", root, neutral = "生物辨識")
 
             dialog.pos.apply {
                 isEnabled = false
@@ -274,15 +275,15 @@ class AccFrag : Fragment() {
     }
 
     private fun predictDiabetesBtnOnClick() {
-        val binding = DialogDiabetesBinding.inflate(layoutInflater)
+        val binding = DialogDiabetesInBinding.inflate(layoutInflater)
 
         binding.apply {
             val ets = arrayOf(smokingHistoryAc, ageEt, bmiEt, hb1acEt, glucoseEt)
-            smokingHistoryAc.setSimpleItems(
-                arrayOf("從不吸菸", "曾經吸菸", "目前沒有吸菸", "目前有吸菸")
-            )
+            val simpleItems = arrayOf("從不吸菸", "曾經吸菸", "目前沒有吸菸", "目前有吸菸")
+            val objItems = arrayOf("never", "former", "not current", "current")
+            smokingHistoryAc.setSimpleItems(simpleItems)
 
-            val dialog = viewDialog("預測是否得糖尿病", root)
+            val dialog = viewDialog("預測是否有糖尿病", root)
 
             dialog.pos.apply {
                 isEnabled = false
@@ -292,12 +293,12 @@ class AccFrag : Fragment() {
                         ageEt.str.toInt(),
                         hypertensionCb.isChecked,
                         heartDiseaseCb.isChecked,
-                        smokingHistoryAc.str,
+                        objItems[simpleItems.indexOf(smokingHistoryAc.str)],
                         bmiEt.str.toDouble(),
                         hb1acEt.str.toDouble(),
                         glucoseEt.str.toInt()
                     )
-                    Client.predictDiabetes(this@AccFrag, obj)
+                    Client.predictDiabetes(this@AccFrag, obj, dialog, simpleItems, objItems)
                 }
                 val watcher = {
                     isEnabled = genderRg.checkedRadioButtonId != -1 && ets.all { it.str.isNotEmpty() }

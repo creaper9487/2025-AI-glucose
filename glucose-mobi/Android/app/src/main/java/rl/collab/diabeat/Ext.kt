@@ -90,11 +90,11 @@ fun Fragment.exceptionDialog(e: Exception) {
     errDialog("${z.`package`?.name}\n${z.simpleName}\n\n${e.localizedMessage}")
 }
 
-fun Context.viewDialog(title: String, view: View) =
-    dialog(title, view = view, neg = "取消")
+fun Context.viewDialog(title: String, view: View, neg: Boolean = true, neutral: String? = null) =
+    dialog(title, view = view, neg = if (neg) "取消" else null, neutral = neutral)
 
-fun Fragment.viewDialog(title: String, view: View, neutral: String? = null) =
-    dialog(title, view = view, neg = "取消", neutral = neutral)
+fun Fragment.viewDialog(title: String, view: View, neg: Boolean = true, neutral: String? = null) =
+    requireContext().viewDialog(title, view, neg, neutral)
 
 fun Fragment.io(block: suspend CoroutineScope.() -> Any?) =
     viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) { block() }

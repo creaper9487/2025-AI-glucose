@@ -1,8 +1,5 @@
 package rl.collab.diabeat
 
-import android.app.Service
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Intent
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -15,6 +12,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import rl.collab.diabeat.databinding.DialogDiabetesOutBinding
 import rl.collab.diabeat.frag.AccFrag
 import rl.collab.diabeat.frag.ChartFrag
 import rl.collab.diabeat.frag.RecordFrag
@@ -51,6 +49,14 @@ object Client {
             .create(Api::class.java)
     }
 
+    private fun share(frag: Fragment, content: String) {
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_TEXT, content)
+            type = "text/plain"
+        }
+        frag.startActivity(Intent.createChooser(intent, null))
+    }
+
     fun register(accFrag: AccFrag, obj: Request.Register, dialog: AlertDialog) {
         val retroFun = suspend { retro.value.register(obj) }
 
@@ -77,8 +83,7 @@ object Client {
             dialog.pos.isEnabled = true
         }
 
-        job?.cancel()
-        job = request(accFrag, retroFun, onSucceed, onBadRequest, onFail)
+        request(accFrag, retroFun, onSucceed, onBadRequest, onFail)
     }
 
     fun logIn(accFrag: AccFrag, obj: Request.Login, dialog: AlertDialog, reme: Boolean) {
@@ -152,7 +157,7 @@ object Client {
         val retroFun = suspend { retro.value.postRecord(AccFrag.access!!, obj) }
 
         val onSucceed = { _: Response<Result.Records> ->
-            recordFrag.toast("已儲存 ✅")
+            recordFrag.toast("已儲存✅")
             recordFrag.binding.run {
                 glucoseEt.setText("")
                 carbohydrateEt.setText("")
@@ -218,35 +223,61 @@ object Client {
                 text = "OK"
                 dialog.setCancelJob(this)
             }
-            dialog.neg.apply {
-                text = "複製"
-                setOnClickListener {
-                    val clip = ClipData.newPlainText("", content)
-                    val clipboard = accFrag.requireContext().getSystemService(Service.CLIPBOARD_SERVICE) as ClipboardManager
-                    clipboard.setPrimaryClip(clip)
-                    accFrag.toast("已複製 ✅")
-                }
-            }
             dialog.neutral.apply {
                 text = "分享"
-                setOnClickListener {
-                    val intent = Intent(Intent.ACTION_SEND)
-                    intent.putExtra(Intent.EXTRA_TEXT, content)
-                    intent.type = "text/plain"
-
-                    accFrag.startActivity(Intent.createChooser(intent, null))
-                }
+                setOnClickListener { share(accFrag, content) }
             }
         }
 
         request(accFrag, retroFun, onSucceed, null, null)
     }
 
-    fun predictDiabetes(accFrag: AccFrag, obj: Request.Diabetes) {
+    fun predictDiabetes(
+        accFrag: AccFrag,
+        obj: Request.Diabetes,
+        dialog: AlertDialog,
+        simpleItems: Array<String>,
+        objItems: Array<String>
+    ) {
         val retroFun = suspend { retro.value.predictDiabetes(AccFrag.access!!, obj) }
 
         val onSucceed = { r: Response<Result.Diabetes> ->
-            accFrag.dialog("預測結果", if (r.body()!!.prediction == 1) "是" else "否")
+            dialog.dismiss()
+
+            val binding = DialogDiabetesOutBinding.inflate(accFrag.layoutInflater)
+            binding.apply {
+                val isDiagnosed = r.body()!!.prediction == 1
+
+                if (isDiagnosed) {
+                    iv.setImageResource(R.drawable.exclamation_mark)
+                    tv.text = "是\n\n本預測僅供參考，請務必諮詢專業醫護人員"
+                } else {
+                    iv.setImageResource(R.drawable.check)
+                    tv.text = "否\n\n本預測僅供參考，請務必諮詢專業醫護人員"
+                }
+
+                obj.run {
+                    val disease =
+                        if (hypertension && heart_disease) "高血壓、心臟病"
+                        else if (hypertension) "高血壓"
+                        else if (heart_disease) "心臟病"
+                        else "無"
+
+                    val content =
+                        "性別：${if (gender == "male") "男" else "女"}\n" +
+                                "疾病史：$disease\n" +
+                                "吸菸史：${simpleItems[objItems.indexOf(smoking_history)]}\n" +
+                                "年齡：$age\n" +
+                                "BMI：$bmi\n" +
+                                "Hb1Ac值：$HbA1c_level\n" +
+                                "血糖值：$blood_glucose_level\n\n" +
+                                "預測結果：${if (isDiagnosed) "是" else "否"}"
+
+                    accFrag.viewDialog("預測結果", root, false, "分享").neutral.setOnClickListener {
+                        share(accFrag, content)
+                    }
+                }
+            }
         }
 
         request(accFrag, retroFun, onSucceed, null, null)
@@ -258,8 +289,9 @@ object Client {
         onSucceed: (Response<T>) -> Any?,
         onBadRequest: ((Response<T>) -> String)?,
         onFail: (() -> Any?)?
-    ) =
-        frag.io {
+    ) {
+        job?.cancel()
+        job = frag.io {
             try {
                 var r: Response<T>? = null
                 var status = 0
@@ -300,4 +332,5 @@ object Client {
                 }
             }
         }
+    }
 }

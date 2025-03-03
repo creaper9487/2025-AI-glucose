@@ -16,9 +16,9 @@ import rl.collab.diabeat.Client
 import rl.collab.diabeat.Request
 import rl.collab.diabeat.databinding.DialogSrcBinding
 import rl.collab.diabeat.databinding.FragRecordBinding
+import rl.collab.diabeat.dialog
 import rl.collab.diabeat.str
 import rl.collab.diabeat.toast
-import rl.collab.diabeat.viewDialog
 import java.io.File
 
 class RecordFrag : Fragment() {
@@ -43,12 +43,12 @@ class RecordFrag : Fragment() {
         binding.apply {
             saveBtn.setOnClickListener {
                 AccFrag.acc ?: run {
-                    toast("請先登入")
+                    toast("請先登入🔑")
                     return@setOnClickListener
                 }
 
                 if (glucoseEt.str.isEmpty()) {
-                    toast("血糖值不能為空")
+                    toast("血糖值不能為空❗")
                     return@setOnClickListener
                 }
 
@@ -63,12 +63,12 @@ class RecordFrag : Fragment() {
 
             predictCarbohydrateBtn.setOnClickListener {
                 AccFrag.acc ?: run {
-                    toast("請先登入")
+                    toast("請先登入🔑")
                     return@setOnClickListener
                 }
 
                 val binding = DialogSrcBinding.inflate(layoutInflater)
-                val dialog = viewDialog("選擇來源", binding.root)
+                val dialog = dialog("選擇來源", view = binding.root, pos = null, cancelable = true)
                 binding.photoTv.setOnClickListener {
                     pickImageLauncher.launch("image/*")
                     dialog.dismiss()

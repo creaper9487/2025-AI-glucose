@@ -107,7 +107,7 @@
                 android:id="@+id/predict_diabetes_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="預測是否得糖尿病"
+                android:text="預測是否有糖尿病"
                 app:icon="@drawable/question"
                 app:iconTint="?colorSurface" />
 

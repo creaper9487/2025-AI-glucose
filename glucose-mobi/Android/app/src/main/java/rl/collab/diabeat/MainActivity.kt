@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             val dialog = viewDialog("Host 設定", root)
             val posBtn = dialog.pos
             posBtn.setOnClickListener {
-                toast("修改完成 ✅")
+                toast("修改完成✅")
                 dialog.dismiss()
 
                 val addr = ets.joinToString(".") { it.str }
