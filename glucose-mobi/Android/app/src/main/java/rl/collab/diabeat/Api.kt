@@ -1,4 +1,4 @@
-package rl.collab.diabeat.frag
+package rl.collab.diabeat
 
 import okhttp3.MultipartBody
 import retrofit2.Response

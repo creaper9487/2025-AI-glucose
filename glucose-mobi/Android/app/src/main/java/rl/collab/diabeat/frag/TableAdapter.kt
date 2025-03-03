@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
 import rl.collab.diabeat.R
+import rl.collab.diabeat.Result
 
 class TableAdapter(private val data: List<Result.Records>) : RecyclerView.Adapter<TableAdapter.ViewHolder>() {
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {

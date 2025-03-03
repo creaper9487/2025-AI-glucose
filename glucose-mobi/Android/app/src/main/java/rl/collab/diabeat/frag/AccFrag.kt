@@ -19,11 +19,13 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.NoCredentialException
 import androidx.fragment.app.Fragment
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import rl.collab.diabeat.Client
 import rl.collab.diabeat.R
+import rl.collab.diabeat.Request
 import rl.collab.diabeat.databinding.DialogDiabetesBinding
 import rl.collab.diabeat.databinding.DialogLoginBinding
 import rl.collab.diabeat.databinding.DialogRegisterBinding
@@ -31,7 +33,9 @@ import rl.collab.diabeat.databinding.FragAccBinding
 import rl.collab.diabeat.exceptionDialog
 import rl.collab.diabeat.io
 import rl.collab.diabeat.nacho
+import rl.collab.diabeat.neutral
 import rl.collab.diabeat.pos
+import rl.collab.diabeat.setCancelJob
 import rl.collab.diabeat.str
 import rl.collab.diabeat.syncEdit
 import rl.collab.diabeat.toast
@@ -169,28 +173,29 @@ class AccFrag : Fragment() {
             try {
                 val credentialResponse = credentialManager.getCredential(requireContext(), credentialObj)
 
-                if (credentialResponse.credential is CustomCredential) {
-                    val customCredential = credentialResponse.credential as CustomCredential
+                val credential = credentialResponse.credential
+                if (credential is CustomCredential &&
+                    credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
 
-                    if (customCredential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(customCredential.data)
+                    val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
 
-                        val email = googleIdTokenCredential.id
-                        val idToken = googleIdTokenCredential.idToken
-                        val name = googleIdTokenCredential.displayName
+                    val email = googleIdTokenCredential.id
+                    val idToken = googleIdTokenCredential.idToken
+                    val name = googleIdTokenCredential.displayName
 
-                        val obj = Request.GoogleSignIn(idToken)
-                        Client.googleSignIn(this@AccFrag, obj)
+                    val obj = Request.GoogleSignIn(idToken)
+                    Client.googleSignIn(this@AccFrag, obj)
 
-                        ui { toast("$email\n$name") }
-                        nacho(idToken)
-                    } else {
-                        ui { toast("不支援的憑證類型") }
-                    }
+                    ui { toast("$email\n$name") }
+                    nacho(idToken)
                 } else {
                     ui { toast("無法獲取有效憑證") }
                 }
-            } catch (_: GetCredentialCancellationException) {
+            } catch (e: GetCredentialCancellationException) {
+                // 用戶取消操作，可以選擇不處理或是添加適當的提示
+            } catch (e: NoCredentialException) {
+                // 明確處理沒有可用憑證的情況
+                ui { toast("沒有找到可用的憑證") }
             } catch (e: Exception) {
                 ui { exceptionDialog(e) }
             }
@@ -202,20 +207,25 @@ class AccFrag : Fragment() {
 
         binding.apply {
             val dialog = viewDialog("註冊", root)
-            val posBtn = dialog.pos
-            posBtn.isEnabled = false
-            posBtn.setOnClickListener {
-                val obj = Request.Register(emailEt.str, usernameEt.str, pwEt.str)
-                Client.register(this@AccFrag, obj, dialog)
+
+            dialog.pos.apply {
+                isEnabled = false
+                setOnClickListener {
+                    isEnabled = false
+                    val obj = Request.Register(emailEt.str, usernameEt.str, pwEt.str)
+                    Client.register(this@AccFrag, obj, dialog)
+                }
+                val watcher = { _: Editable? ->
+                    isEnabled = Patterns.EMAIL_ADDRESS.matcher(emailEt.str).matches() &&
+                            usernameEt.str.isNotEmpty() &&
+                            pwEt.str.isNotEmpty()
+                }
+                emailEt.doAfterTextChanged(watcher)
+                usernameEt.doAfterTextChanged(watcher)
+                pwEt.doAfterTextChanged(watcher)
             }
-            val watcher = { _: Editable? ->
-                posBtn.isEnabled = Patterns.EMAIL_ADDRESS.matcher(emailEt.str).matches() &&
-                        usernameEt.str.isNotEmpty() &&
-                        pwEt.str.isNotEmpty()
-            }
-            emailEt.doAfterTextChanged(watcher)
-            usernameEt.doAfterTextChanged(watcher)
-            pwEt.doAfterTextChanged(watcher)
+
+            dialog.setCancelJob()
         }
     }
 
@@ -229,33 +239,37 @@ class AccFrag : Fragment() {
             }
 
             val dialog = viewDialog("登入", root, "生物辨識")
-            val posBtn = dialog.pos
-            posBtn.isEnabled = false
-            posBtn.setOnClickListener {
-                val obj = Request.Login(accEt.str.trim(), pwEt.str)
-                Client.logIn(this@AccFrag, obj, dialog, remeCb.isChecked)
-            }
-            val watcher = { _: Editable? ->
-                posBtn.isEnabled = accEt.str.isNotEmpty() && pwEt.str.isNotEmpty()
-            }
-            accEt.doAfterTextChanged(watcher)
-            pwEt.doAfterTextChanged(watcher)
-            pwEt.setOnEditorActionListener { _, _, _ ->
-                val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.hideSoftInputFromWindow(pwEt.windowToken, 0)
 
-                posBtn.callOnClick()
-            }
-
-            val neutralBtn = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
-
-            if (remeRefresh != null) {
-                neutralBtn.setOnClickListener { _ ->
-                    bioLogIn(dialog, remeCb.isChecked)
+            dialog.pos.apply {
+                isEnabled = false
+                setOnClickListener {
+                    isEnabled = false
+                    val obj = Request.Login(accEt.str.trim(), pwEt.str)
+                    Client.logIn(this@AccFrag, obj, dialog, remeCb.isChecked)
                 }
-                neutralBtn.callOnClick()
-            } else
-                neutralBtn.isEnabled = false
+                val watcher = { _: Editable? ->
+                    isEnabled = accEt.str.isNotEmpty() && pwEt.str.isNotEmpty()
+                }
+                accEt.doAfterTextChanged(watcher)
+                pwEt.doAfterTextChanged(watcher)
+                pwEt.setOnEditorActionListener { _, _, _ ->
+                    val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(pwEt.windowToken, 0)
+                    callOnClick()
+                }
+            }
+
+            dialog.setCancelJob()
+
+            dialog.neutral.apply {
+                if (remeRefresh != null) {
+                    setOnClickListener { _ ->
+                        bioLogIn(dialog, remeCb.isChecked)
+                    }
+                    callOnClick()
+                } else
+                    isEnabled = false
+            }
         }
     }
 
@@ -269,27 +283,31 @@ class AccFrag : Fragment() {
             )
 
             val dialog = viewDialog("預測是否得糖尿病", root)
-            val posBtn = dialog.pos
-            posBtn.isEnabled = false
-            posBtn.setOnClickListener {
-                val obj = Request.Diabetes(
-                    if (maleRb.isChecked) "male" else "female",
-                    ageEt.str.toInt(),
-                    hypertensionCb.isChecked,
-                    heartDiseaseCb.isChecked,
-                    smokingHistoryAc.str,
-                    bmiEt.str.toDouble(),
-                    hb1acEt.str.toDouble(),
-                    glucoseEt.str.toInt()
-                )
-                Client.predictDiabetes(this@AccFrag, obj)
+
+            dialog.pos.apply {
+                isEnabled = false
+                setOnClickListener {
+                    val obj = Request.Diabetes(
+                        if (maleRb.isChecked) "male" else "female",
+                        ageEt.str.toInt(),
+                        hypertensionCb.isChecked,
+                        heartDiseaseCb.isChecked,
+                        smokingHistoryAc.str,
+                        bmiEt.str.toDouble(),
+                        hb1acEt.str.toDouble(),
+                        glucoseEt.str.toInt()
+                    )
+                    Client.predictDiabetes(this@AccFrag, obj)
+                }
+                val watcher = {
+                    isEnabled = genderRg.checkedRadioButtonId != -1 && ets.all { it.str.isNotEmpty() }
+                }
+                genderRg.setOnCheckedChangeListener { _, _ -> watcher() }
+                for (et in ets)
+                    et.doAfterTextChanged { watcher() }
             }
-            val watcher = {
-                posBtn.isEnabled = genderRg.checkedRadioButtonId != -1 && ets.all { it.str.isNotEmpty() }
-            }
-            genderRg.setOnCheckedChangeListener { _, _ -> watcher() }
-            for (et in ets)
-                et.doAfterTextChanged { watcher() }
+
+            dialog.setCancelJob()
         }
     }
 }

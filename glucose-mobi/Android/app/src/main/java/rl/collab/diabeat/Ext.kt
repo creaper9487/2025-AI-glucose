@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -36,6 +37,12 @@ val AlertDialog.neg
 
 val AlertDialog.neutral
     get() = getButton(AlertDialog.BUTTON_NEUTRAL)!!
+
+fun AlertDialog.setCancelJob(btn: Button = neg) =
+    btn.setOnClickListener {
+        dismiss()
+        Client.job?.cancel()
+    }
 
 fun Context.dialog(
     title: String,
@@ -90,7 +97,7 @@ fun Fragment.viewDialog(title: String, view: View, neutral: String? = null) =
     dialog(title, view = view, neg = "取消", neutral = neutral)
 
 fun Fragment.io(block: suspend CoroutineScope.() -> Any?) =
-    lifecycleScope.launch(Dispatchers.IO) { block() }
+    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) { block() }
 
 suspend fun Fragment.ui(block: suspend Fragment.() -> Any?) =
     withContext(Dispatchers.Main) { block() }

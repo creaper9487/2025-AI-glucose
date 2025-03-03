@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -15,12 +16,8 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import rl.collab.diabeat.frag.AccFrag
-import rl.collab.diabeat.frag.Api
 import rl.collab.diabeat.frag.ChartFrag
-import rl.collab.diabeat.frag.Err
 import rl.collab.diabeat.frag.RecordFrag
-import rl.collab.diabeat.frag.Request
-import rl.collab.diabeat.frag.Result
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
@@ -29,6 +26,7 @@ import kotlin.math.roundToInt
 object Client {
     private val gson by lazy { Gson() }
 
+    var job: Job? = null
     private lateinit var addr: String
     private lateinit var retro: Lazy<Api>
     private lateinit var retroLong: Lazy<Api>
@@ -40,9 +38,9 @@ object Client {
 
     private fun retroInit(isLong: Boolean, addr: String): Api {
         val okHttpClient = OkHttpClient.Builder()
-            .connectTimeout(3, TimeUnit.SECONDS)
-            .writeTimeout(3, TimeUnit.SECONDS)
-            .readTimeout(if (isLong) 60 else 3, TimeUnit.SECONDS)
+            .connectTimeout(1, TimeUnit.SECONDS)
+            .writeTimeout(1, TimeUnit.SECONDS)
+            .readTimeout(if (isLong) 60 else 1, TimeUnit.SECONDS)
             .build()
 
         return Retrofit.Builder()
@@ -67,15 +65,20 @@ object Client {
             val errStr = r.errorBody()?.string()
             val err = gson.fromJson(errStr, Err.Register::class.java)
 
-            if (err.email == null && err.username == null)
+            if (err.email != null && err.username != null)
                 "此 Email 和 Username 皆已被註冊"
-            else if (err.email == null)
+            else if (err.email != null)
                 "此 Email 已被註冊"
             else
                 "此 Username 已被註冊"
         }
 
-        request(accFrag, retroFun, onSucceed, onBadRequest)
+        val onFail = {
+            dialog.pos.isEnabled = true
+        }
+
+        job?.cancel()
+        job = request(accFrag, retroFun, onSucceed, onBadRequest, onFail)
     }
 
     fun logIn(accFrag: AccFrag, obj: Request.Login, dialog: AlertDialog, reme: Boolean) {
@@ -100,7 +103,11 @@ object Client {
             }
         }
 
-        request(accFrag, retroFun, onSucceed, onBadRequest)
+        val onFail = {
+            dialog.pos.isEnabled = true
+        }
+
+        request(accFrag, retroFun, onSucceed, onBadRequest, onFail)
     }
 
     fun refresh(frag: Fragment, refresh: String? = null, dialog: AlertDialog? = null, reme: Boolean? = null) {
@@ -118,7 +125,7 @@ object Client {
             }
         }
 
-        request(frag, retroFun, onSucceed, null)
+        request(frag, retroFun, onSucceed, null, null)
     }
 
     fun googleSignIn(accFrag: AccFrag, obj: Request.GoogleSignIn) {
@@ -127,18 +134,18 @@ object Client {
         val onSucceed = { _: Response<Unit> ->
         }
 
-        request(accFrag, retroFun, onSucceed, null)
+        request(accFrag, retroFun, onSucceed, null, null)
     }
 
     fun getRecords(chartFrag: ChartFrag) {
-        AccFrag.acc?.also {
-            val retroFun = suspend { retro.value.getRecords(AccFrag.access!!) }
+        AccFrag.acc ?: return
 
-            val onSucceed = { _: Response<List<Result.Records>> ->
-            }
+        val retroFun = suspend { retro.value.getRecords(AccFrag.access!!) }
 
-            request(chartFrag, retroFun, onSucceed, null)
+        val onSucceed = { _: Response<List<Result.Records>> ->
         }
+
+        request(chartFrag, retroFun, onSucceed, null, null)
     }
 
     fun postRecord(recordFrag: RecordFrag, obj: Request.Record) {
@@ -155,7 +162,7 @@ object Client {
             }
         }
 
-        request(recordFrag, retroFun, onSucceed, null)
+        request(recordFrag, retroFun, onSucceed, null, null)
     }
 
     fun predictCarbohydrate(recordFrag: RecordFrag, image: MultipartBody.Part) {
@@ -167,7 +174,7 @@ object Client {
             )
         }
 
-        request(recordFrag, retroFun, onSucceed, null)
+        request(recordFrag, retroFun, onSucceed, null, null)
     }
 
     fun suggest(accFrag: AccFrag) {
@@ -207,14 +214,17 @@ object Client {
             content = res.message.content
 
             dialog.setTitle("${res.model} 建議")
-            dialog.pos.text = "OK"
+            dialog.pos.apply {
+                text = "OK"
+                dialog.setCancelJob(this)
+            }
             dialog.neg.apply {
                 text = "複製"
                 setOnClickListener {
                     val clip = ClipData.newPlainText("", content)
                     val clipboard = accFrag.requireContext().getSystemService(Service.CLIPBOARD_SERVICE) as ClipboardManager
                     clipboard.setPrimaryClip(clip)
-                    accFrag.toast("已複製✅")
+                    accFrag.toast("已複製 ✅")
                 }
             }
             dialog.neutral.apply {
@@ -229,7 +239,7 @@ object Client {
             }
         }
 
-        request(accFrag, retroFun, onSucceed, null)
+        request(accFrag, retroFun, onSucceed, null, null)
     }
 
     fun predictDiabetes(accFrag: AccFrag, obj: Request.Diabetes) {
@@ -239,15 +249,16 @@ object Client {
             accFrag.dialog("預測結果", if (r.body()!!.prediction == 1) "是" else "否")
         }
 
-        request(accFrag, retroFun, onSucceed, null)
+        request(accFrag, retroFun, onSucceed, null, null)
     }
 
     private fun <T> request(
         frag: Fragment,
         retroFun: suspend () -> Response<T>,
         onSucceed: (Response<T>) -> Any?,
-        onBadRequest: ((Response<T>) -> String)?
-    ) {
+        onBadRequest: ((Response<T>) -> String)?,
+        onFail: (() -> Any?)?
+    ) =
         frag.io {
             try {
                 var r: Response<T>? = null
@@ -274,14 +285,19 @@ object Client {
 
                         else -> errDialog("HTTP $status")
                     }
+
+                    if (status != 200 && status != 201)
+                        onFail?.invoke()
                 }
-            } catch (e: ConnectException) {
-                frag.ui { setHostErrDialog("無法連線到$addr") }
-            } catch (_: SocketTimeoutException) {
-                frag.ui { setHostErrDialog("連線逾時") }
             } catch (e: Exception) {
-                frag.ui { exceptionDialog(e) }
+                frag.ui {
+                    when (e) {
+                        is ConnectException -> setHostErrDialog("無法連線到$addr")
+                        is SocketTimeoutException -> setHostErrDialog("連線逾時")
+                        else -> exceptionDialog(e)
+                    }
+                    onFail?.invoke()
+                }
             }
         }
-    }
 }
