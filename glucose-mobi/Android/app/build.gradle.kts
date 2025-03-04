@@ -53,4 +53,5 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+    implementation(libs.androidx.swiperefreshlayout)
 }

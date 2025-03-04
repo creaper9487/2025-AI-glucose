@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -37,12 +36,6 @@ val AlertDialog.neg
 
 val AlertDialog.neutral
     get() = getButton(AlertDialog.BUTTON_NEUTRAL)!!
-
-fun AlertDialog.setCancelJob(btn: Button = neg) =
-    btn.setOnClickListener {
-        dismiss()
-        Client.job?.cancel()
-    }
 
 fun Context.dialog(
     title: String,
@@ -96,10 +89,10 @@ fun Context.viewDialog(title: String, view: View, neg: Boolean = true, neutral: 
 fun Fragment.viewDialog(title: String, view: View, neg: Boolean = true, neutral: String? = null) =
     requireContext().viewDialog(title, view, neg, neutral)
 
-fun Fragment.io(block: suspend CoroutineScope.() -> Any?) =
+fun Fragment.io(block: suspend CoroutineScope.() -> Unit) =
     viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) { block() }
 
-suspend fun Fragment.ui(block: suspend Fragment.() -> Any?) =
+suspend fun Fragment.ui(block: suspend Fragment.() -> Unit) =
     withContext(Dispatchers.Main) { block() }
 
 inline fun SharedPreferences.syncEdit(action: SharedPreferences.Editor.() -> Unit) =

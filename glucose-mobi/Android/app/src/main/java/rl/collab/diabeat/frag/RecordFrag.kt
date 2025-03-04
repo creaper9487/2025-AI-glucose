@@ -12,8 +12,12 @@ import androidx.fragment.app.Fragment
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import rl.collab.diabeat.Client
+import retrofit2.Response
+import rl.collab.diabeat.Client.cancelJob
+import rl.collab.diabeat.Client.request
+import rl.collab.diabeat.Client.retro
 import rl.collab.diabeat.Request
+import rl.collab.diabeat.Result
 import rl.collab.diabeat.databinding.DialogSrcBinding
 import rl.collab.diabeat.databinding.FragRecordBinding
 import rl.collab.diabeat.dialog
@@ -23,7 +27,7 @@ import java.io.File
 
 class RecordFrag : Fragment() {
     private var _binding: FragRecordBinding? = null
-    val binding get() = _binding!!
+    private val binding get() = _binding!!
     private lateinit var takePicFilename: String
     private lateinit var takePicUri: Uri
 
@@ -34,6 +38,7 @@ class RecordFrag : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        cancelJob()
         _binding = null
     }
 
@@ -58,7 +63,7 @@ class RecordFrag : Fragment() {
                     exerciseEt.str.toDoubleOrNull(),
                     insulinEt.str.toDoubleOrNull()
                 )
-                Client.postRecord(this@RecordFrag, obj)
+                reqPostRecords(obj)
             }
 
             predictCarbohydrateBtn.setOnClickListener {
@@ -81,6 +86,33 @@ class RecordFrag : Fragment() {
                     dialog.dismiss()
                 }
             }
+        }
+    }
+
+    private fun reqPostRecords(obj: Request.Record) {
+        val onSucceed = { _: Response<Result.Records> ->
+            toast("已儲存✅")
+            binding.run {
+                glucoseEt.setText("")
+                carbohydrateEt.setText("")
+                exerciseEt.setText("")
+                insulinEt.setText("")
+                etGroup.clearFocus()
+            }
+        }
+
+        request(this, onSucceed, null, null) {
+            retro.postRecord(AccFrag.access!!, obj)
+        }
+    }
+
+    private fun reqPredictCarbohydrate(image: MultipartBody.Part) {
+        val onSucceed = { r: Response<Result.Predict> ->
+            binding.carbohydrateEt.setText("%.0f".format(r.body()!!.predicted_value))
+        }
+
+        request(this, onSucceed, null, null) {
+            retro.predictCarbohydrate(AccFrag.access!!, image)
         }
     }
 
@@ -107,7 +139,7 @@ class RecordFrag : Fragment() {
         val byteArr = resolver.openInputStream(uri)!!.readBytes()
         val obj = byteArr.toRequestBody("image/*".toMediaType())
         val image = MultipartBody.Part.createFormData("image", filename, obj)
-        Client.predictCarbohydrate(this, image)
+        reqPredictCarbohydrate(image)
     }
 
     private val takePicLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -119,6 +151,6 @@ class RecordFrag : Fragment() {
         val byteArr = resolver.openInputStream(takePicUri)!!.readBytes()
         val obj = byteArr.toRequestBody("image/jpeg".toMediaType())
         val image = MultipartBody.Part.createFormData("image", takePicFilename, obj)
-        Client.predictCarbohydrate(this, image)
+        reqPredictCarbohydrate(image)
     }
 }

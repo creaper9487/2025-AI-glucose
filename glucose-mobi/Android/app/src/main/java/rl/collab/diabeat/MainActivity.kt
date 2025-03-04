@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
             setHost()
             return true
         }
-        return false
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
