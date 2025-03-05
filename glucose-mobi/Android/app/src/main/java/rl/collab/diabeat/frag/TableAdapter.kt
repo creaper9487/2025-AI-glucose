@@ -6,9 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
 import rl.collab.diabeat.R
-import rl.collab.diabeat.Result
 
-class TableAdapter(private val data: List<Result.Records>) : RecyclerView.Adapter<TableAdapter.ViewHolder>() {
+class TableAdapter : RecyclerView.Adapter<TableAdapter.ViewHolder>() {
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val cellTv: MaterialTextView = view.findViewById(R.id.cell_tv)
     }
@@ -24,7 +23,7 @@ class TableAdapter(private val data: List<Result.Records>) : RecyclerView.Adapte
             if (position < 5)
                 arrayOf("時間", "血糖", "碳水", "運動", "胰島素")[position % 5]
             else
-                data[position / 5 - 1].run {
+                ChartFrag.data[position / 5 - 1].run {
                     arrayOf(
                         created_at,
                         blood_glucose.tryToInt(),
@@ -35,7 +34,7 @@ class TableAdapter(private val data: List<Result.Records>) : RecyclerView.Adapte
                 }
     }
 
-    override fun getItemCount() = (1 + data.size) * 5
+    override fun getItemCount() = (1 + ChartFrag.data.size) * 5
 
     private fun Double?.tryToInt() =
         if (this == null)

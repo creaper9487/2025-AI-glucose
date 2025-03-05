@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
             startUpCb.isChecked = hostStartup
 
             val ets = arrayOf(hostA, hostB, hostC, hostD)
-            val dialog = viewDialog("Host 設定", root)
+            val dialog = dialog("Host 設定", view = root)
             val posBtn = dialog.pos
             posBtn.setOnClickListener {
                 toast("修改完成✅")

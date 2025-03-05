@@ -11,10 +11,6 @@ import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 fun nacho(vararg msg: Any?) =
     Log.d("nacho", msg.joinToString(" "))
@@ -31,9 +27,6 @@ fun Fragment.toast(msg: String) =
 val AlertDialog.pos
     get() = getButton(AlertDialog.BUTTON_POSITIVE)!!
 
-val AlertDialog.neg
-    get() = getButton(AlertDialog.BUTTON_NEGATIVE)!!
-
 val AlertDialog.neutral
     get() = getButton(AlertDialog.BUTTON_NEUTRAL)!!
 
@@ -42,7 +35,7 @@ fun Context.dialog(
     msg: String? = null,
     view: View? = null,
     pos: String? = "OK",
-    neg: String? = null,
+    neg: String? = "取消",
     neutral: String? = null,
     cancelable: Boolean = false
 ) =
@@ -61,39 +54,21 @@ fun Fragment.dialog(
     msg: String? = null,
     view: View? = null,
     pos: String? = "OK",
-    neg: String? = null,
+    neg: String? = "取消",
     neutral: String? = null,
     cancelable: Boolean = false
 ) =
     requireContext().dialog(title, msg, view, pos, neg, neutral, cancelable)
 
 fun Fragment.errDialog(msg: String, neutral: String? = null) =
-    dialog("錯誤", msg, neutral = neutral)
-
-fun Fragment.setHostErrDialog(msg: String) {
-    val dialog = errDialog(msg, "設定 Host")
-    dialog.neutral.setOnClickListener {
-        dialog.dismiss()
-        (requireActivity() as MainActivity).setHost()
-    }
-}
+    dialog("錯誤", msg, neg = null, neutral = neutral)
 
 fun Fragment.exceptionDialog(e: Exception) {
     val z = e::class.java
     errDialog("${z.`package`?.name}\n${z.simpleName}\n\n${e.localizedMessage}")
 }
 
-fun Context.viewDialog(title: String, view: View, neg: Boolean = true, neutral: String? = null) =
-    dialog(title, view = view, neg = if (neg) "取消" else null, neutral = neutral)
-
-fun Fragment.viewDialog(title: String, view: View, neg: Boolean = true, neutral: String? = null) =
-    requireContext().viewDialog(title, view, neg, neutral)
-
-fun Fragment.io(block: suspend CoroutineScope.() -> Unit) =
-    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) { block() }
-
-suspend fun Fragment.ui(block: suspend Fragment.() -> Unit) =
-    withContext(Dispatchers.Main) { block() }
+val Fragment.viewLifecycleScope get() = viewLifecycleOwner.lifecycleScope
 
 inline fun SharedPreferences.syncEdit(action: SharedPreferences.Editor.() -> Unit) =
     edit(true, action)

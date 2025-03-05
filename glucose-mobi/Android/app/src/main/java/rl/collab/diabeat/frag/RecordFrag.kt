@@ -13,9 +13,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
-import rl.collab.diabeat.Client.cancelJob
 import rl.collab.diabeat.Client.request
-import rl.collab.diabeat.Client.retro
 import rl.collab.diabeat.Request
 import rl.collab.diabeat.Result
 import rl.collab.diabeat.databinding.DialogSrcBinding
@@ -38,13 +36,11 @@ class RecordFrag : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        cancelJob()
         _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.apply {
             saveBtn.setOnClickListener {
                 AccFrag.acc ?: run {
@@ -63,7 +59,7 @@ class RecordFrag : Fragment() {
                     exerciseEt.str.toDoubleOrNull(),
                     insulinEt.str.toDoubleOrNull()
                 )
-                reqPostRecords(obj)
+                reqPostRecords(it, obj)
             }
 
             predictCarbohydrateBtn.setOnClickListener {
@@ -73,7 +69,7 @@ class RecordFrag : Fragment() {
                 }
 
                 val binding = DialogSrcBinding.inflate(layoutInflater)
-                val dialog = dialog("選擇來源", view = binding.root, pos = null, cancelable = true)
+                val dialog = dialog("選擇來源", view = binding.root, pos = null, neg = null, cancelable = true)
                 binding.photoTv.setOnClickListener {
                     pickImageLauncher.launch("image/*")
                     dialog.dismiss()
@@ -89,7 +85,9 @@ class RecordFrag : Fragment() {
         }
     }
 
-    private fun reqPostRecords(obj: Request.Record) {
+    private fun reqPostRecords(btn: View, obj: Request.Record) {
+        btn.isEnabled = false
+
         val onSucceed = { _: Response<Result.Records> ->
             toast("已儲存✅")
             binding.run {
@@ -99,21 +97,21 @@ class RecordFrag : Fragment() {
                 insulinEt.setText("")
                 etGroup.clearFocus()
             }
+            btn.isEnabled = true
         }
-
-        request(this, onSucceed, null, null) {
-            retro.postRecord(AccFrag.access!!, obj)
-        }
+        val onFail = { btn.isEnabled = true }
+        request(onSucceed, null, onFail, false) { postRecord(AccFrag.access!!, obj) }
     }
 
-    private fun reqPredictCarbohydrate(image: MultipartBody.Part) {
+    private fun reqPredictCarbohydrate(btn: View, image: MultipartBody.Part) {
+        btn.isEnabled = false
+
         val onSucceed = { r: Response<Result.Predict> ->
             binding.carbohydrateEt.setText("%.0f".format(r.body()!!.predicted_value))
+            btn.isEnabled = true
         }
-
-        request(this, onSucceed, null, null) {
-            retro.predictCarbohydrate(AccFrag.access!!, image)
-        }
+        val onFail = { btn.isEnabled = true }
+        request(onSucceed, null, onFail, false) { predictCarbohydrate(AccFrag.access!!, image) }
     }
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -139,7 +137,7 @@ class RecordFrag : Fragment() {
         val byteArr = resolver.openInputStream(uri)!!.readBytes()
         val obj = byteArr.toRequestBody("image/*".toMediaType())
         val image = MultipartBody.Part.createFormData("image", filename, obj)
-        reqPredictCarbohydrate(image)
+        reqPredictCarbohydrate(binding.predictCarbohydrateBtn, image)
     }
 
     private val takePicLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -151,6 +149,6 @@ class RecordFrag : Fragment() {
         val byteArr = resolver.openInputStream(takePicUri)!!.readBytes()
         val obj = byteArr.toRequestBody("image/jpeg".toMediaType())
         val image = MultipartBody.Part.createFormData("image", takePicFilename, obj)
-        reqPredictCarbohydrate(image)
+        reqPredictCarbohydrate(binding.predictCarbohydrateBtn, image)
     }
 }

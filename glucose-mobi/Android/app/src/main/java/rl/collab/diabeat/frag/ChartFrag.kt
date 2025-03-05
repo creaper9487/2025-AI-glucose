@@ -6,9 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import retrofit2.Response
-import rl.collab.diabeat.Client.cancelJob
 import rl.collab.diabeat.Client.request
-import rl.collab.diabeat.Client.retro
 import rl.collab.diabeat.R
 import rl.collab.diabeat.Result
 import rl.collab.diabeat.databinding.FragChartBinding
@@ -28,13 +26,11 @@ class ChartFrag : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        cancelJob()
         _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.apply {
             segBtnGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
                 if (!isChecked)
@@ -49,23 +45,24 @@ class ChartFrag : Fragment() {
                 }
             }
 
-            table.adapter = TableAdapter(data)
-            swipeRefresh.setOnRefreshListener {
-                swipeRefresh.isRefreshing = false
-            }
+            table.adapter = TableAdapter()
+            swipeRefresh.setOnRefreshListener { reqRecords() }
         }
     }
 
-    fun reqRecords() {
+    private fun reqRecords() {
         AccFrag.acc ?: return
 
         val onSucceed = { r: Response<List<Result.Records>> ->
-            data.addAll(r.body()!!.drop(data.size))
-            Unit
+            val rdata = r.body()!!
+            val before = data.size
+            val after = rdata.size
+            data.addAll(rdata.drop(before))
+
+            binding.swipeRefresh.isRefreshing = false
+            binding.table.adapter!!.notifyDataSetChanged()
         }
 
-        request(this, onSucceed, null, null) {
-            retro.getRecords(AccFrag.access!!)
-        }
+        request(onSucceed, null, null, false) { getRecords(AccFrag.access!!) }
     }
 }
