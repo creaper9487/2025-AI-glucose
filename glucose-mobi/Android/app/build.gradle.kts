@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.swiperefreshlayout)
 
     // Bio Login & Master Key & Encrypted Shared Pref
     implementation(libs.androidx.biometric)
@@ -46,12 +47,12 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
 
-    // Chart
+    // Chart & Rich Text
     implementation(libs.mpandroidchart)
+    implementation (libs.core)
 
     // Http Request
     implementation(libs.okhttp)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
-    implementation(libs.androidx.swiperefreshlayout)
 }

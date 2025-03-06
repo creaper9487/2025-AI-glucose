@@ -73,7 +73,6 @@ object Client {
 
                 withContext(Dispatchers.IO) {
                     for (i in 0..1) {
-
                         r = (if (isLong) retroLong else retro).value.retroFun()
                         status = r!!.code()
                         if (status == 401)
@@ -87,8 +86,10 @@ object Client {
                     200, 201 -> onSucceed(r!!)
                     400 -> errDialog(onBadRequest?.invoke(r!!) ?: "請求錯誤")
                     401 -> {
-                        errDialog("無密碼登入憑證過期，請重新登入")
                         AccFrag.remePref.syncEdit { clear() }
+                        errDialog("無密碼登入憑證過期，請重新登入").pos.setOnClickListener {
+                            requireActivity().finishAffinity()
+                        }
                     }
 
                     else -> errDialog("HTTP $status")
@@ -100,7 +101,7 @@ object Client {
             } catch (e: Exception) {
                 fun setHostErrDialog(msg: String) {
                     val dialog = errDialog(msg, "設定 Host")
-                    dialog.neutral.setOnClickListener {
+                    dialog.ntr.setOnClickListener {
                         dialog.dismiss()
                         (requireActivity() as MainActivity).setHost()
                     }

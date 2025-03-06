@@ -27,11 +27,10 @@ import androidx.fragment.app.Fragment
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import io.noties.markwon.Markwon
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import retrofit2.Response
 import rl.collab.diabeat.Client.refresh
 import rl.collab.diabeat.Client.request
@@ -47,7 +46,7 @@ import rl.collab.diabeat.databinding.FragAccBinding
 import rl.collab.diabeat.dialog
 import rl.collab.diabeat.errDialog
 import rl.collab.diabeat.exceptionDialog
-import rl.collab.diabeat.neutral
+import rl.collab.diabeat.ntr
 import rl.collab.diabeat.pos
 import rl.collab.diabeat.str
 import rl.collab.diabeat.syncEdit
@@ -91,16 +90,16 @@ class AccFrag : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
-            googleSignInBtn.setOnClickListener { reqGoogleSignIn(it) }
-            registerBtn.setOnClickListener { reqRegistration(it) }
-            loginBtn.setOnClickListener { reqLogin(it) }
+            googleSignInBtn.setOnClickListener { reqGoogleSignIn() }
+            registerBtn.setOnClickListener { reqRegistration() }
+            loginBtn.setOnClickListener { reqLogin() }
             aboutUsBtn.setOnClickListener {
                 val uri = Uri.parse("https://github.com/creaper9487/2025-AI-glucose")
                 startActivity(Intent(Intent.ACTION_VIEW, uri))
             }
 
-            suggestBtn.setOnClickListener { reqSuggestion(it) }
-            predictDiabetesBtn.setOnClickListener { reqPredictDiabetes(it) }
+            suggestBtn.setOnClickListener { reqSuggestion() }
+            predictDiabetesBtn.setOnClickListener { reqPredictDiabetes() }
             logOutBtn.setOnClickListener { logOutEnv() }
             bioLoginSw.setOnCheckedChangeListener { _, isChecked ->
                 if (notLoginView)
@@ -208,9 +207,7 @@ class AccFrag : Fragment() {
     //
     // Request
 
-    private fun reqGoogleSignIn(btn: View) {
-        btn.isClickable = false
-
+    private fun reqGoogleSignIn() {
         val opt = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
             .setServerClientId(getString(R.string.token))
@@ -234,9 +231,9 @@ class AccFrag : Fragment() {
                 }
 
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                val email = googleIdTokenCredential.id
+                // val email = googleIdTokenCredential.id
                 val idToken = googleIdTokenCredential.idToken
-                val name = googleIdTokenCredential.displayName
+                // val name = googleIdTokenCredential.displayName
 
                 val obj = Request.GoogleSignIn(idToken)
                 val onSucceed = { _: Response<Unit> ->
@@ -248,17 +245,16 @@ class AccFrag : Fragment() {
                 errDialog("沒有找到可用的憑證")
             } catch (e: Exception) {
                 exceptionDialog(e)
-            } finally {
-                btn.isClickable = true
             }
         }
     }
 
-    private fun reqRegistration(btn: View) {
+    private fun reqRegistration() {
         val binding = DialogRegisterBinding.inflate(layoutInflater)
         binding.apply {
-            val dialog = reqDialog(btn, "註冊", view = root)
+            val dialog = reqDialog("註冊", view = root)
             val pos = dialog.pos
+
             pos.isEnabled = false
             pos.setOnClickListener {
                 pos.isEnabled = false
@@ -280,9 +276,7 @@ class AccFrag : Fragment() {
                         "此 Username 已被註冊"
                 }
                 val onFail = { dialog.pos.isEnabled = true }
-
-                val job = request(onSucceed, onBadRequest, onFail, false) { register(obj) }
-                dialog.setDismissCancelJobs(btn, job)
+                request(onSucceed, onBadRequest, onFail, false) { register(obj) }
             }
             val watcher = { _: Editable? ->
                 pos.isEnabled = Patterns.EMAIL_ADDRESS.matcher(emailEt.str).matches() &&
@@ -295,7 +289,7 @@ class AccFrag : Fragment() {
         }
     }
 
-    private fun reqLogin(btn: View) {
+    private fun reqLogin() {
         val binding = DialogLoginBinding.inflate(layoutInflater)
         binding.apply {
             remeAcc?.also {
@@ -303,14 +297,14 @@ class AccFrag : Fragment() {
                 remeCb.isChecked = true
             }
 
-            val dialog = reqDialog(btn, "登入", view = root, neutral = "生物辨識")
+            val dialog = dialog("登入", view = root, neutral = "生物辨識")
             val pos = dialog.pos
-            val neutral = dialog.neutral
+            val ntr = dialog.ntr
 
             pos.isEnabled = false
             pos.setOnClickListener {
                 pos.isEnabled = false
-                neutral.isEnabled = false
+                ntr.isEnabled = false
 
                 val obj = Request.Login(accEt.str.trim(), pwEt.str)
                 val onSucceed = { r: Response<Result.Tokens> ->
@@ -330,11 +324,10 @@ class AccFrag : Fragment() {
                 }
                 val onFail = {
                     pos.isEnabled = true
-                    neutral.isEnabled = true
+                    ntr.isEnabled = true
                 }
 
-                val job = request(onSucceed, onBadRequest, onFail, false) { logIn(obj) }
-                dialog.setDismissCancelJobs(btn, job)
+                request(onSucceed, onBadRequest, onFail, false) { logIn(obj) }
             }
             val watcher = { _: Editable? ->
                 pos.isEnabled = accEt.str.isNotEmpty() && pwEt.str.isNotEmpty()
@@ -347,25 +340,27 @@ class AccFrag : Fragment() {
                 pos.callOnClick()
             }
 
-            neutral.apply {
-                if (remeCanBio) {
-                    setOnClickListener { _ ->
-                        bioLogIn(dialog, remeCb.isChecked)
-                    }
-                    callOnClick()
-                } else
-                    isEnabled = false
-            }
+            if (remeCanBio) {
+                ntr.setOnClickListener { _ ->
+                    bioLogIn(dialog, remeCb.isChecked)
+                }
+                ntr.callOnClick()
+            } else
+                ntr.isEnabled = false
         }
     }
 
-    private fun reqSuggestion(btn: View) {
-        val dialog = reqDialog(btn, "AI 建議", "耐心等待6️⃣0️⃣秒", pos = "取消", neg = null, neutral = " ")
-
+    private fun reqSuggestion() {
         val atomic = AtomicBoolean(false)
-        var content: String
+        var res: Result.Chat? = null
+        val onSucceed = { r: Response<Result.ChatRoot> ->
+            res = r.body()!!.response
+            atomic.set(true)
+        }
+        request(onSucceed, null, null, true) { suggest(access!!) }
 
-        val countdownJob = viewLifecycleScope.launch(Dispatchers.IO) {
+        val dialog = reqDialog("AI 建議", "耐心等待6️⃣0️⃣秒", pos = "取消", neg = null, neutral = " ")
+        viewLifecycleScope.launch {
             val nums = arrayOf("0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣")
 
             for (i in 60 downTo 0) {
@@ -375,41 +370,34 @@ class AccFrag : Fragment() {
                 val msg = "耐心等待${nums[i / 10]}${nums[i % 10]}秒\n\n" +
                         i.toString(2).replace("0", "🌑").replace("1", "🌕")
 
-                withContext(Dispatchers.Main) {
-                    dialog.setMessage(msg)
-                }
+                dialog.setMessage(msg)
                 delay(1000)
             }
-        }
+            if (!atomic.get())
+                return@launch
 
-        val onSucceed = { r: Response<Result.ChatRoot> ->
-            val res = r.body()!!.response
-            content = res.message.content
-            atomic.set(true)
-            countdownJob.cancel()
+            val content = res!!.message.content
+            val spannedString = Markwon.create(requireContext()).toMarkdown(content)
 
-            dialog.setTitle("${res.model} 建議")
-            dialog.setMessage(content)
+            dialog.setTitle("${res!!.model} 建議")
+            dialog.setMessage(spannedString)
             dialog.pos.text = "OK"
-            dialog.neutral.apply {
+            dialog.ntr.apply {
                 text = "分享"
                 setOnClickListener { share(content) }
             }
-            Unit
         }
-
-        val job = request(onSucceed, null, null, true) { suggest(access!!) }
-        dialog.setDismissCancelJobs(btn, /*countdownJob,*/ job)
     }
 
-    private fun reqPredictDiabetes(btn: View) {
+    private fun reqPredictDiabetes() {
         val b1 = DialogDiabetesInputBinding.inflate(layoutInflater)
+
         val ets = arrayOf(b1.smokingHistoryAc, b1.ageEt, b1.bmiEt, b1.hb1acEt, b1.glucoseEt)
         val simpleItems = arrayOf("從不吸菸", "曾經吸菸", "目前沒有吸菸", "目前有吸菸")
         val objItems = arrayOf("never", "former", "not current", "current")
         b1.smokingHistoryAc.setSimpleItems(simpleItems)
 
-        val dialog = reqDialog(btn, "預測是否有糖尿病", view = b1.root)
+        val dialog = reqDialog("預測是否有糖尿病", view = b1.root)
         val pos = dialog.pos
         pos.isEnabled = false
         pos.setOnClickListener {
@@ -452,13 +440,12 @@ class AccFrag : Fragment() {
                         "血糖值：${obj.blood_glucose_level}\n\n" +
                         "預測結果：${if (isDiagnosed) "是" else "否"}"
 
-                dialog("預測結果", view = b2.root, neg = null, neutral = "分享").neutral.setOnClickListener {
+                dialog("預測結果", view = b2.root, neg = null, neutral = "分享").ntr.setOnClickListener {
                     share(content)
                 }
             }
 
-            val job = request(onSucceed, null, null, false) { predictDiabetes(access!!, obj) }
-            dialog.setDismissCancelJobs(btn, job)
+            request(onSucceed, null, null, false) { predictDiabetes(access!!, obj) }
         }
         val watcher = {
             pos.isEnabled = b1.genderRg.checkedRadioButtonId != -1 && ets.all { it.str.isNotEmpty() }
@@ -473,26 +460,19 @@ class AccFrag : Fragment() {
     // Helper
 
     private fun reqDialog(
-        btn: View,
         title: String,
         msg: String? = null,
         view: View? = null,
         pos: String? = "OK",
         neg: String? = "取消",
-        neutral: String? = null
+        neutral: String? = null,
     ): AlertDialog {
-        btn.isClickable = false
         val dialog = dialog(title, msg, view, pos, neg, neutral)
-        dialog.setOnDismissListener { btn.isClickable = true }
+        dialog.setOnDismissListener {
+            viewLifecycleScope.coroutineContext.cancelChildren()
+        }
         return dialog
     }
-
-    private fun AlertDialog.setDismissCancelJobs(btn: View, vararg jobs: Job) =
-        setOnDismissListener {
-            for (job in jobs)
-                job.cancel()
-            btn.isClickable = true
-        }
 
     private fun share(content: String) {
         val intent = Intent(Intent.ACTION_SEND).apply {

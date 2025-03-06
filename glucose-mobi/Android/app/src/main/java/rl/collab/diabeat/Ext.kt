@@ -27,7 +27,7 @@ fun Fragment.toast(msg: String) =
 val AlertDialog.pos
     get() = getButton(AlertDialog.BUTTON_POSITIVE)!!
 
-val AlertDialog.neutral
+val AlertDialog.ntr
     get() = getButton(AlertDialog.BUTTON_NEUTRAL)!!
 
 fun Context.dialog(

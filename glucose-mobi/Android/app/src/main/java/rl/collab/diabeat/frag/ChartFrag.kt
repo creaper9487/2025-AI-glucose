@@ -15,10 +15,6 @@ class ChartFrag : Fragment() {
     private var _binding: FragChartBinding? = null
     private val binding get() = _binding!!
 
-    companion object {
-        var data = mutableListOf<Result.Records>()
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragChartBinding.inflate(inflater, container, false)
         return binding.root
@@ -45,7 +41,6 @@ class ChartFrag : Fragment() {
                 }
             }
 
-            table.adapter = TableAdapter()
             swipeRefresh.setOnRefreshListener { reqRecords() }
         }
     }
@@ -53,14 +48,8 @@ class ChartFrag : Fragment() {
     private fun reqRecords() {
         AccFrag.acc ?: return
 
-        val onSucceed = { r: Response<List<Result.Records>> ->
-            val rdata = r.body()!!
-            val before = data.size
-            val after = rdata.size
-            data.addAll(rdata.drop(before))
-
+        val onSucceed = { _: Response<List<Result.Records>> ->
             binding.swipeRefresh.isRefreshing = false
-            binding.table.adapter!!.notifyDataSetChanged()
         }
 
         request(onSucceed, null, null, false) { getRecords(AccFrag.access!!) }

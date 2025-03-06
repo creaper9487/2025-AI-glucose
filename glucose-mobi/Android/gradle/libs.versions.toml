@@ -1,6 +1,7 @@
 [versions]
 agp = "8.8.2"
 biometric = "1.1.0"
+core = "4.6.2"
 credentials = "1.5.0-rc01"
 credentialsPlayServicesAuth = "1.3.0"
 googleid = "1.1.1"
@@ -26,6 +27,7 @@ androidx-credentials = { module = "androidx.credentials:credentials", version.re
 androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+core = { module = "io.noties.markwon:core", version.ref = "core" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }

@@ -36,7 +36,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val binding = ActivityMainBinding.inflate(layoutInflater)
-
         binding.apply {
             setContentView(root)
             ViewCompat.setOnApplyWindowInsetsListener(main) { v, insets ->
@@ -44,7 +43,6 @@ class MainActivity : AppCompatActivity() {
                 v.updatePadding(systemBars.left, systemBars.top, systemBars.right)
                 insets
             }
-
             val navHostFragment = supportFragmentManager.findFragmentById(R.id.container) as NavHostFragment
             navView.setupWithNavController(navHostFragment.navController)
         }
@@ -70,7 +68,6 @@ class MainActivity : AppCompatActivity() {
 
     fun setHost() {
         val binding = DialogHostBinding.inflate(layoutInflater)
-
         binding.apply {
             startUpCb.isChecked = hostStartup
 
