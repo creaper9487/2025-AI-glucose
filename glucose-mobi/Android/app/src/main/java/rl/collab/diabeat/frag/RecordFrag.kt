@@ -3,9 +3,7 @@ package rl.collab.diabeat.frag
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.security.crypto.EncryptedSharedPreferences
@@ -39,8 +37,7 @@ class RecordFrag : MyFrag<FragRecordBinding>() {
         )
     }
 
-    override fun bind(inflater: LayoutInflater, container: ViewGroup?) =
-        FragRecordBinding.inflate(inflater, container, false)
+    override fun binder(): Binder<FragRecordBinding> = FragRecordBinding::inflate
 
     override fun FragRecordBinding.setView() {
         saveBtn.setOnClickListener {
@@ -91,10 +88,10 @@ class RecordFrag : MyFrag<FragRecordBinding>() {
         val onSucceed = { _: Response<Result.Records> ->
             toast("已儲存✅")
             binding.run {
-                glucoseEt.setText("")
-                carbohydrateEt.setText("")
-                exerciseEt.setText("")
-                insulinEt.setText("")
+                glucoseEt.str = ""
+                carbohydrateEt.str = ""
+                exerciseEt.str = ""
+                insulinEt.str = ""
                 etGroup.clearFocus()
             }
             btn.isEnabled = true
@@ -107,7 +104,7 @@ class RecordFrag : MyFrag<FragRecordBinding>() {
         btn.isEnabled = false
 
         val onSucceed = { r: Response<Result.Predict> ->
-            binding.carbohydrateEt.setText("%.0f".format(r.body()!!.predicted_value))
+            binding.carbohydrateEt.str = "%.0f".format(r.body()!!.predicted_value)
             btn.isEnabled = true
         }
         val onFail = { btn.isEnabled = true }

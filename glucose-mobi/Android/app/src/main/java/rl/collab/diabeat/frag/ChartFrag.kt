@@ -1,16 +1,13 @@
 package rl.collab.diabeat.frag
 
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import retrofit2.Response
 import rl.collab.diabeat.R
 import rl.collab.diabeat.Result
 import rl.collab.diabeat.databinding.FragChartBinding
 
 class ChartFrag : MyFrag<FragChartBinding>() {
-    override fun bind(inflater: LayoutInflater, container: ViewGroup?) =
-        FragChartBinding.inflate(inflater, container, false)
+    override fun binder(): Binder<FragChartBinding> = FragChartBinding::inflate
 
     override fun FragChartBinding.setView() {
         segBtnGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->

@@ -31,6 +31,8 @@ import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.util.concurrent.CancellationException
 
+typealias Binder<V> = (LayoutInflater, ViewGroup?, Boolean) -> V
+
 abstract class MyFrag<V : ViewBinding> : Fragment() {
     private var _binding: V? = null
     protected val binding get() = _binding!!
@@ -40,7 +42,7 @@ abstract class MyFrag<V : ViewBinding> : Fragment() {
     private val act get() = requireActivity()
     private val main get() = act as MainActivity
 
-    protected val vm by activityViewModels<MyVM>()
+    protected val vm by activityViewModels<MyViewModel>()
     protected val viewLifecycleScope get() = viewLifecycleOwner.lifecycleScope
     protected fun ui(block: suspend CoroutineScope.() -> Unit) =
         viewLifecycleScope.launch(block = block)
@@ -48,12 +50,12 @@ abstract class MyFrag<V : ViewBinding> : Fragment() {
     private suspend fun io(block: suspend CoroutineScope.() -> Unit) =
         withContext(Dispatchers.IO) { block() }
 
-    protected abstract fun bind(inflater: LayoutInflater, container: ViewGroup?): V
+    protected abstract fun binder(): Binder<V>
 
     protected abstract fun V.setView()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = bind(inflater, container)
+        _binding = binder()(inflater, container, false)
         return binding.root
     }
 

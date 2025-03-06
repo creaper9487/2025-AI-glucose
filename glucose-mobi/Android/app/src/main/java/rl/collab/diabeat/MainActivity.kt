@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             }
             for (i in 0..3)
                 ets[i].apply {
-                    setText(parts[i])
+                    str = parts[i]
                     doAfterTextChanged(watcher)
                 }
             hostD.setOnEditorActionListener { _, _, _ ->

@@ -5,9 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.text.Editable
 import android.util.Patterns
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AlertDialog
 import androidx.biometric.BiometricManager
@@ -56,8 +54,7 @@ class AccFrag : MyFrag<FragAccBinding>() {
     private val canStrongBio
         get() = BiometricManager.from(con).canAuthenticate(BIOMETRIC_STRONG) == BIOMETRIC_SUCCESS
 
-    override fun bind(inflater: LayoutInflater, container: ViewGroup?) =
-        FragAccBinding.inflate(inflater, container, false)
+    override fun binder(): Binder<FragAccBinding> = FragAccBinding::inflate
 
     override fun FragAccBinding.setView() {
         googleSignInBtn.setOnClickListener { reqGoogleSignIn() }
@@ -262,7 +259,7 @@ class AccFrag : MyFrag<FragAccBinding>() {
         val binding = DialogLoginBinding.inflate(layoutInflater)
         binding.apply {
             remeAcc?.also {
-                accEt.setText(it)
+                accEt.str = it
                 remeCb.isChecked = true
             }
 

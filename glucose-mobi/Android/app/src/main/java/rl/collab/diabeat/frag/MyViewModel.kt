@@ -3,7 +3,7 @@ package rl.collab.diabeat.frag
 import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 
-class MyVM : ViewModel() {
+class MyViewModel : ViewModel() {
     lateinit var remePref: SharedPreferences
 
     var acc: String? = null

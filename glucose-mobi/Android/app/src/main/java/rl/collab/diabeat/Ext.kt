@@ -13,8 +13,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 fun nacho(vararg msg: Any?) =
     Log.d("nacho", msg.joinToString(" "))
 
-val EditText.str
+var EditText.str
     get() = text.toString()
+    set(value) = setText(value)
 
 fun Context.toast(msg: String) =
     Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
