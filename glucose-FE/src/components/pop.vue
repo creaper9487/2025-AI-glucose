@@ -1,7 +1,6 @@
 // eslint-disable-next-line vue/multi-word-component-names
 <script setup>
 import { useChatStore } from '@/stores/chatStore';
-import VueMarked from 'vue-marked';
 const chatStore = useChatStore();
 </script>
 <template>
@@ -16,8 +15,11 @@ const chatStore = useChatStore();
                 <button @click="chatStore.fetchChatContent" class="rounded bg-slate-200 p-2">✨ 讓 AI
                     再次以目前資料分析血糖狀況</button>
             </div>
-            <div class="my-2 h-48 overflow-y-auto border bg-gray-300 rounded p-2" :key="chatStore.chatContent">
-                <vue-marked :value="chatStore.chatContent.response.message.content" />
+            <div class="my-2 h-48 overflow-y-auto border bg-gray-300 rounded p-2">
+                <div v-if="chatStore.chatContent && chatStore.chatContent.response && chatStore.chatContent.response.message">
+                    {{chatStore.chatContent.response.message.content}}
+                </div>
+                <div v-else>分析中...</div>
             </div>
         </div>
     </div>
