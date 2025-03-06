@@ -1,126 +1,338 @@
-// eslint-disable-next-line vue/multi-word-component-names
 <script setup>
 import { useChatStore } from '@/stores/chatStore';
+import { ref, watch } from 'vue';
+
 const chatStore = useChatStore();
+const isAnimating = ref(false);
+
+// 監聽彈窗狀態變化以觸發動畫
+watch(() => chatStore.chatWindow || chatStore.senseWindow || chatStore.testWindow, (newVal) => {
+  if (newVal) {
+    isAnimating.value = true;
+    setTimeout(() => {
+      isAnimating.value = false;
+    }, 300);
+  }
+});
+
+// 關閉彈窗
+const closePopup = () => {
+  chatStore.chatWindow = false;
+  chatStore.senseWindow = false;
+  chatStore.testWindow = false;
+};
 </script>
+
 <template>
-    <div v-if="chatStore.chatWindow || chatStore.senseWindow || chatStore.testWindow"
-        class="fixed inset-0 bg-black bg-opacity-50 z-10"
-        @click="chatStore.chatWindow = false; chatStore.senseWindow = false"></div>
-    <div class="chat-window" v-if="chatStore.chatWindow">
-
-        <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 justify-center bg-gray-500 shadow-lg rounded-lg p-6 z-20 w-96"
-            key="chatStore.chatContent">
-            <div>
-                <button @click="chatStore.fetchChatContent" class="rounded bg-slate-200 p-2">✨ 讓 AI
-                    再次以目前資料分析血糖狀況</button>
+  <!-- 背景遮罩 -->
+  <div v-if="chatStore.chatWindow || chatStore.senseWindow || chatStore.testWindow"
+    class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40 transition-opacity duration-300"
+    :class="isAnimating ? 'opacity-0' : 'opacity-100'"
+    @click="closePopup"></div>
+    
+  <!-- AI 分析彈窗 -->
+  <transition name="modal">
+    <div v-if="chatStore.chatWindow" 
+      class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg">
+      <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+        <!-- 彈窗頭部 -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 flex justify-between items-center">
+          <div class="flex items-center">
+            <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
             </div>
-            <div class="my-2 h-48 overflow-y-auto border bg-gray-300 rounded p-2">
-                <div v-if="chatStore.chatContent && chatStore.chatContent.response && chatStore.chatContent.response.message">
-                    {{chatStore.chatContent.response.message.content}}
-                </div>
-                <div v-else>分析中...</div>
+            <h3 class="ml-3 text-xl font-bold text-white">AI 健康建議</h3>
+          </div>
+          <button @click="closePopup" class="text-white hover:text-gray-200 transition-colors duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <!-- 彈窗內容 -->
+        <div class="p-6">
+          <div class="flex justify-center mb-6">
+            <button @click="chatStore.fetchChatContent" 
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-lg transform transition-all duration-200 hover:scale-105">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+              </svg>
+              重新分析血糖數據
+            </button>
+          </div>
+          
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 h-64 overflow-y-auto prose prose-blue max-w-none">
+            <div v-if="chatStore.chatContent && chatStore.chatContent.response && chatStore.chatContent.response.message" 
+                class="transition-opacity duration-300" 
+                :class="{ 'opacity-0': chatStore.fetchingChat, 'opacity-100': !chatStore.fetchingChat }">
+              <p v-html="chatStore.chatContent.response.message.content.replace(/\n/g, '<br>')"></p>
             </div>
-        </div>
-    </div>
-    <div class="chat-window" v-if="chatStore.senseWindow">
-
-        <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 justify-center bg-gray-500 shadow-lg rounded-lg p-6 z-20 w-96"
-            key="chatStore.chatContent">
-            <div class="my-2 h-auto overflow-y-auto border bg-gray-300 rounded p-2">
-                <p> 預測該照片中的碳水化合物含量是 {{ chatStore.gram }} 克。</p>
+            <div v-else class="flex flex-col items-center justify-center h-full">
+              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+              <p class="text-gray-500">AI 正在分析您的血糖數據...</p>
             </div>
-            <img :src="chatStore.imgURL" alt="food" class="w-auto h-auto">
+          </div>
         </div>
-    </div>
-    <div class="chat-window" v-if="chatStore.testWindow">
-        <div
-            class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 justify-center bg-gray-500 shadow-lg rounded-lg p-6 z-20 w-auto">
-            <h2 class="text-xl font-bold mb-4 text-white">預測資料</h2>
-            <form class="flex flex-row" @submit.prevent="chatStore.submitTest">
-                <div class="mr-4">
-                    <div class="mb-4">
-                        <label class="block text-white text-sm font-medium mb-1">性別</label>
-                        <div class="flex space-x-4">
-                            <label class="inline-flex items-center">
-                                <input type="radio" v-model="chatStore.healthData.gender" value="male"
-                                    class="form-radio">
-                                <span class="ml-2 text-white">男性</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" v-model="chatStore.healthData.gender" value="female"
-                                    class="form-radio">
-                                <span class="ml-2 text-white">女性</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="age" class="block text-white text-sm font-medium mb-1">年齡</label>
-                        <input type="number" id="age" v-model="chatStore.healthData.age"
-                            class="w-full px-3 py-2 bg-gray-200 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="hypertension" class="block text-white text-sm font-medium mb-1">血壓指數</label>
-                        <input type="number" id="hypertension" v-model="chatStore.healthData.hypertension" step="0.1"
-                            class="w-full px-3 py-2 bg-gray-200 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="block text-white text-sm font-medium mb-1">心臟疾病</label>
-                        <div class="flex space-x-4">
-                            <label class="inline-flex items-center">
-                                <input type="radio" v-model="chatStore.healthData.heart_disease" :value="1"
-                                    class="form-radio">
-                                <span class="ml-2 text-white">是</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" v-model="chatStore.healthData.heart_disease" :value="0"
-                                    class="form-radio">
-                                <span class="ml-2 text-white">否</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <div class="mb-4">
-                        <label for="smoking" class="block text-white text-sm font-medium mb-1">吸菸史</label>
-                        <select id="smoking" v-model="chatStore.healthData.smoking_history"
-                            class="w-full px-3 py-2 bg-gray-200 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="never">從未吸菸</option>
-                            <option value="former">曾經吸菸</option>
-                            <option value="not current">目前不吸菸</option>
-                            <option value="current">目前有吸菸</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="bmi" class="block text-white text-sm font-medium mb-1">BMI 指數</label>
-                        <input type="number" id="bmi" v-model="chatStore.healthData.bmi" step="0.1"
-                            class="w-full px-3 py-2 bg-gray-200 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="hba1c" class="block text-white text-sm font-medium mb-1">HbA1c 數值</label>
-                        <input type="number" id="hba1c" v-model="chatStore.healthData.HbA1c_level" step="0.1"
-                            class="w-full px-3 py-2 bg-gray-200 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="bloodsugar" class="block text-white text-sm font-medium mb-1">血糖值</label>
-                        <input type="number" id="bloodsugar" v-model="chatStore.healthData.bloodsugar"
-                            class="w-full px-3 py-2 bg-gray-200 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <div class="flex justify-between">
-                        <button type="submit" @click="chatStore.testWindow = false"
-                            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">提交</button>
-                        <button type="button" @click="chatStore.testWindow = false"
-                            class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">取消</button>
-                    </div>
-                </div>
-            </form>
+        
+        <!-- 彈窗底部 -->
+        <div class="bg-gray-50 px-6 py-3 flex justify-end">
+          <button @click="closePopup" 
+            class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            關閉
+          </button>
         </div>
+      </div>
     </div>
+  </transition>
+  
+  <!-- 食物碳水化合物偵測結果 -->
+  <transition name="modal">
+    <div v-if="chatStore.senseWindow" 
+      class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg">
+      <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+        <!-- 彈窗頭部 -->
+        <div class="bg-gradient-to-r from-green-600 to-teal-600 px-6 py-4 flex justify-between items-center">
+          <div class="flex items-center">
+            <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              </svg>
+            </div>
+            <h3 class="ml-3 text-xl font-bold text-white">食物碳水分析結果</h3>
+          </div>
+          <button @click="closePopup" class="text-white hover:text-gray-200 transition-colors duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <!-- 彈窗內容 -->
+        <div class="p-6">
+          <div class="flex flex-col items-center mb-6">
+            <div class="w-16 h-16 mb-4 bg-green-100 rounded-full flex items-center justify-center">
+              <span class="text-2xl font-bold text-green-600">{{ chatStore.gram }}</span>
+            </div>
+            <p class="text-center text-lg font-medium text-gray-800">
+              預測該食物中的碳水化合物含量是 <span class="font-bold text-green-600">{{ chatStore.gram }}</span> 克
+            </p>
+          </div>
+          
+          <div class="mb-6 rounded-lg overflow-hidden shadow-md">
+            <img :src="chatStore.imgURL" alt="食物圖片" class="w-full h-auto object-cover" />
+          </div>
+          
+          <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <h4 class="text-green-800 font-semibold mb-2 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              提示
+            </h4>
+            <p class="text-sm text-green-700">
+              碳水化合物是血糖的主要來源。對於糖尿病患者，控制碳水化合物攝入對於管理血糖水平至關重要。
+            </p>
+          </div>
+        </div>
+        
+        <!-- 彈窗底部 -->
+        <div class="bg-gray-50 px-6 py-3 flex justify-end">
+          <button @click="closePopup" 
+            class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+            關閉
+          </button>
+        </div>
+      </div>
+    </div>
+  </transition>
+  
+  <!-- 糖尿病測試表單 -->
+  <transition name="modal">
+    <div v-if="chatStore.testWindow" 
+      class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-4xl">
+      <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+        <!-- 彈窗頭部 -->
+        <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4 flex justify-between items-center">
+          <div class="flex items-center">
+            <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <h3 class="ml-3 text-xl font-bold text-white">糖尿病風險評估</h3>
+          </div>
+          <button @click="closePopup" class="text-white hover:text-gray-200 transition-colors duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <!-- 彈窗內容 -->
+        <div class="p-6">
+          <p class="text-gray-600 mb-6">填寫以下信息以評估您的糖尿病風險。此評估僅供參考，不能替代專業醫療診斷。</p>
+          
+          <form class="grid grid-cols-1 md:grid-cols-2 gap-6" @submit.prevent="chatStore.submitTest(); closePopup()">
+            <!-- 左側列 -->
+            <div class="space-y-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">性別</label>
+                <div class="flex space-x-4">
+                  <label class="inline-flex items-center">
+                    <input type="radio" v-model="chatStore.healthData.gender" value="male"
+                      class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                    <span class="ml-2 text-gray-700">男性</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" v-model="chatStore.healthData.gender" value="female"
+                      class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                    <span class="ml-2 text-gray-700">女性</span>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label for="age" class="block text-sm font-medium text-gray-700 mb-2">年齡</label>
+                <div class="relative rounded-md shadow-sm">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2" />
+                    </svg>
+                  </div>
+                  <input type="number" id="age" v-model="chatStore.healthData.age"
+                    class="pl-10 block w-full shadow-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                </div>
+              </div>
+
+              <div>
+                <label for="hypertension" class="block text-sm font-medium text-gray-700 mb-2">血壓指數</label>
+                <div class="relative rounded-md shadow-sm">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <input type="number" id="hypertension" v-model="chatStore.healthData.hypertension" step="0.1"
+                    class="pl-10 block w-full shadow-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">心臟疾病</label>
+                <div class="flex space-x-4">
+                  <label class="inline-flex items-center">
+                    <input type="radio" v-model="chatStore.healthData.heart_disease" :value="1"
+                      class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                    <span class="ml-2 text-gray-700">是</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" v-model="chatStore.healthData.heart_disease" :value="0"
+                      class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                    <span class="ml-2 text-gray-700">否</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 右側列 -->
+            <div class="space-y-6">
+              <div>
+                <label for="smoking" class="block text-sm font-medium text-gray-700 mb-2">吸菸史</label>
+                <div class="relative rounded-md shadow-sm">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                  </div>
+                  <select id="smoking" v-model="chatStore.healthData.smoking_history"
+                    class="pl-10 block w-full shadow-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    <option value="never">從未吸菸</option>
+                    <option value="former">曾經吸菸</option>
+                    <option value="not current">目前不吸菸</option>
+                    <option value="current">目前有吸菸</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label for="bmi" class="block text-sm font-medium text-gray-700 mb-2">BMI 指數</label>
+                <div class="relative rounded-md shadow-sm">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                    </svg>
+                  </div>
+                  <input type="number" id="bmi" v-model="chatStore.healthData.bmi" step="0.1"
+                    class="pl-10 block w-full shadow-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                </div>
+              </div>
+
+              <div>
+                <label for="hba1c" class="block text-sm font-medium text-gray-700 mb-2">HbA1c 數值</label>
+                <div class="relative rounded-md shadow-sm">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                    </svg>
+                  </div>
+                  <input type="number" id="hba1c" v-model="chatStore.healthData.HbA1c_level" step="0.1"
+                    class="pl-10 block w-full shadow-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                </div>
+              </div>
+
+              <div>
+                <label for="bloodsugar" class="block text-sm font-medium text-gray-700 mb-2">血糖值</label>
+                <div class="relative rounded-md shadow-sm">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                  </div>
+                  <input type="number" id="bloodsugar" v-model="chatStore.healthData.bloodsugar"
+                    class="pl-10 block w-full shadow-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                </div>
+              </div>
+            </div>
+            
+            <!-- 提交按鈕 -->
+            <div class="mt-6 flex justify-end col-span-1 md:col-span-2">
+              <button type="button" @click="closePopup"
+                class="mr-3 inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                取消
+              </button>
+              <button type="submit"
+                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                提交評估
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </transition>
 </template>
+
+<style scoped>
+.modal-enter-active,
+.modal-leave-active {
+  transition: all 0.3s ease;
+}
+
+.modal-enter-from {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.9);
+}
+
+.modal-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.9);
+}
+
+/* 確保背景正確覆蓋整個視窗 */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+</style>
