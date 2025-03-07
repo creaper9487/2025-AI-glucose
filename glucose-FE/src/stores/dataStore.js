@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia'
 import { useAuthStore } from './authStore'
 import axios from 'axios'
+
+// Configure axios with base URL
+axios.defaults.baseURL = 'http://localhost:8000' // Change this to match your backend server URL
+
 export const useDataStore = defineStore('DataStore', {
   state: () => ({
     CH: [],
