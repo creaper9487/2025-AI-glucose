@@ -1,11 +1,9 @@
 package rl.collab.diabeat.frag
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -16,14 +14,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 import rl.collab.diabeat.Api
-import rl.collab.diabeat.Client.addr
-import rl.collab.diabeat.Client.retro
-import rl.collab.diabeat.Client.retroLong
-import rl.collab.diabeat.MainActivity
 import rl.collab.diabeat.Request
 import rl.collab.diabeat.Result
 import rl.collab.diabeat.dialog
-import rl.collab.diabeat.ntr
+import rl.collab.diabeat.neu
 import rl.collab.diabeat.pos
 import rl.collab.diabeat.syncEdit
 import rl.collab.diabeat.toast
@@ -31,31 +25,25 @@ import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.util.concurrent.CancellationException
 
-typealias Binder<V> = (LayoutInflater, ViewGroup?, Boolean) -> V
-
-abstract class MyFrag<V : ViewBinding> : Fragment() {
+abstract class MyFrag<V : ViewBinding>(private val binder: (LayoutInflater, ViewGroup?, Boolean) -> V) : Fragment() {
     private var _binding: V? = null
     protected val binding get() = _binding!!
 
     protected val con get() = requireContext()
-    protected val appCon: Context get() = con.applicationContext!!
+    protected val resolver get() = con.contentResolver!!
     private val act get() = requireActivity()
-    private val main get() = act as MainActivity
-
     protected val vm by activityViewModels<MyViewModel>()
     protected val viewLifecycleScope get() = viewLifecycleOwner.lifecycleScope
-    protected fun ui(block: suspend CoroutineScope.() -> Unit) =
+    protected fun launch(block: suspend CoroutineScope.() -> Unit) =
         viewLifecycleScope.launch(block = block)
 
     private suspend fun io(block: suspend CoroutineScope.() -> Unit) =
         withContext(Dispatchers.IO) { block() }
 
-    protected abstract fun binder(): Binder<V>
-
     protected abstract fun V.setView()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = binder()(inflater, container, false)
+        _binding = binder(inflater, container, false)
         return binding.root
     }
 
@@ -69,7 +57,10 @@ abstract class MyFrag<V : ViewBinding> : Fragment() {
         _binding = null
     }
 
-    protected fun toast(msg: String) = act.toast(msg)
+    protected fun <T> rq(binder: (LayoutInflater) -> T, req: T.() -> Unit) =
+        binder(layoutInflater).apply(req)
+
+    protected fun toast(msg: String) = con.toast(msg)
 
     protected fun dialog(
         title: String,
@@ -79,7 +70,7 @@ abstract class MyFrag<V : ViewBinding> : Fragment() {
         neg: String? = "取消",
         neutral: String? = null,
         cancelable: Boolean = false
-    ) = act.dialog(title, msg, view, pos, neg, neutral, cancelable)
+    ) = con.dialog(title, msg, view, pos, neg, neutral, cancelable)
 
     protected fun errDialog(msg: String, neutral: String? = null) =
         dialog("錯誤", msg, neg = null, neutral = neutral)
@@ -89,54 +80,53 @@ abstract class MyFrag<V : ViewBinding> : Fragment() {
         errDialog("${z.`package`?.name}\n${z.simpleName}\n\n${e.localizedMessage}")
     }
 
-    protected fun refresh(refresh: String? = null, dialog: AlertDialog? = null, reme: Boolean? = null) {
-        val onSucceed = { r: Response<Result.Refresh> ->
-            vm.access = "Bearer ${r.body()}"
-            refresh?.also {
-                dialog!!.dismiss()
-
-                val rr = r.body()!!
-                (this as AccFrag).logInEnv(reme, rr.username, rr.access, rr.refresh)
-            }
+    protected fun refresh(refresh: String?, addOnSucceed: ((Result.Refresh) -> Unit)?, onFail: (() -> Unit)?) {
+        val onSucceed = { r: Result.Refresh ->
+            vm.access = "Bearer ${r.access}"
+            addOnSucceed?.invoke(r)
             Unit
         }
 
-        request(onSucceed, null, null, false) {
+        request(onSucceed, null, onFail, false) {
             val obj = Request.Refresh(refresh ?: vm.refresh!!)
             refresh(obj)
         }
     }
 
     protected fun <T> request(
-        onSucceed: (Response<T>) -> Unit,
-        onBadRequest: ((Response<T>) -> String)?,
+        onSucceed: (T) -> Unit,
+        onBadRequest: ((String?) -> String)?,
         onFail: (() -> Unit)?,
         isLong: Boolean,
         retroFun: suspend Api.() -> Response<T>
     ) =
-        ui {
+        launch {
             try {
                 var r: Response<T>? = null
                 var status = 0
 
                 io {
                     for (i in 0..1) {
-                        r = (if (isLong) retroLong else retro).value.retroFun()
+                        r = (if (isLong) vm.retroLong else vm.retro).value.retroFun()
                         status = r!!.code()
                         if (status == 401)
-                            refresh()
+                            refresh(null, null, null)
                         else
                             break
                     }
                 }
 
                 when (status) {
-                    200, 201 -> onSucceed(r!!)
-                    400 -> errDialog(onBadRequest?.invoke(r!!) ?: "請求錯誤")
+                    200, 201 -> onSucceed(r!!.body()!!)
+                    400 -> {
+                        val str = r!!.errorBody()?.string()
+                        errDialog(onBadRequest?.invoke(str) ?: "請求錯誤")
+                    }
+
                     401 -> {
                         vm.remePref.syncEdit { clear() }
                         errDialog("無密碼登入憑證過期，請重新登入").pos.setOnClickListener {
-                            main.finishAffinity()
+                            act.finishAffinity()
                         }
                     }
 
@@ -149,15 +139,15 @@ abstract class MyFrag<V : ViewBinding> : Fragment() {
             } catch (e: Exception) {
                 fun setHostErrDialog(msg: String) {
                     val dialog = errDialog(msg, "設定 Host")
-                    dialog.ntr.setOnClickListener {
+                    dialog.neu.setOnClickListener {
                         dialog.dismiss()
-                        main.setHost()
+                        vm.setHost(act)
                     }
                 }
 
                 when (e) {
                     is CancellationException -> {}
-                    is ConnectException -> setHostErrDialog("無法連線到$addr")
+                    is ConnectException -> setHostErrDialog("無法連線到${vm.addr}")
                     is SocketTimeoutException -> setHostErrDialog("連線逾時")
                     else -> exceptionDialog(e)
                 }

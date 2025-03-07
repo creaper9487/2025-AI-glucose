@@ -1,13 +1,11 @@
 package rl.collab.diabeat.frag
 
 import android.view.View
-import retrofit2.Response
 import rl.collab.diabeat.R
 import rl.collab.diabeat.Result
 import rl.collab.diabeat.databinding.FragChartBinding
 
-class ChartFrag : MyFrag<FragChartBinding>() {
-    override fun binder(): Binder<FragChartBinding> = FragChartBinding::inflate
+class ChartFrag : MyFrag<FragChartBinding>(FragChartBinding::inflate) {
 
     override fun FragChartBinding.setView() {
         segBtnGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
@@ -23,16 +21,14 @@ class ChartFrag : MyFrag<FragChartBinding>() {
             }
         }
 
+        swipeRefresh.isEnabled = vm.acc != null
         swipeRefresh.setOnRefreshListener { reqRecords() }
     }
 
     private fun reqRecords() {
-        vm.acc ?: return
-
-        val onSucceed = { _: Response<List<Result.Records>> ->
+        val onSucceed = { _: List<Result.Records> ->
             binding.swipeRefresh.isRefreshing = false
         }
-
         request(onSucceed, null, null, false) { getRecords(vm.access!!) }
     }
 }

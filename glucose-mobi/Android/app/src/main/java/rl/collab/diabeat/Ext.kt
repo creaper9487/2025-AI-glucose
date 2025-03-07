@@ -17,14 +17,14 @@ var EditText.str
     get() = text.toString()
     set(value) = setText(value)
 
-fun Context.toast(msg: String) =
-    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
-
 val AlertDialog.pos
     get() = getButton(AlertDialog.BUTTON_POSITIVE)!!
 
-val AlertDialog.ntr
+val AlertDialog.neu
     get() = getButton(AlertDialog.BUTTON_NEUTRAL)!!
+
+fun Context.toast(msg: String) =
+    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
 
 fun Context.dialog(
     title: String,
