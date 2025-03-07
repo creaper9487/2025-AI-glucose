@@ -43,3 +43,60 @@ class BloodSugarRecord(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.time_slot.strftime('%Y-%m-%d %H:%M')}"
+
+class BloodSugarComparison(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='blood_sugar_comparisons'
+    )
+    previous_record = models.ForeignKey(
+        BloodSugarRecord,
+        on_delete=models.CASCADE,
+        related_name='comparisons_as_previous',
+        help_text="上一次的血糖記錄"
+    )
+    current_record = models.ForeignKey(
+        BloodSugarRecord,
+        on_delete=models.CASCADE,
+        related_name='comparisons_as_current',
+        help_text="本次的血糖記錄"
+    )
+    previous_blood_glucose = models.FloatField(help_text="上次血糖值 (mg/dL)")
+    current_blood_glucose = models.FloatField(help_text="本次血糖值 (mg/dL)")
+    insulin_injection = models.FloatField(null=True, blank=True, help_text="胰島素注射量 (單位)")
+    carbohydrate_intake = models.FloatField(null=True, blank=True, help_text="碳水攝取量 (g)")
+    time_interval = models.DurationField(help_text="兩次血糖記錄的時間間隔")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - 比較記錄 {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+    
+class UserModelConsent(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='model_consent'
+    )
+    has_consented = models.BooleanField(default=False)
+    consent_date = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {'已同意' if self.has_consented else '未同意'}"
+
+class UserPersonalizedModel(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='personal_model'
+    )
+    model_path = models.CharField(max_length=255, null=True, blank=True)
+    is_trained = models.BooleanField(default=False)
+    last_trained = models.DateTimeField(null=True, blank=True)
+    training_data_count = models.IntegerField(default=0)
+    model_version = models.IntegerField(default=1)
+    model_performance = models.FloatField(null=True, blank=True)  # 可存儲模型的MAE或其他指標
+    
+    def __str__(self):
+        status = "已訓練" if self.is_trained else "未訓練"
+        return f"{self.user.username} - {status} (版本 {self.model_version})"
