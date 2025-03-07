@@ -7,17 +7,18 @@ import NavBar from '@/components/NavBar.vue';
 <template>
   <NavBar />
   <div class="h-screen flex items-center justify-center flex-row bg-gray-800">
-  <InputForm class="m-2" />
-  <FoodInput class="m-2" />
+    <InputForm class="m-2 w-1/2" />
+    <FoodInput class="m-2 w-1/2" />
+  </div>
   <chatbot class="m-2" />
 
-  </div>
+
 </template>
 
 
 <style scoped>
-input:focus ~ label,
-input:valid ~ label {
+input:focus~label,
+input:valid~label {
   top: -20px;
   left: 0;
   color: #03e9f4;
