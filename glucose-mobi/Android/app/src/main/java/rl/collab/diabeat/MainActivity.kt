@@ -13,11 +13,8 @@ import androidx.core.view.updatePadding
 import androidx.core.widget.doAfterTextChanged
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import rl.collab.diabeat.databinding.ActivityMainBinding
 import rl.collab.diabeat.databinding.DialogHostBinding
-import rl.collab.diabeat.frag.AccFrag.Companion.remePref
 
 class MainActivity : AppCompatActivity() {
     private lateinit var hostPref: SharedPreferences
@@ -46,18 +43,6 @@ class MainActivity : AppCompatActivity() {
             val navHostFragment = supportFragmentManager.findFragmentById(R.id.container) as NavHostFragment
             navView.setupWithNavController(navHostFragment.navController)
         }
-
-        val masterKey = MasterKey.Builder(applicationContext)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-
-        remePref = EncryptedSharedPreferences.create(
-            applicationContext,
-            "reme",
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
 
         hostPref = getSharedPreferences("host", Context.MODE_PRIVATE)
         if (hostStartup)
@@ -92,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             }
             for (i in 0..3)
                 ets[i].apply {
-                    setText(parts[i])
+                    str = parts[i]
                     doAfterTextChanged(watcher)
                 }
             hostD.setOnEditorActionListener { _, _, _ ->

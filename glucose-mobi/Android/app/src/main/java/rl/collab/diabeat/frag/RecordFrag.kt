@@ -3,84 +3,81 @@ package rl.collab.diabeat.frag
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
-import androidx.fragment.app.Fragment
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
-import rl.collab.diabeat.Client.request
 import rl.collab.diabeat.Request
 import rl.collab.diabeat.Result
 import rl.collab.diabeat.databinding.DialogSrcBinding
 import rl.collab.diabeat.databinding.FragRecordBinding
-import rl.collab.diabeat.dialog
 import rl.collab.diabeat.str
-import rl.collab.diabeat.toast
 import java.io.File
 
-class RecordFrag : Fragment() {
-    private var _binding: FragRecordBinding? = null
-    private val binding get() = _binding!!
+class RecordFrag : MyFrag<FragRecordBinding>() {
     private lateinit var takePicFilename: String
     private lateinit var takePicUri: Uri
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragRecordBinding.inflate(inflater, container, false)
-        return binding.root
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val masterKey = MasterKey.Builder(appCon)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+        vm.remePref = EncryptedSharedPreferences.create(
+            appCon,
+            "reme",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
+    override fun binder(): Binder<FragRecordBinding> = FragRecordBinding::inflate
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        binding.apply {
-            saveBtn.setOnClickListener {
-                AccFrag.acc ?: run {
-                    toast("請先登入🔑")
-                    return@setOnClickListener
-                }
-
-                if (glucoseEt.str.isEmpty()) {
-                    toast("血糖值不能為空❗")
-                    return@setOnClickListener
-                }
-
-                val obj = Request.Record(
-                    glucoseEt.str.toDouble(),
-                    carbohydrateEt.str.toDoubleOrNull(),
-                    exerciseEt.str.toDoubleOrNull(),
-                    insulinEt.str.toDoubleOrNull()
-                )
-                reqPostRecords(it, obj)
+    override fun FragRecordBinding.setView() {
+        saveBtn.setOnClickListener {
+            vm.acc ?: run {
+                toast("請先登入🔑")
+                return@setOnClickListener
             }
 
-            predictCarbohydrateBtn.setOnClickListener {
-                AccFrag.acc ?: run {
-                    toast("請先登入🔑")
-                    return@setOnClickListener
-                }
+            if (glucoseEt.str.isEmpty()) {
+                toast("血糖值不能為空❗")
+                return@setOnClickListener
+            }
 
-                val binding = DialogSrcBinding.inflate(layoutInflater)
-                val dialog = dialog("選擇來源", view = binding.root, pos = null, neg = null, cancelable = true)
-                binding.photoTv.setOnClickListener {
-                    pickImageLauncher.launch("image/*")
-                    dialog.dismiss()
-                }
-                binding.cameraTv.setOnClickListener {
-                    takePicFilename = "${System.currentTimeMillis()}.jpg"
-                    val file = File(requireContext().cacheDir, takePicFilename)
-                    takePicUri = FileProvider.getUriForFile(requireContext(), "rl.collab.diabeat.fileprovider", file)
-                    takePicLauncher.launch(takePicUri)
-                    dialog.dismiss()
-                }
+            val obj = Request.Record(
+                glucoseEt.str.toDouble(),
+                carbohydrateEt.str.toDoubleOrNull(),
+                exerciseEt.str.toDoubleOrNull(),
+                insulinEt.str.toDoubleOrNull()
+            )
+            reqPostRecords(it, obj)
+        }
+
+        predictCarbohydrateBtn.setOnClickListener {
+            vm.acc ?: run {
+                toast("請先登入🔑")
+                return@setOnClickListener
+            }
+
+            val binding = DialogSrcBinding.inflate(layoutInflater)
+            val dialog = dialog("選擇來源", view = binding.root, pos = null, neg = null, cancelable = true)
+            binding.photoTv.setOnClickListener {
+                pickImageLauncher.launch("image/*")
+                dialog.dismiss()
+            }
+            binding.cameraTv.setOnClickListener {
+                takePicFilename = "${System.currentTimeMillis()}.jpg"
+                val file = File(requireContext().cacheDir, takePicFilename)
+                takePicUri = FileProvider.getUriForFile(requireContext(), "rl.collab.diabeat.fileprovider", file)
+                takePicLauncher.launch(takePicUri)
+                dialog.dismiss()
             }
         }
     }
@@ -91,27 +88,27 @@ class RecordFrag : Fragment() {
         val onSucceed = { _: Response<Result.Records> ->
             toast("已儲存✅")
             binding.run {
-                glucoseEt.setText("")
-                carbohydrateEt.setText("")
-                exerciseEt.setText("")
-                insulinEt.setText("")
+                glucoseEt.str = ""
+                carbohydrateEt.str = ""
+                exerciseEt.str = ""
+                insulinEt.str = ""
                 etGroup.clearFocus()
             }
             btn.isEnabled = true
         }
         val onFail = { btn.isEnabled = true }
-        request(onSucceed, null, onFail, false) { postRecord(AccFrag.access!!, obj) }
+        request(onSucceed, null, onFail, false) { postRecord(vm.access!!, obj) }
     }
 
     private fun reqPredictCarbohydrate(btn: View, image: MultipartBody.Part) {
         btn.isEnabled = false
 
         val onSucceed = { r: Response<Result.Predict> ->
-            binding.carbohydrateEt.setText("%.0f".format(r.body()!!.predicted_value))
+            binding.carbohydrateEt.str = "%.0f".format(r.body()!!.predicted_value)
             btn.isEnabled = true
         }
         val onFail = { btn.isEnabled = true }
-        request(onSucceed, null, onFail, false) { predictCarbohydrate(AccFrag.access!!, image) }
+        request(onSucceed, null, onFail, false) { predictCarbohydrate(vm.access!!, image) }
     }
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->

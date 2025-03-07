@@ -2,14 +2,10 @@ package rl.collab.diabeat.frag
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.net.Uri
-import android.os.Bundle
 import android.text.Editable
 import android.util.Patterns
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AlertDialog
 import androidx.biometric.BiometricManager
@@ -23,17 +19,13 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.NoCredentialException
-import androidx.fragment.app.Fragment
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.gson.Gson
 import io.noties.markwon.Markwon
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import retrofit2.Response
-import rl.collab.diabeat.Client.refresh
-import rl.collab.diabeat.Client.request
 import rl.collab.diabeat.Err
 import rl.collab.diabeat.R
 import rl.collab.diabeat.Request
@@ -43,107 +35,81 @@ import rl.collab.diabeat.databinding.DialogDiabetesOutputBinding
 import rl.collab.diabeat.databinding.DialogLoginBinding
 import rl.collab.diabeat.databinding.DialogRegisterBinding
 import rl.collab.diabeat.databinding.FragAccBinding
-import rl.collab.diabeat.dialog
-import rl.collab.diabeat.errDialog
-import rl.collab.diabeat.exceptionDialog
 import rl.collab.diabeat.ntr
 import rl.collab.diabeat.pos
 import rl.collab.diabeat.str
 import rl.collab.diabeat.syncEdit
-import rl.collab.diabeat.toast
-import rl.collab.diabeat.viewLifecycleScope
 import java.util.concurrent.atomic.AtomicBoolean
 
-class AccFrag : Fragment() {
-    private var _binding: FragAccBinding? = null
-    private val binding get() = _binding!!
+class AccFrag : MyFrag<FragAccBinding>() {
     private val notLoginView get() = binding.profileLy.visibility != View.VISIBLE
 
-    private val remeAcc get() = remePref.getString("acc", null)
-    private val remeRefresh get() = remePref.getString("refresh", null)
+    private val remeAcc get() = vm.remePref.getString("acc", null)
+    private val remeRefresh get() = vm.remePref.getString("refresh", null)
     private val remeCanBio get() = remeRefresh != null
-    private val remeStrong get() = remePref.getBoolean("strong", false)
+    private val remeStrong get() = vm.remePref.getBoolean("strong", false)
 
     private val canBio
-        get() = BiometricManager.from(requireContext()).canAuthenticate(BIOMETRIC_WEAK) == BIOMETRIC_SUCCESS
+        get() = BiometricManager.from(con).canAuthenticate(BIOMETRIC_WEAK) == BIOMETRIC_SUCCESS
     private val canStrongBio
-        get() = BiometricManager.from(requireContext()).canAuthenticate(BIOMETRIC_STRONG) == BIOMETRIC_SUCCESS
+        get() = BiometricManager.from(con).canAuthenticate(BIOMETRIC_STRONG) == BIOMETRIC_SUCCESS
 
-    companion object {
-        lateinit var remePref: SharedPreferences
+    override fun binder(): Binder<FragAccBinding> = FragAccBinding::inflate
 
-        var acc: String? = null
-        var access: String? = null
-        var refresh: String? = null
-    }
+    override fun FragAccBinding.setView() {
+        googleSignInBtn.setOnClickListener { reqGoogleSignIn() }
+        registerBtn.setOnClickListener { reqRegistration() }
+        loginBtn.setOnClickListener { reqLogin() }
+        aboutUsBtn.setOnClickListener {
+            val uri = Uri.parse("https://github.com/creaper9487/2025-AI-glucose")
+            startActivity(Intent(Intent.ACTION_VIEW, uri))
+        }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragAccBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+        suggestBtn.setOnClickListener { reqSuggestion() }
+        predictDiabetesBtn.setOnClickListener { reqPredictDiabetes() }
+        logOutBtn.setOnClickListener { logOutEnv() }
+        bioLoginSw.setOnCheckedChangeListener { _, isChecked ->
+            if (notLoginView)
+                return@setOnCheckedChangeListener
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        binding.apply {
-            googleSignInBtn.setOnClickListener { reqGoogleSignIn() }
-            registerBtn.setOnClickListener { reqRegistration() }
-            loginBtn.setOnClickListener { reqLogin() }
-            aboutUsBtn.setOnClickListener {
-                val uri = Uri.parse("https://github.com/creaper9487/2025-AI-glucose")
-                startActivity(Intent(Intent.ACTION_VIEW, uri))
-            }
-
-            suggestBtn.setOnClickListener { reqSuggestion() }
-            predictDiabetesBtn.setOnClickListener { reqPredictDiabetes() }
-            logOutBtn.setOnClickListener { logOutEnv() }
-            bioLoginSw.setOnCheckedChangeListener { _, isChecked ->
-                if (notLoginView)
-                    return@setOnCheckedChangeListener
-
-                remePref.syncEdit {
-                    if (isChecked) {
-                        strongBioSw.isEnabled = canStrongBio
-                        putString("acc", acc)
-                        putString("refresh", refresh)
-                    } else {
-                        strongBioSw.isEnabled = false
-                        clear()
-                    }
-                    strongBioSw.isChecked = false
-                    strongBioSw.jumpDrawablesToCurrentState()
+            vm.remePref.syncEdit {
+                if (isChecked) {
+                    strongBioSw.isEnabled = canStrongBio
+                    putString("acc", vm.acc)
+                    putString("refresh", vm.refresh)
+                } else {
+                    strongBioSw.isEnabled = false
+                    clear()
                 }
-            }
-            strongBioSw.setOnCheckedChangeListener { _, isChecked ->
-                if (notLoginView)
-                    return@setOnCheckedChangeListener
-
-                remePref.syncEdit {
-                    if (isChecked)
-                        putBoolean("strong", true)
-                    else
-                        remove("strong")
-                }
+                strongBioSw.isChecked = false
+                strongBioSw.jumpDrawablesToCurrentState()
             }
         }
-        acc?.also { logInEnv(null) } ?: logOutEnv()
+        strongBioSw.setOnCheckedChangeListener { _, isChecked ->
+            if (notLoginView)
+                return@setOnCheckedChangeListener
+
+            vm.remePref.syncEdit {
+                if (isChecked)
+                    putBoolean("strong", true)
+                else
+                    remove("strong")
+            }
+        }
+        vm.acc?.also { logInEnv(null) } ?: logOutEnv()
     }
 
     fun logInEnv(reme: Boolean?, pAcc: String? = null, pAccessRaw: String? = null, pRefresh: String? = null) {
         pAcc?.also {
-            acc = pAcc
-            access = "Bearer $pAccessRaw"
-            refresh = pRefresh
+            vm.acc = pAcc
+            vm.access = "Bearer $pAccessRaw"
+            vm.refresh = pRefresh
         }
 
         reme?.also {
-            remePref.syncEdit {
+            vm.remePref.syncEdit {
                 if (reme)
-                    putString("acc", acc)
+                    putString("acc", vm.acc)
                 else
                     clear()
             }
@@ -152,7 +118,7 @@ class AccFrag : Fragment() {
         binding.apply {
             accLy.visibility = View.INVISIBLE
             profileLy.visibility = View.VISIBLE
-            profileTv.text = "Hi, $acc"
+            profileTv.text = "Hi, ${vm.acc}"
 
             if (canStrongBio) {
                 strongBioSw.isEnabled = true
@@ -196,9 +162,9 @@ class AccFrag : Fragment() {
     }
 
     private fun logOutEnv() {
-        acc = null
-        access = null
-        refresh = null
+        vm.acc = null
+        vm.access = null
+        vm.refresh = null
         binding.profileLy.visibility = View.INVISIBLE
         binding.accLy.visibility = View.VISIBLE
     }
@@ -217,7 +183,7 @@ class AccFrag : Fragment() {
             .addCredentialOption(opt)
             .build()
 
-        viewLifecycleScope.launch {
+        ui {
             try {
                 val credential = CredentialManager.create(requireContext())
                     .getCredential(requireContext(), credentialObj)
@@ -227,7 +193,7 @@ class AccFrag : Fragment() {
                     credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
                 ) {
                     toast("無法獲取有效憑證")
-                    return@launch
+                    return@ui
                 }
 
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
@@ -293,7 +259,7 @@ class AccFrag : Fragment() {
         val binding = DialogLoginBinding.inflate(layoutInflater)
         binding.apply {
             remeAcc?.also {
-                accEt.setText(it)
+                accEt.str = it
                 remeCb.isChecked = true
             }
 
@@ -357,10 +323,10 @@ class AccFrag : Fragment() {
             res = r.body()!!.response
             atomic.set(true)
         }
-        request(onSucceed, null, null, true) { suggest(access!!) }
+        request(onSucceed, null, null, true) { suggest(vm.access!!) }
 
         val dialog = reqDialog("AI 建議", "耐心等待6️⃣0️⃣秒", pos = "取消", neg = null, neutral = " ")
-        viewLifecycleScope.launch {
+        ui {
             val nums = arrayOf("0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣")
 
             for (i in 60 downTo 0) {
@@ -374,7 +340,7 @@ class AccFrag : Fragment() {
                 delay(1000)
             }
             if (!atomic.get())
-                return@launch
+                return@ui
 
             val content = res!!.message.content
             val spannedString = Markwon.create(requireContext()).toMarkdown(content)
@@ -445,7 +411,7 @@ class AccFrag : Fragment() {
                 }
             }
 
-            request(onSucceed, null, null, false) { predictDiabetes(access!!, obj) }
+            request(onSucceed, null, null, false) { predictDiabetes(vm.access!!, obj) }
         }
         val watcher = {
             pos.isEnabled = b1.genderRg.checkedRadioButtonId != -1 && ets.all { it.str.isNotEmpty() }
