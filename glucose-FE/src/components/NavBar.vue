@@ -14,8 +14,7 @@ const isActive = (path) => {
         <div class="flex justify-between h-16">
           <div class="flex">
             <div class="flex-shrink-0 flex items-center">
-              <img class="h-8 w-auto" src="@/assets/logo.svg" alt="血糖追蹤" />
-              <span class="ml-2 text-white font-semibold text-lg">GlucTrack</span>
+              <span class="ml-2 text-white font-semibold text-lg">DiaBeats</span>
             </div>
             <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
               <RouterLink to="/" 
