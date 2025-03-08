@@ -134,6 +134,7 @@ class AccFrag : MyFrag<FragAccBinding>(FragAccBinding::inflate) {
         vm.acc = null
         vm.access = null
         vm.refresh = null
+        vm.records.clear()
         binding.profileLy.visibility = View.INVISIBLE
         binding.accLy.visibility = View.VISIBLE
     }
