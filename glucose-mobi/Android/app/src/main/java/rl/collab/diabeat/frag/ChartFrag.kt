@@ -27,32 +27,40 @@ class ChartFrag : MyFrag<FragChartBinding>(FragChartBinding::inflate) {
                 chart.visibility = View.INVISIBLE
                 table.visibility = View.VISIBLE
             }
-            getRecords()
+        }
+        chartBtn.setOnClickListener {
+            if (segBtnGroup.checkedButtonId == R.id.chart_btn)
+                getRecords()
+        }
+        tableBtn.setOnClickListener {
+            if (segBtnGroup.checkedButtonId == R.id.table_btn)
+                getRecords()
         }
 
         swipeRefresh.isEnabled = vm.acc != null
         swipeRefresh.setOnRefreshListener { getRecords() }
+
+        getRecords()
     }
 
-    private fun getRecords() {
+    private fun FragChartBinding.getRecords() {
         vm.acc ?: return
 
         val onSucceed = { r: List<Result.Records> ->
             vm.records.clear()
             vm.records.addAll(r)
 
-            if (binding.table.visibility == View.VISIBLE)
+            if (table.visibility == View.VISIBLE)
                 adapter.notifyDataSetChanged()
             else {
                 val entries = mutableListOf<Entry>()
-                for ((i, it) in r.reversed().withIndex()) {
+                for ((i, it) in r.reversed().withIndex())
                     entries.add(Entry(i.toFloat(), it.blood_glucose.toFloat()))
-                }
 
-                binding.chart.data = LineData(LineDataSet(entries, ""))
-                binding.chart.invalidate()
+                chart.data = LineData(LineDataSet(entries, ""))
+                chart.invalidate()
             }
-            binding.swipeRefresh.isRefreshing = false
+            swipeRefresh.isRefreshing = false
         }
         request(onSucceed, null, null, false) { getRecords(vm.access!!) }
     }
