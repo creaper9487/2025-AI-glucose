@@ -52,21 +52,8 @@ This process will delete the existing database and restart the server.
 
 1. Download the APK from [releases](https://github.com/creaper9487/2025-AI-glucose/releases) and install it.
 
-2. Connect your phone to the computer, and configure **USB tethering**. On macOS and Hackintosh, you need to install **HoRNDIS Kext** to support USB tethering.
+2. Make sure your phone and computer are on the same network.
 
-3. Use the following commands to check the IPv4 address assigned to your computer by your phone. This address is required to connect the app to the server.
-- Windows:
+3. Run the server.
 
-    ```sh
-    ipconfig
-    ```
-
-- Linux/macOS:
-
-    ```sh
-    ifconfig
-    ```
-
-4. Run the server.
-
-5. Open the app and enter the IPv4 address you found in step 3 into the start-up AlertDialog to connect to the server.
+4. Open the app and enter the IPv4 address shown in the server terminal into the start-up AlertDialog to connect.
