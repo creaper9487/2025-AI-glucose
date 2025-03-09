@@ -33,7 +33,7 @@ class MyAdapter(private val layoutInflater: LayoutInflater, private val data: Li
     private fun Double?.tryToStr() =
         if (this == null) "-"
         else if (this % 1.0 == 0.0) toInt().toString()
-        else "%1.f".format(this)
+        else "%.1f".format(this)
 
     override fun getCount() = (1 + data.size) * 5
 

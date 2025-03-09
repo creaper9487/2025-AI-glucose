@@ -1,5 +1,6 @@
 package rl.collab.diabeat.frag
 
+import android.graphics.Color
 import android.view.View
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -57,7 +58,9 @@ class ChartFrag : MyFrag<FragChartBinding>(FragChartBinding::inflate) {
                 for ((i, it) in r.reversed().withIndex())
                     entries.add(Entry(i.toFloat(), it.blood_glucose.toFloat()))
 
-                chart.data = LineData(LineDataSet(entries, ""))
+                val dataSet = LineDataSet(entries, "")
+                dataSet.valueTextColor = Color.RED
+                chart.data = LineData(dataSet)
                 chart.invalidate()
             }
             swipeRefresh.isRefreshing = false
