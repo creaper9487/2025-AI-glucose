@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import FigureView from '@/views/FigureView.vue'
+import LoginView from '@/views/LoginView.vue'
+import GoogleOauth from '@/views/googleOauth.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,17 +18,17 @@ const router = createRouter({
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import('../views/FigureView.vue'),
+      component: FigureView,
     },
     {
       path: '/login',
       name: 'login',
-      component: () => import('../views/LoginView.vue'),
+      component: LoginView,
     },
     {
       path:'/oauth-callback',
       name: 'oauth-callback',
-      component: () => import('../views/googleOauth.vue'),
+      component: GoogleOauth,
     }
   ],
 })
