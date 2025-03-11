@@ -41,6 +41,7 @@ export const useAuthStore = defineStore('auth', {
                 axios.defaults.headers.common['Authorization'] = `Bearer ${this.token[0]}`;
             } catch (error) {
                 console.error('Error refreshing tokens:', error);
+                this.token = [];
             }
         },
         logout() {

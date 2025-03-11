@@ -17,7 +17,7 @@ export const useChatStore = defineStore('ChatStore', {
       heart_disease:null,
       smoking_history:null,
       bmi:null,
-      bloodsugar:null,
+      blood_glucose_level:null,
       HbA1c_level:null,
     },
   }),
