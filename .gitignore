@@ -6,3 +6,4 @@ glucose-mobi/Android/app/src/main/res/values/token.xml
 **/node_modules/
 **/__pycache__/
 **/.vscode/
+.venv/
