@@ -85,6 +85,9 @@ export const useChatStore = defineStore('ChatStore', {
           console.error('Error uploading image:', error);
         }
       }
+    },
+    async shortPrediction(){
+      
     }
   },
 })
