@@ -32,7 +32,7 @@ export const useDataStore = defineStore('DataStore', {
         .then(response => {
           console.log(response.data)
           this.dataProc(response.data)
-          this.glucoseCfg.labels = response.data.map(item => item.created_at)
+          this.glucoseCfg.labels = response.data.map(item => this.formatDate(item.created_at))
           this.glucoseCfg.datasets[0].data = response.data.map(item => item.blood_glucose)
           console.log(this.glucoseCfg.labels)
           console.log(this.glucoseCfg.datasets[0].data)
@@ -73,5 +73,16 @@ export const useDataStore = defineStore('DataStore', {
         // return dateB - dateA;
       })
     },
+    formatDate(dateString) {
+      const date = new Date(dateString)
+      
+      // 格式化為 MM/DD HH:MM
+      const month = date.getMonth() + 1
+      const day = date.getDate()
+      const hours = date.getHours().toString().padStart(2, '0')
+      const minutes = date.getMinutes().toString().padStart(2, '0')
+      
+      return `${month}/${day} ${hours}:${minutes}`
+    }
   },
 })
