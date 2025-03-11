@@ -10,6 +10,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import rl.collab.diabeat.Api
+import rl.collab.diabeat.Result
 import rl.collab.diabeat.databinding.DiaHostBinding
 import rl.collab.diabeat.dialog
 import rl.collab.diabeat.pos
@@ -31,6 +32,7 @@ class MyViewModel : ViewModel() {
     var acc: String? = null
     var access: String? = null
     var refresh: String? = null
+    val records = mutableListOf<Result.Records>()
 
     fun resetRetro(pAddr: String) {
         fun retroInit(isLong: Boolean): Api {

@@ -47,9 +47,9 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
 
-    // Chart & Rich Text
+    // Markwon & Chart
+    implementation(libs.core)
     implementation(libs.mpandroidchart)
-    implementation (libs.core)
 
     // Http Request
     implementation(libs.okhttp)

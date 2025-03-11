@@ -25,7 +25,7 @@ interface Api {
 
     @POST("/api/auth/google/")
     suspend fun googleSignIn(@Body obj: Request.GoogleSignIn)
-            : Response<Unit>
+            : Response<Map<String, Any?>>
 
     @GET("/api/records/")
     suspend fun getRecords(@Header("Authorization") token: String)

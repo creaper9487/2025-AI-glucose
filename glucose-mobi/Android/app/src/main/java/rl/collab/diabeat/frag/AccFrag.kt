@@ -34,6 +34,7 @@ import rl.collab.diabeat.databinding.DiaDiabetesOutBinding
 import rl.collab.diabeat.databinding.DiaLoginBinding
 import rl.collab.diabeat.databinding.DiaRegisterBinding
 import rl.collab.diabeat.databinding.FragAccBinding
+import rl.collab.diabeat.nacho
 import rl.collab.diabeat.neu
 import rl.collab.diabeat.pos
 import rl.collab.diabeat.str
@@ -134,6 +135,7 @@ class AccFrag : MyFrag<FragAccBinding>(FragAccBinding::inflate) {
         vm.acc = null
         vm.access = null
         vm.refresh = null
+        vm.records.clear()
         binding.profileLy.visibility = View.INVISIBLE
         binding.accLy.visibility = View.VISIBLE
     }
@@ -194,7 +196,10 @@ class AccFrag : MyFrag<FragAccBinding>(FragAccBinding::inflate) {
                 // val name = googleIdTokenCredential.displayName
 
                 val obj = Request.GoogleSignIn(idToken)
-                val onSucceed = { _: Unit ->
+                val onSucceed = { r: Map<String, Any?> ->
+                    nacho(r)
+                    dialog("nig", r.toString())
+                    Unit
                 }
                 request(onSucceed, null, null, false) { googleSignIn(obj) }
 
@@ -253,13 +258,22 @@ class AccFrag : MyFrag<FragAccBinding>(FragAccBinding::inflate) {
 
         val dialog = dialog("登入", view = root, neutral = "生物辨識")
         val pos = dialog.pos
-        val ntr = dialog.neu
-        fun enableDiaBtns(b: Boolean) {
-            pos.isEnabled = b
-            ntr.isEnabled = b
+        val neu = dialog.neu
+
+        fun posWatcher() {
+            pos.isEnabled = accEt.str.isNotEmpty() && pwEt.str.isNotEmpty()
         }
 
-        pos.isEnabled = false
+        fun enableDiaBtns(b: Boolean) {
+            if (b) {
+                posWatcher()
+                neu.isEnabled = remeCanBio
+            } else {
+                pos.isEnabled = false
+                neu.isEnabled = false
+            }
+        }
+
         pos.setOnClickListener {
             enableDiaBtns(false)
 
@@ -283,52 +297,48 @@ class AccFrag : MyFrag<FragAccBinding>(FragAccBinding::inflate) {
             }
             request(onSucceed, onBadRequest, onFail, false) { logIn(obj) }
         }
-        val watcher = { _: Editable? ->
-            pos.isEnabled = accEt.str.isNotEmpty() && pwEt.str.isNotEmpty()
+        neu.setOnClickListener { _ ->
+            enableDiaBtns(false)
+
+            val addOnSucceed = { it: Result.Refresh ->
+                dialog.dismiss()
+                vm.logInEnv(it.username, it.access, it.refresh, remeCb.isChecked)
+                binding.logInView()
+            }
+            val promptInfo = BiometricPrompt.PromptInfo.Builder()
+                .setTitle("生物辨識登入")
+                .setNegativeButtonText("取消")
+                .setAllowedAuthenticators(if (remeStrong) BIOMETRIC_STRONG else BIOMETRIC_WEAK)
+                .build()
+            val callback = object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    refresh(remeRefresh, addOnSucceed) { enableDiaBtns(true) }
+                }
+
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                    enableDiaBtns(true)
+                }
+
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    enableDiaBtns(true)
+                }
+            }
+            BiometricPrompt(this@AccFrag, callback).authenticate(promptInfo)
         }
-        accEt.doAfterTextChanged(watcher)
-        pwEt.doAfterTextChanged(watcher)
+        accEt.doAfterTextChanged { posWatcher() }
+        pwEt.doAfterTextChanged { posWatcher() }
         pwEt.setOnEditorActionListener { _, _, _ ->
             val imm = con.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(pwEt.windowToken, 0)
             pos.callOnClick()
         }
 
-        if (remeCanBio) {
-            ntr.setOnClickListener { _ ->
-                enableDiaBtns(false)
-
-                val addOnSucceed = { it: Result.Refresh ->
-                    dialog.dismiss()
-                    vm.logInEnv(it.username, it.access, it.refresh, remeCb.isChecked)
-                    binding.logInView()
-                }
-                val promptInfo = BiometricPrompt.PromptInfo.Builder()
-                    .setTitle("生物辨識登入")
-                    .setNegativeButtonText("取消")
-                    .setAllowedAuthenticators(if (remeStrong) BIOMETRIC_STRONG else BIOMETRIC_WEAK)
-                    .build()
-                val callback = object : BiometricPrompt.AuthenticationCallback() {
-                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                        super.onAuthenticationSucceeded(result)
-                        refresh(remeRefresh, addOnSucceed) { enableDiaBtns(true) }
-                    }
-
-                    override fun onAuthenticationFailed() {
-                        super.onAuthenticationFailed()
-                        enableDiaBtns(true)
-                    }
-
-                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                        super.onAuthenticationError(errorCode, errString)
-                        enableDiaBtns(true)
-                    }
-                }
-                BiometricPrompt(this@AccFrag, callback).authenticate(promptInfo)
-            }
-            ntr.callOnClick()
-        } else
-            ntr.isEnabled = false
+        enableDiaBtns(true)
+        if (neu.isEnabled)
+            neu.callOnClick()
     }
 
     private fun suggest() {
@@ -427,7 +437,7 @@ class AccFrag : MyFrag<FragAccBinding>(FragAccBinding::inflate) {
 
             request(onSucceed, null, null, false) { predictDiabetes(vm.access!!, obj) }
         }
-        val watcher = {
+        fun watcher() {
             pos.isEnabled = genderRg.checkedRadioButtonId != -1 && ets.all { it.str.isNotEmpty() }
         }
         genderRg.setOnCheckedChangeListener { _, _ -> watcher() }
