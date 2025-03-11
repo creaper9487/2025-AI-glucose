@@ -20,6 +20,13 @@ export const useChatStore = defineStore('ChatStore', {
       blood_glucose_level:null,
       HbA1c_level:null,
     },
+    profile:{
+      height:null,
+      weight:null,
+      age:null,
+      
+    },
+    consent:null,
   }),
   actions: {
     async fetchChatContent() {
@@ -86,8 +93,44 @@ export const useChatStore = defineStore('ChatStore', {
         }
       }
     },
-    async shortPrediction(){
-      
+    async updateUserProfile(){
+      const authStore = useAuthStore();
+      const formData = new FormData();
+      // Append all data fields to the form data
+      for (const [key, value] of Object.entries(this.profile)) {
+        if (value !== null && value !== undefined) {
+          formData.append(key, value);
+        }
+      }
+      try {
+        const response = await axios.post('/api/info/update/', formData, {
+        });
+        alert("更新成功！")
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          authStore.refreshTokens();
+        } else {
+          console.error('Error', error);
+        }
+      }
+    },
+    //todo: rewrite
+    async fetchUserProfile(){
+      const authStore = useAuthStore();
+      try {
+        const response = await axios.get('/api/info/get', {
+        });
+        this.profile.height = response.data.height;
+        this.profile.weight = response.data.weight;
+        this.profile.age = response.data.age;
+        this.consent = response.data.consent;
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          authStore.refreshTokens();
+        } else {
+          console.error('Error', error);
+        }
+      }
     }
   },
 })

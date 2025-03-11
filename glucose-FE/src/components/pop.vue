@@ -3,9 +3,10 @@ import { useChatStore } from '@/stores/chatStore';
 import { ref, watch } from 'vue';
 const chatStore = useChatStore();
 const isAnimating = ref(false);
-const height = ref('');
-const weight = ref('');
-const age = ref('');
+const height = ref(chatStore.profile.height);
+const weight = ref(chatStore.profile.weight);
+const age = ref(chatStore.profile.age);
+const useForTraining = ref(chatStore.consent)
 const isSaving = ref(false);
 const saveSuccess = ref(false);
 
@@ -39,11 +40,13 @@ const saveUserData = async () => {
   saveSuccess.value = false;
 
   try {
-    await chatStore.updateUserProfile({
+    chatStore.profile = {
       height: height.value,
       weight: weight.value,
       age: age.value
-    });
+    };
+    chatStore.consent = useForTraining
+    await chatStore.updateUserProfile()
 
     saveSuccess.value = true;
 
@@ -430,6 +433,13 @@ const closePopup = () => {
             </div>
 
             <div class="flex justify-center flex-col pt-2">
+                <div class="flex items-center px-6 mt-2 py-3 bg-gray-100 rounded-md">
+                <input type="checkbox" id="save-profile-checkbox" v-model="useForTraining"
+                  class="form-checkbox h-5 w-5 text-teal-500 rounded focus:ring-teal-500 focus:ring-2" />
+                <label for="save-profile-checkbox" class="ml-2 text-gray-700">
+                  使用資料進行血糖預測訓練
+                </label>
+                </div>
               <button @click="saveUserData" :disabled="isSaving"
                 class="px-6 py-3 mx-2 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-md shadow-md hover:from-teal-600 hover:to-cyan-600 transition-all duration-300 focus:outline-none transform hover:scale-105"
                 :class="{ 'opacity-70 cursor-not-allowed': isSaving }">
@@ -445,13 +455,7 @@ const closePopup = () => {
                 </span>
                 <span v-else>儲存基本資料</span>
               </button>
-              <div class="flex items-center px-6 mt-2 py-3 bg-gray-100 rounded-md">
-                <input type="checkbox" id="save-profile-checkbox"
-                  class="form-checkbox h-5 w-5 text-teal-500 rounded focus:ring-teal-500 focus:ring-2" />
-                <label for="save-profile-checkbox" class="ml-2 text-gray-700">
-                  使用資料進行血糖預測訓練
-                </label>
-              </div>
+
             </div>
           </div>
         </div>
