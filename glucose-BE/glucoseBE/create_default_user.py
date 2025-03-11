@@ -14,7 +14,7 @@ django.setup()
 from django.utils import timezone
 from django.db import connection
 from account_session.models import CustomUser
-from getdata.models import BloodSugarRecord, get_time_slot
+from getdata.models import BloodSugarRecord, get_time_slot, BloodSugarComparison, UserModelConsent, UserPersonalizedModel
 
 def create_default_user():
     """創建默認用戶，如果不存在的話"""
@@ -52,6 +52,7 @@ def create_blood_sugar_records(user, days=30):
     start_date = end_date - timedelta(days=days)
     
     records_created = 0
+    all_records = []  # 保存所有創建的記錄以用於創建比較數據
     
     # 生成記錄
     current_date = start_date
@@ -103,7 +104,7 @@ def create_blood_sugar_records(user, days=30):
             else:
                 insulin_injection = None
             
-            # 創建記錄，但不保存
+            # 創建記錄
             record = BloodSugarRecord(
                 user=user,
                 blood_glucose=round(blood_glucose, 1),
@@ -123,22 +124,101 @@ def create_blood_sugar_records(user, days=30):
                     [record_time.strftime('%Y-%m-%d %H:%M:%S'), record.id]
                 )
             
+            # 重新獲取記錄以更新created_at值
+            record = BloodSugarRecord.objects.get(id=record.id)
+            all_records.append(record)
+            
             records_created += 1
         
         # 進入下一天
         current_date += timedelta(days=1)
     
     print(f"為用戶 {user.email} 創建了 {records_created} 條血糖記錄")
+    return all_records
+
+def create_blood_sugar_comparisons(user, records):
+    """為用戶創建血糖比較記錄"""
+    # 檢查是否已存在比較記錄
+    existing_comparisons = BloodSugarComparison.objects.filter(user=user).count()
+    if existing_comparisons > 0:
+        print(f"用戶 {user.email} 已有 {existing_comparisons} 條血糖比較記錄，跳過創建步驟。")
+        return
+    
+    if not records or len(records) < 2:
+        print("記錄不足，無法創建比較數據")
+        return
+    
+    # 按時間排序記錄
+    sorted_records = sorted(records, key=lambda r: r.created_at)
+    comparisons_created = 0
+    
+    # 遍歷記錄創建比較數據（從第二條記錄開始）
+    for i in range(1, len(sorted_records)):
+        current_record = sorted_records[i]
+        previous_record = sorted_records[i-1]
+        
+        # 計算時間間隔（只比較12小時內的記錄）
+        time_interval = current_record.created_at - previous_record.created_at
+        if time_interval > timedelta(hours=12):
+            continue
+        
+        # 創建比較記錄
+        comparison = BloodSugarComparison(
+            user=user,
+            previous_record=previous_record,
+            current_record=current_record,
+            previous_blood_glucose=previous_record.blood_glucose,
+            current_blood_glucose=current_record.blood_glucose,
+            insulin_injection=previous_record.insulin_injection,
+            carbohydrate_intake=previous_record.carbohydrate_intake,
+            time_interval=time_interval
+        )
+        comparison.save()
+        comparisons_created += 1
+    
+    print(f"為用戶 {user.email} 創建了 {comparisons_created} 條血糖比較記錄")
+
+def setup_model_consent(user, has_consented=True):
+    """設置用戶對模型訓練的同意狀態"""
+    consent, created = UserModelConsent.objects.get_or_create(user=user)
+    consent.has_consented = has_consented
+    if has_consented:
+        consent.consent_date = timezone.now()
+    consent.save()
+    
+    status = "同意" if has_consented else "不同意"
+    print(f"用戶 {user.email} {status}模型訓練")
+
+def setup_model_status(user):
+    """設置用戶的模型訓練狀態"""
+    # 創建用戶模型記錄但不設置為已訓練
+    model, created = UserPersonalizedModel.objects.get_or_create(user=user)
+    if created:
+        model.is_trained = False
+        model.save()
+        print(f"為用戶 {user.email} 創建模型記錄")
 
 def main():
     """腳本入口點"""
+    # 創建用戶和血糖記錄
     user = create_default_user()
-    create_blood_sugar_records(user)
+    records = create_blood_sugar_records(user)
+    
+    # 創建血糖比較記錄
+    create_blood_sugar_comparisons(user, records)
+    
+    # 設置用戶同意訓練模型
+    setup_model_consent(user, has_consented=True)
+    
+    # 初始化模型狀態
+    setup_model_status(user)
+    
     print("\n完成！默認用戶及其數據已成功創建。")
     print(f"用戶名: {user.username}")
     print(f"密碼: defaultpassword123")
     print(f"電子郵件: {user.email}")
-    print("\n您可以使用這些憑據登錄並查看完整的血糖記錄。")
+    print("\n用戶已同意進行模型訓練，並且已生成足夠的血糖比較數據用於測試。")
+    print("您可以使用這些憑據登錄並測試個人化模型訓練和預測功能。")
 
 if __name__ == "__main__":
     main()
