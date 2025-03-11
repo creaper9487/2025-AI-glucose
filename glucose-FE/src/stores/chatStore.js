@@ -120,10 +120,9 @@ export const useChatStore = defineStore('ChatStore', {
       try {
         const response = await axios.get('/api/info/get', {
         });
-        this.profile.height = response.data.height;
-        this.profile.weight = response.data.weight;
-        this.profile.age = response.data.age;
-        this.consent = response.data.consent;
+        this.profile.height = response.data.height.value;
+        this.profile.weight = response.data.weight.value;
+        this.profile.age = response.data.age.value;
       } catch (error) {
         if (error.response && error.response.status === 401) {
           authStore.refreshTokens();
