@@ -10,6 +10,19 @@ from sklearn.metrics import mean_absolute_error
 from django.utils import timezone
 from django.conf import settings
 from .models import BloodSugarComparison, UserPersonalizedModel
+import threading
+import time
+import logging
+from django.db import transaction, connection
+
+# 配置日誌
+logger = logging.getLogger(__name__)
+
+# 線程鎖和訓練狀態字典
+training_status_lock = threading.Lock()
+training_status = {}  # user_id -> (status, message, timestamp)
+TRAINING_STATUS_EXPIRY = 24 * 60 * 60  # 24小時
+
 
 # 定義相同的神經網絡模型架構
 class DeepBloodGlucoseModel(nn.Module):
@@ -292,3 +305,86 @@ def predict_with_personalized_model(user, features):
         raise Exception("用戶沒有訓練好的個人化模型")
     except Exception as e:
         raise Exception(f"預測過程中發生錯誤: {str(e)}")
+    
+def clean_expired_training_status():
+    """清理過期的訓練狀態"""
+    current_time = time.time()
+    with training_status_lock:
+        expired_keys = [k for k, v in training_status.items() 
+                      if current_time - v[2] > TRAINING_STATUS_EXPIRY]
+        for key in expired_keys:
+            del training_status[key]
+
+def train_personalized_model_thread(user):
+    """
+    在單獨的線程中訓練用戶的個人化模型
+    
+    Args:
+        user: 用戶對象
+        
+    Returns:
+        tuple: (成功標誌, 消息)
+    """
+    # 清理過期狀態
+    clean_expired_training_status()
+    
+    # 檢查是否已經有訓練在進行
+    with training_status_lock:
+        current_status = training_status.get(user.id, (None, None, 0))[0]
+        if current_status == "training":
+            return False, "模型訓練已經在進行中"
+        
+        # 設置初始狀態
+        training_status[user.id] = ("training", "模型訓練中...", time.time())
+    
+    def _train_thread():
+        # 關閉舊連接，讓Django在線程中創建新連接
+        connection.close()
+        
+        try:
+            # 更新用戶模型狀態為"訓練中"
+            try:
+                with transaction.atomic():
+                    user_model, created = UserPersonalizedModel.objects.get_or_create(user=user)
+                    user_model.last_trained = timezone.now()
+                    user_model.save()
+            except Exception as e:
+                logger.error(f"更新用戶模型狀態失敗: {str(e)}")
+            
+            # 執行訓練
+            success, message = train_personalized_model(user)
+            
+            # 更新訓練狀態
+            with training_status_lock:
+                if success:
+                    training_status[user.id] = ("completed", message, time.time())
+                else:
+                    training_status[user.id] = ("failed", message, time.time())
+        except Exception as e:
+            error_msg = f"訓練過程中發生錯誤: {str(e)}"
+            logger.error(error_msg)
+            with training_status_lock:
+                training_status[user.id] = ("error", error_msg, time.time())
+    
+    # 創建並啟動線程
+    thread = threading.Thread(target=_train_thread)
+    thread.daemon = True
+    thread.start()
+    
+    return True, "模型訓練已開始，請稍後查詢訓練狀態"
+
+def get_training_status(user_id):
+    """
+    獲取用戶模型訓練的狀態
+    
+    Args:
+        user_id: 用戶ID
+    
+    Returns:
+        tuple: (狀態, 消息) 或 (None, None) 如果沒有訓練記錄
+    """
+    with training_status_lock:
+        status_data = training_status.get(user_id)
+        if status_data:
+            return status_data[0], status_data[1]
+        return None, None

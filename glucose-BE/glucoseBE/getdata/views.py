@@ -12,9 +12,9 @@ from .models import BloodSugarComparison
 from .serializers import BloodSugarComparisonSerializer
 from .models import UserModelConsent, UserPersonalizedModel
 from .serializers import UserModelConsentSerializer, UserPersonalizedModelSerializer
-from .model_service import train_personalized_model, predict_with_personalized_model
-
-
+from .model_service import train_personalized_model, predict_with_personalized_model, get_training_status, train_personalized_model_thread
+# 在 views.py 文件頂部添加導入
+import threading
 User = get_user_model()
 
 
@@ -106,15 +106,15 @@ class BloodSugarRecordAPIView(APIView):
                             # 檢查用戶是否已有訓練過的模型
                             user_model = UserPersonalizedModel.objects.filter(user=comparison.user).first()
                             if not user_model or not user_model.is_trained:
-                                # 觸發模型訓練（可以設計為異步任務）
+                                # 使用線程進行訓練，避免阻塞
                                 try:
-                                    train_personalized_model(comparison.user)
+                                    # 啟動後台訓練線程，不等待結果
+                                    threading.Thread(
+                                        target=lambda: train_personalized_model_thread(comparison.user),
+                                        daemon=True
+                                    ).start()
                                 except Exception as e:
-                                    print(f"訓練用戶模型時發生錯誤: {str(e)}")
-            
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                                    print(f"啟動訓練模型線程時發生錯誤: {str(e)}")
     
 class BloodSugarComparisonAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -189,10 +189,18 @@ class UserModelTrainingView(APIView):
         model, created = UserPersonalizedModel.objects.get_or_create(user=user_instance)
         serializer = UserPersonalizedModelSerializer(model)
         
+        # 獲取訓練狀態
+        status_code, status_message = get_training_status(user_instance.id)
+        
         # 返回模型狀態與數據準備情況
         response_data = serializer.data
         response_data['comparison_count'] = comparison_count
         response_data['has_enough_data'] = comparison_count >= 20
+        
+        # 添加訓練狀態
+        if status_code:
+            response_data['training_status'] = status_code
+            response_data['training_message'] = status_message
         
         return Response(response_data)
     
@@ -217,19 +225,15 @@ class UserModelTrainingView(APIView):
         if comparison_count < 20:
             return Response({"error": f"數據不足，無法訓練模型。目前僅有 {comparison_count} 筆資料，需要至少 20 筆。"}, status=status.HTTP_400_BAD_REQUEST)
         
-        # 開始訓練模型
+        # 開始訓練模型（使用線程）
         try:
-            success, message = train_personalized_model(user_instance)
+            success, message = train_personalized_model_thread(user_instance)
             if success:
-                model = UserPersonalizedModel.objects.get(user=user_instance)
-                serializer = UserPersonalizedModelSerializer(model)
-                response_data = serializer.data
-                response_data['message'] = message
-                return Response(response_data)
+                return Response({"message": message}, status=status.HTTP_202_ACCEPTED)
             else:
-                return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": message}, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"error": f"模型訓練過程中發生錯誤: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": f"啟動模型訓練失敗: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class PersonalizedPredictionView(APIView):
     permission_classes = [IsAuthenticated]
