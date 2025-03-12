@@ -15,6 +15,7 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: HomeView,
+      meta: { requiresAuth: true } // 添加需要登入的標記
     },
     {
       path: '/figure',
@@ -23,6 +24,7 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/FigureView.vue'),
+      meta: { requiresAuth: true } // 添加需要登入的標記
     },
     {
       path: '/login',
