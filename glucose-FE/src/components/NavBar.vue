@@ -16,12 +16,12 @@ const isActive = (path) => {
         <div class="flex justify-between h-16">
           <div class="flex">
             <div class="flex-shrink-0 flex items-center">
-              <span class="ml-2 text-white font-semibold text-lg">DiaBeats</span>
+              <RouterLink to="/" class="ml-2 text-white font-semibold text-lg">DiaBeats</RouterLink>
             </div>
             <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <RouterLink to="/" 
+              <RouterLink to="/dashboard" 
                 class="border-transparent text-white hover:border-white hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200"
-                :class="{ 'border-white font-bold': isActive('/') }">
+                :class="{ 'border-white font-bold': isActive('/dashboard') }">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
@@ -79,9 +79,9 @@ const isActive = (path) => {
       <!-- Mobile menu, show/hide based on menu state. -->
       <div class="sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-          <RouterLink to="/" 
+          <RouterLink to="/dashboard" 
             class="text-white hover:bg-blue-700 block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium transition duration-150 ease-in-out"
-            :class="{ 'border-white bg-blue-700': isActive('/') }">
+            :class="{ 'border-white bg-blue-700': isActive('/dashboard') }">
             數據紀錄
           </RouterLink>
           <RouterLink to="/figure"
