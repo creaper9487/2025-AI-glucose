@@ -37,7 +37,8 @@ const isActive = (path) => {
               </RouterLink>
               <RouterLink to="/login" 
                 class="border-transparent text-white hover:border-white hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200"
-                :class="{ 'border-white font-bold': isActive('/login') }">
+                :class="{ 'border-white font-bold': isActive('/login') }"
+                v-if="!authStore.username">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
@@ -91,8 +92,9 @@ const isActive = (path) => {
           </RouterLink>
           <RouterLink to="/login"
             class="text-white hover:bg-blue-700 block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium transition duration-150 ease-in-out"
-            :class="{ 'border-white bg-blue-700': isActive('/login') }">
-            {{ authStore.username ? '個人資料' : '登入/註冊' }}
+            :class="{ 'border-white bg-blue-700': isActive('/login') }"
+            v-if="!authStore.username">
+              登入/註冊
           </RouterLink>
         </div>
       </div>

@@ -8,7 +8,7 @@ const username_or_email = ref('');
 const password = ref('');
 const isLoading = ref(false);
 const loginError = ref('');
-
+const router = useRouter();
 const handleLogin = async (event) => {
     event.preventDefault();
     loginError.value = '';
@@ -23,6 +23,8 @@ const handleLogin = async (event) => {
         // 檢查登入是否成功
         if (authStore.token && authStore.token.length > 0) {
             // 登入成功
+            authStore.username = username_or_email.value;
+            router.push('/');
         }
     } catch (error) {
         console.error('登入失敗:', error);
@@ -51,101 +53,101 @@ const handleGoogleLogin = async () => {
 </script>
 
 <template>
-    <div class="w-full max-w-md p-8 bg-white rounded-xl shadow-xl transition-all duration-300 hover:shadow-2xl transform hover:scale-102">
+    <div class="w-full p-8 bg-white rounded-xl shadow-xl transition-all duration-300 hover:shadow-2xl transform hover:scale-102">
 
         <h2 class="text-center text-3xl font-extrabold text-gray-900 mb-2">歡迎回來</h2>
         <p class="text-center text-sm text-gray-600 mb-8">
             登入以管理血糖數據並獲取個人化建議
         </p>
         
-        <form @submit="handleLogin" class="space-y-6">
+        <form @submit="handleLogin" class="space-y-4 flex flex-col mx-auto">
             <div v-if="loginError" class="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm text-red-700">
-                            {{ loginError }}
-                        </p>
-                    </div>
+            <div class="flex">
+                <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
                 </div>
+                <div class="ml-3">
+                <p class="text-sm text-red-700">
+                    {{ loginError }}
+                </p>
+                </div>
+            </div>
             </div>
             
-            <div>
-                <label for="username_or_email" class="block text-sm font-medium text-gray-700">帳號或電子郵件</label>
-                <div class="mt-1 relative rounded-md shadow-sm">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <input
-                        v-model="username_or_email"
-                        id="username_or_email"
-                        name="username_or_email"
-                        type="text"
-                        required
-                        class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400"
-                        placeholder="帳號或電子郵件"
-                    />
+            <div class="text-center">
+            <label for="username_or_email" class="block text-sm font-medium text-gray-700 text-left ml-1">帳號或電子郵件</label>
+            <div class="mt-1 relative rounded-md shadow-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                </svg>
                 </div>
+                <input
+                v-model="username_or_email"
+                id="username_or_email"
+                name="username_or_email"
+                type="text"
+                required
+                class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400"
+                placeholder="帳號或電子郵件"
+                />
+            </div>
             </div>
 
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">密碼</label>
-                <div class="mt-1 relative rounded-md shadow-sm">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <input
-                        v-model="password"
-                        id="password"
-                        name="password"
-                        type="password"
-                        required
-                        class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400"
-                        placeholder="密碼"
-                    />
+            <div class="text-center">
+            <label for="password" class="block text-sm font-medium text-gray-700 text-left ml-1">密碼</label>
+            <div class="mt-1 relative rounded-md shadow-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                </svg>
                 </div>
+                <input
+                v-model="password"
+                id="password"
+                name="password"
+                type="password"
+                required
+                class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400"
+                placeholder="密碼"
+                />
+            </div>
             </div>
 
             <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <input
-                        id="remember_me"
-                        name="remember_me"
-                        type="checkbox"
-                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label for="remember_me" class="ml-2 block text-sm text-gray-900">
-                        記住我
-                    </label>
-                </div>
-
-                <div class="text-sm">
-                    <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
-                        忘記密碼?
-                    </a>
-                </div>
+            <div class="flex items-center">
+                <input
+                id="remember_me"
+                name="remember_me"
+                type="checkbox"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label for="remember_me" class="ml-2 block text-sm text-gray-900">
+                記住我
+                </label>
             </div>
 
-            <div>
-                <button
-                    type="submit"
-                    :disabled="isLoading"
-                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-teal-400 hover:from-blue-600 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
-                >
-                    <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    {{ isLoading ? '登入中...' : '登入' }}
-                </button>
+            <div class="text-sm">
+                <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+                忘記密碼?
+                </a>
+            </div>
+            </div>
+
+            <div class="text-center">
+            <button
+                type="submit"
+                :disabled="isLoading"
+                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-teal-400 hover:from-blue-600 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+            >
+                <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ isLoading ? '登入中...' : '登入' }}
+            </button>
             </div>
         </form>
 

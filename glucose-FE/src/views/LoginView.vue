@@ -7,7 +7,7 @@ import aboutUsBtn from '@/components/aboutUsBtn.vue';
 <template>
   <NavBar></NavBar>
   <div class="h-screen flex items-center justify-center bg-gray-500">
-    <div class="flex flex-col items-center">
+    <div class="flex flex-col items-center w-1/3">
       <LoginForm />
       <div class="mt-6 text-center">
         <p class="text-sm text-white">
