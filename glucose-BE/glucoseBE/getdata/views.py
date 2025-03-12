@@ -115,6 +115,11 @@ class BloodSugarRecordAPIView(APIView):
                                     ).start()
                                 except Exception as e:
                                     print(f"啟動訓練模型線程時發生錯誤: {str(e)}")
+                    # 添加以下返回語句
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                # 當序列化器驗證失敗時返回錯誤信息
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class BloodSugarComparisonAPIView(APIView):
     permission_classes = [IsAuthenticated]
