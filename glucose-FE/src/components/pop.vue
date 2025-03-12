@@ -1,5 +1,6 @@
 <script setup>
 import { useChatStore } from '@/stores/chatStore';
+import ModelTrainingProgress from '../components/ModelTrainingProgress.vue';
 import { ref, watch } from 'vue';
 const chatStore = useChatStore();
 const isAnimating = ref(false);
@@ -427,7 +428,7 @@ const closePopup = () => {
                 年齡
               </label>
             </div>
-
+            <ModelTrainingProgress />
             <div v-if="saveSuccess" class="bg-green-100 text-green-800 px-4 py-3 rounded-md text-center">
               基本資料已成功儲存！
             </div>
