@@ -22,6 +22,7 @@ export const useDataStore = defineStore('DataStore', {
         },
       ],
     },
+    conparisonCount: 0,
   }),
   actions: {
     fetchGlucose() {
@@ -32,8 +33,12 @@ export const useDataStore = defineStore('DataStore', {
         .then(response => {
           console.log(response.data)
           this.dataProc(response.data)
-          this.glucoseCfg.labels = response.data.map(item => this.formatDate(item.created_at))
-          this.glucoseCfg.datasets[0].data = response.data.map(item => item.blood_glucose)
+          this.glucoseCfg.labels = response.data.map(item =>
+            this.formatDate(item.created_at),
+          )
+          this.glucoseCfg.datasets[0].data = response.data.map(
+            item => item.blood_glucose,
+          )
           console.log(this.glucoseCfg.labels)
           console.log(this.glucoseCfg.datasets[0].data)
         })
@@ -75,14 +80,39 @@ export const useDataStore = defineStore('DataStore', {
     },
     formatDate(dateString) {
       const date = new Date(dateString)
-      
+
       // 格式化為 MM/DD HH:MM
       const month = date.getMonth() + 1
       const day = date.getDate()
       const hours = date.getHours().toString().padStart(2, '0')
       const minutes = date.getMinutes().toString().padStart(2, '0')
-      
+
       return `${month}/${day} ${hours}:${minutes}`
+    },
+
+    async fetchTrainingProgress() {
+      try {
+        const response = await axios.get('/api/model/train/')
+        this.comparisonCount.value = response.data.comparison_count || 0
+      } catch (err) {
+        console.error('獲取訓練進度時發生錯誤:', err)
+        err.value = '無法獲取訓練進度'
+      }
+    },
+    async updateProfile(profile) {
+      const authStore = useAuthStore()
+
+      try {
+        await axios.put('/api/users/profile/', profile, {
+          headers: {
+            Authorization: `Bearer ${authStore.accessToken}`,
+          },
+        })
+        console.log('更新成功')
+      } catch (err) {
+        console.error('更新用戶資料時發生錯誤:', err)
+        
+      }
     }
   },
 })

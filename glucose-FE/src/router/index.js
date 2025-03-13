@@ -40,6 +40,11 @@ const router = createRouter({
       path:'/oauth-callback',
       name: 'oauth-callback',
       component: () => import('../views/googleOauth.vue'),
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('../views/ProfileView.vue'),
     }
   ],
 })

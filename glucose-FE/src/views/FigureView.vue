@@ -27,7 +27,7 @@ const handlePrediction = () => {
           <span class="mr-2">✨ AI 血糖預測</span>
         </button>
       </div>
-      <div class="flex-grow w-full h-[calc(100vh-150px)]">
+      <div class="flex-grow w-full h-full">
         <lineChart class="w-full h-full" />
       </div>
     </div>

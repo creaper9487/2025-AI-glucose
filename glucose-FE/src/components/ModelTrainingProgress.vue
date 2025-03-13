@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import axiosInstance from './axiosInstance';
-
-const comparisonCount = ref(0);
+import { useDataStore } from '@/stores/dataStore';
+const dataStore = useDataStore();
+let  comparisonCount = ref(0);
 const isLoading = ref(true);
 const error = ref(null);
 
@@ -27,15 +27,9 @@ const isReady = computed(() => {
 // 獲取用戶的訓練資料進度
 const fetchTrainingProgress = async () => {
     isLoading.value = true;
-    try {
-        const response = await axiosInstance.get('/api/model/train/');
-        comparisonCount.value = response.data.comparison_count || 0;
-    } catch (err) {
-        console.error('獲取訓練進度時發生錯誤:', err);
-        error.value = '無法獲取訓練進度';
-    } finally {
-        isLoading.value = false;
-    }
+    dataStore.fetchTrainingProgress();
+    isLoading.value = false;
+    comparisonCount.value = dataStore.comparisonCount;
 };
 
 onMounted(fetchTrainingProgress);
