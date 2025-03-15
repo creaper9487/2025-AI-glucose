@@ -10,6 +10,15 @@ export const useChatStore = defineStore('ChatStore', {
     chatWindow: false,
     senseWindow: false,
     testWindow: false,
+    // 新增預測相關狀態
+    predictionWindow: false,
+    predictionInput: {
+      previous_blood_glucose: null,
+      insulin_injection: 0,
+      carbohydrate_intake: 0,
+      time_interval: 0
+    },
+    predictionResult: null,
     healthData: {
       gender:null,
       age:null,
@@ -91,6 +100,52 @@ export const useChatStore = defineStore('ChatStore', {
         } else {
           console.error('Error uploading image:', error);
         }
+      }
+    },
+    // 新增血糖預測方法
+    async predictBloodGlucose() {
+      const authStore = useAuthStore();
+      
+      try {
+        // 發送預測請求到後端API
+        const response = await axios.post('/api/predict/personalized/', this.predictionInput);
+        this.predictionResult = response.data;
+        return this.predictionResult;
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          authStore.refreshTokens();
+          return null;
+        } else {
+          console.error('血糖預測出錯:', error);
+          if (error.response && error.response.data && error.response.data.error) {
+            alert(`預測失敗: ${error.response.data.error}`);
+          } else {
+            alert('預測失敗，請確認您已經訓練了個人化模型');
+          }
+          return null;
+        }
+      }
+    },
+    // 獲取最新血糖記錄作為預測輸入的初始值
+    async getLatestBloodGlucose() {
+      const authStore = useAuthStore();
+      
+      try {
+        const response = await axios.get('/api/records/');
+        if (response.data && response.data.length > 0) {
+          // 取得最新的血糖記錄
+          const latestRecord = response.data[0];
+          this.predictionInput.previous_blood_glucose = latestRecord.blood_glucose;
+          return latestRecord.blood_glucose;
+        }
+        return null;
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          authStore.refreshTokens();
+        } else {
+          console.error('獲取最新血糖記錄出錯:', error);
+        }
+        return null;
       }
     },
     async updateUserProfile(){

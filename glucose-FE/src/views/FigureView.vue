@@ -2,6 +2,7 @@
 import chatbot from '@/components/pop.vue';
 import NavBar from '@/components/NavBar.vue';
 import lineChart from '@/components/charts/lineChart.vue';
+import PredictionPopup from '@/components/PredictionPopup.vue';
 import { useDataStore } from '@/stores/dataStore';
 import { useChatStore } from '@/stores/chatStore';
 
@@ -10,7 +11,22 @@ const chatStore = useChatStore();
 dataStore.fetchGlucose();
 
 const handlePrediction = () => {
-  // chatStore.profileWindow = true;
+  // 打開預測視窗
+  chatStore.predictionWindow = true;
+  
+  // 確保每次打開都重置預測結果
+  chatStore.predictionResult = null;
+  
+  // 初始化預測輸入資料
+  chatStore.predictionInput = {
+    previous_blood_glucose: null,
+    insulin_injection: 0,
+    carbohydrate_intake: 0,
+    time_interval: 1
+  };
+  
+  // 嘗試獲取最新的血糖值作為上次血糖
+  chatStore.getLatestBloodGlucose();
 };
 </script>
 
@@ -33,6 +49,7 @@ const handlePrediction = () => {
     </div>
   </div>
   <chatbot class="m-2" />
+  <PredictionPopup />
 </template>
 
 <style scoped>
