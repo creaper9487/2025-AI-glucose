@@ -191,7 +191,7 @@ watch(showRange, () => {
 </script>
 
 <template>
-  <div class="bg-white rounded-lg shadow-xl p-6 transition-all duration-300 hover:shadow-2xl h-full">
+  <div class="bg-white rounded-lg shadow-xl p-6 transition-all duration-300 hover:shadow-2xl h-full flex flex-col">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-xl font-bold text-gray-800">血糖趨勢圖</h2>
       
@@ -212,12 +212,12 @@ watch(showRange, () => {
       </div>
     </div>
     
-    <div class="h-[calc(100%-4rem)]">
-      <div v-if="isLoading" class="flex items-center justify-center h-full">
+    <div class="flex-grow relative">
+      <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
       
-      <Line v-else :data="formattedData" :options="options" />
+      <Line v-else :data="formattedData" :options="options" class="h-full" />
     </div>
     
     <div class="mt-6 flex justify-between text-sm text-gray-600">
