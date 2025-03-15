@@ -11,6 +11,7 @@ from urllib.parse import urlencode
 redirect_url_val = "input the value"
 client_id_val = "input the value"
 client_secret_val = "input the value"
+
 User = get_user_model()
 
 class GoogleLoginSerializer(serializers.Serializer):
