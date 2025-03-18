@@ -15,6 +15,6 @@ urlpatterns = [
     path('token/', CustomLoginView.as_view(), name='token_obtain_pair'),  # 登入視圖
     path('token/refresh/', CustomRefreshView.as_view(), name='token_refresh'),
     path('info/update/',UpdateInfoView.as_view(), name='update_info'),
-    path('info/get', GetInfoView.as_view(), name='get_info'),  # 刷新 token
+    path('info/get/', GetInfoView.as_view(), name='get_info'),  # 刷新 token
     path('get/jwt', list_jwt_token.as_view(), name='view_info')
 ]

@@ -22,6 +22,11 @@ export const useDataStore = defineStore('DataStore', {
         },
       ],
     },
+    profile:{
+      height:null,
+      weight:null,
+      age:null,
+    },
     conparisonCount: 0,
   }),
   actions: {
@@ -96,14 +101,30 @@ export const useDataStore = defineStore('DataStore', {
         this.comparisonCount.value = response.data.comparison_count || 0
       } catch (err) {
         console.error('獲取訓練進度時發生錯誤:', err)
-        err.value = '無法獲取訓練進度'
+        err.value = '無法取得訓練進度'
+      }
+    },
+    async fetchUserProfile(){
+      const authStore = useAuthStore();
+      try {
+        const response = await axios.get('/api/info/get', {
+        });
+        this.profile.height = response.data.height.value;
+        this.profile.weight = response.data.weight.value;
+        this.profile.age = response.data.age.value;
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          authStore.refreshTokens();
+        } else {
+          console.error('Error', error);
+        }
       }
     },
     async updateProfile(profile) {
       const authStore = useAuthStore()
 
       try {
-        await axios.put('/api/users/profile/', profile, {
+        await axios.post('/api/users/profile/', profile, {
           headers: {
             Authorization: `Bearer ${authStore.accessToken}`,
           },
