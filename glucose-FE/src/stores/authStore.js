@@ -27,7 +27,7 @@ export const useAuthStore = defineStore('auth', {
         async login(credentials) {
             try {
                 console.log(credentials);
-                const response = await axios.post('/api/token/', credentials);
+                const response = await axiosInstance.post('/api/token/', credentials);
                 this.token = [ response.data.access,response.data.refresh];
                 axios.defaults.headers.common['Authorization'] = `Bearer ${this.token[0]}`;
             } catch (error) {
@@ -36,9 +36,9 @@ export const useAuthStore = defineStore('auth', {
         },
         async refreshTokens(){
             try {
-                const response = await axios.post('/api/token/refresh/', {"refresh": this.token[1]});
+                const response = await axiosInstance.post('/api/token/refresh/', {"refresh": this.token[1]});
                 this.token = [ response.data.access,response.data.refresh];
-                axios.defaults.headers.common['Authorization'] = `Bearer ${this.token[0]}`;
+                // axios.defaults.headers.common['Authorization'] = `Bearer ${this.token[0]}`;
             } catch (error) {
                 console.error('Error refreshing tokens:', error);
                 this.token = [];

@@ -93,7 +93,8 @@ export const useDataStore = defineStore('DataStore', {
     async fetchTrainingProgress() {
       try {
         const response = await axios.get('/api/model/train/')
-        this.comparisonCount.value = response.data.comparison_count || 0
+        console.log('訓練進度:', response.data)
+        this.conparisonCount = response.data.comparison_count || 0
       } catch (err) {
         console.error('獲取訓練進度時發生錯誤:', err)
         err.value = '無法獲取訓練進度'

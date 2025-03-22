@@ -168,6 +168,28 @@ export const useChatStore = defineStore('ChatStore', {
           console.error('Error', error);
         }
       }
+      try{
+        console.log(this.consent);
+        const response = await axios.post('/api/model/consent/', {"has_consented": this.consent});
+      }catch (error) {
+        if (error.response && error.response.status === 401) {
+          authStore.refreshTokens();
+        } else {
+          console.error('Error', error);
+        }
+      }
+      if(this.consent==1){
+        try{
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          const response = await axios.post('/api/model/train/', {});
+        }catch (error) {
+          if (error.response && error.response.status === 401) {
+            authStore.refreshTokens();
+          } else {
+            console.error('Error', error);
+          }
+        }
+      }
     },
     //todo: rewrite
     async fetchUserProfile(){

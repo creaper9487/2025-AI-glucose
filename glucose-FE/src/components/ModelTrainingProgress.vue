@@ -29,7 +29,7 @@ const fetchTrainingProgress = async () => {
     isLoading.value = true;
     dataStore.fetchTrainingProgress();
     isLoading.value = false;
-    comparisonCount.value = dataStore.comparisonCount;
+    comparisonCount.value = dataStore.conparisonCount;
 };
 
 onMounted(fetchTrainingProgress);
