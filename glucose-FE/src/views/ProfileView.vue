@@ -6,9 +6,9 @@ import { useDataStore } from '@/stores/dataStore';
 const dataStore = useDataStore();
 // 個人資料數據
 const userData = ref({
-    weight: '',
-    height: '',
-    age: '',
+    weight: dataStore.profile.weight || '',
+    height: dataStore.profile.height || '',
+    age: dataStore.profile.age || '',
     gender: '',
     diabetesType: '',
     activityLevel: '1'
@@ -22,7 +22,7 @@ const showMessage = ref(false);
 // 保存個人資料
 const saveProfile = () => {
     // 這裡將來可以加入與後端API的連接來保存數據
-    console.log('保存的用戶數據:', userData.value);
+    console.log('保存的使用者數據:', userData.value);
     dataStore.updateProfile(userData.value);
     // 顯示保存成功消息
     saveMessage.value = '個人資料已成功更新！';
@@ -33,22 +33,6 @@ const saveProfile = () => {
         showMessage.value = false;
     }, 3000);
 };
-
-// 頁面載入時從本地存儲或API獲取用戶數據
-onMounted(() => {
-    // 模擬從API獲取數據
-    // 這裡將來可以替換為實際的API調用
-    setTimeout(() => {
-        userData.value = {
-            weight: '70',
-            height: '175',
-            age: '35',
-            gender: 'male',
-            diabetesType: 'type2',
-            activityLevel: '2'
-        };
-    }, 500);
-});
 
 </script>
 

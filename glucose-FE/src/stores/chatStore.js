@@ -29,12 +29,7 @@ export const useChatStore = defineStore('ChatStore', {
       blood_glucose_level:null,
       HbA1c_level:null,
     },
-    profile:{
-      height:null,
-      weight:null,
-      age:null,
-      
-    },
+    
     consent:null,
   }),
   actions: {
