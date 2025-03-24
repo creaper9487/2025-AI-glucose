@@ -10,7 +10,7 @@ void main() {
             useMaterial3: true,
             colorScheme: darkDynamic
           ),
-          home: MainApp()
+          home: const MainApp()
         )
     )
   );
