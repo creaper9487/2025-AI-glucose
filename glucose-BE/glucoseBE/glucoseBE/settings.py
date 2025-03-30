@@ -129,8 +129,9 @@ SIMPLE_JWT = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": datetime.timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(days=7),  # 將訪問令牌有效期改為7天
+    "REFRESH_TOKEN_LIFETIME": datetime.timedelta(days=30),  # 將刷新令牌有效期改為30天
+    "BLACKLIST_AFTER_ROTATION": True,  # 保留原有的黑名單設定
 }
 
 # Internationalization

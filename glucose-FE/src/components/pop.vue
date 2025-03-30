@@ -1,12 +1,17 @@
 <script setup>
 import { useChatStore } from '@/stores/chatStore';
+import { useDataStore } from '@/stores/dataStore'; // 引入 dataStore
 import ModelTrainingProgress from '../components/ModelTrainingProgress.vue';
 import { ref, watch } from 'vue';
+
 const chatStore = useChatStore();
+const dataStore = useDataStore(); // 使用 dataStore 作為備選
+
 const isAnimating = ref(false);
-const height = ref(chatStore.profile.height);
-const weight = ref(chatStore.profile.weight);
-const age = ref(chatStore.profile.age);
+// 使用可選鏈操作符和默認值，避免訪問 undefined 的屬性
+const height = ref(chatStore.profile?.height || '');
+const weight = ref(chatStore.profile?.weight || '');
+const age = ref(chatStore.profile?.age || '');
 const useForTraining = ref(chatStore.consent)
 const isSaving = ref(false);
 const saveSuccess = ref(false);

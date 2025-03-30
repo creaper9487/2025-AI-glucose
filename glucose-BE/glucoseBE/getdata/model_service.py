@@ -159,7 +159,7 @@ def train_personalized_model(user):
     
     # 加載基礎模型（如果存在）
     try:
-        base_model_path = os.path.join(settings.BASE_DIR, 'AIchat', 'advanced_blood_glucose_model.pth')
+        base_model_path = os.path.join(settings.BASE_DIR, 'getdata', 'advanced_blood_glucose_model.pth')
         model.load_state_dict(torch.load(base_model_path))
         print(f"已加載基礎模型: {base_model_path}")
     except Exception as e:
@@ -189,6 +189,10 @@ def train_personalized_model(user):
             # 獲取批次數據
             inputs = X_train_tensor[i:i+batch_size]
             targets = y_train_tensor[i:i+batch_size]
+            
+            # 跳過只有一個樣本的批次
+            if len(inputs) < 2:
+                continue
             
             # 前向傳播
             outputs = model(inputs)

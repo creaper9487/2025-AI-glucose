@@ -19,9 +19,28 @@ const carbsFocused = ref(false);
 const exerciseFocused = ref(false);
 const insulinDoseFocused = ref(false);
 
+// 錯誤提示信息
+const glucoseError = ref('');
+
+// 驗證血糖值是否有效
+const validateGlucose = () => {
+    if (glucose.value < 0) {
+        glucoseError.value = '血糖值不能小於0';
+        return false;
+    }
+    glucoseError.value = '';
+    return true;
+};
+
 // 提交表單
 const handleSubmit = async (event) => {
     event.preventDefault();
+    
+    // 驗證血糖值
+    if (!validateGlucose()) {
+        return;
+    }
+    
     dataStore.postGlucose({
         blood_glucose: glucose.value,
         carbohydrate_intake: carbs.value,
@@ -61,13 +80,14 @@ const recordTime = ref(new Date().toISOString().substr(0, 10));
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                 </div>
-                <input type="number" v-model="glucose" required @focus="glucoseFocused = true" @blur="glucoseFocused = false"
+                <input type="number" v-model="glucose" required min="0" @focus="glucoseFocused = true" @blur="glucoseFocused = false; validateGlucose()"
                     class="block w-full pl-10 pr-3 py-3 border-b-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:outline-none rounded-md transition-all duration-200"
                     placeholder="">
                 <label :class="{ 'transform -translate-y-5 scale-75 text-blue-500': glucoseFocused || glucose }"
                     class="absolute top-3 left-10 text-gray-500 transform origin-left transition-all duration-200 pointer-events-none">
                     血糖值 (mg/dL)
                 </label>
+                <div v-if="glucoseError" class="text-red-500 text-xs mt-1">{{ glucoseError }}</div>
             </div>
 
             <div class="relative">
