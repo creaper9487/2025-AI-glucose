@@ -45,37 +45,25 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <nav class="bg-gradient-to-r from-blue-600 to-teal-500 shadow-lg sticky top-0 z-50">
+  <nav class="bg-teal-600 shadow-lg sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16">
         <div class="flex">
           <div class="flex-shrink-0 flex items-center">
-            <RouterLink to="/" class="ml-2 text-white font-semibold text-lg flex items-center">
-              <!-- 新增簡單的圖標 -->
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span class="text-shadow">DiaBeats</span>
+            <RouterLink to="/" class="ml-2 text-white flex items-center">
+              <span class="text-2xl">DiaBeats</span>
             </RouterLink>
           </div>
           <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
             <RouterLink to="/dashboard" 
               class="border-transparent text-white hover:border-white hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200"
               :class="{ 'border-white font-bold': isActive('/dashboard') }">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
+
               數據紀錄
             </RouterLink>
             <RouterLink to="/figure" 
               class="border-transparent text-white hover:border-white hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200"
               :class="{ 'border-white font-bold': isActive('/figure') }">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
               數據圖表
             </RouterLink>
           </div>
@@ -86,14 +74,11 @@ onBeforeUnmount(() => {
           <div class="ml-3 relative" ref="dropdownRef">
             <button 
               @click="toggleDropdown"
-              class="text-white font-medium hover:text-teal-200 flex items-center focus:outline-none transition-all duration-200 p-2 rounded-full hover:bg-blue-700/30"
-              :class="{ 'bg-blue-700/30': dropdownOpen }"
+              class="text-white font-medium hover:text-teal-200 flex items-center focus:outline-none transition-all duration-200 p-2 rounded-full hover:bg-teal-700/30"
+              :class="{ 'bg-teal-700/30': dropdownOpen }"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
               <span v-if="authStore.username">{{ authStore.username }}</span>
-              <span v-else>用戶</span>
+              <span v-else>登入</span>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 transition-transform duration-200" 
                 :class="{ 'rotate-180': dropdownOpen }" 
                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -107,7 +92,7 @@ onBeforeUnmount(() => {
             >
               <div v-if="authStore.username" class="py-1">
                 <RouterLink to="/profile" class="flex items-center px-4 py-3 hover:bg-gray-100 transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   個人資料
@@ -160,25 +145,25 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- 手機選單內容 -->
-    <div v-if="mobileMenuOpen" class="sm:hidden bg-blue-700/90 backdrop-blur-sm">
+    <div v-if="mobileMenuOpen" class="sm:hidden bg-teal-700/90 backdrop-blur-sm">
       <div class="pt-2 pb-3 space-y-1">
-        <RouterLink to="/dashboard" class="flex items-center text-white hover:bg-blue-800 block px-3 py-2 rounded-md text-base font-medium">
+  <RouterLink to="/dashboard" class="flex items-center text-white hover:bg-teal-800 block px-3 py-2 rounded-md text-base font-medium">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
           數據紀錄
         </RouterLink>
-        <RouterLink to="/figure" class="flex items-center text-white hover:bg-blue-800 block px-3 py-2 rounded-md text-base font-medium">
+  <RouterLink to="/figure" class="flex items-center text-white hover:bg-teal-800 block px-3 py-2 rounded-md text-base font-medium">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
           數據圖表
         </RouterLink>
       </div>
-      <div class="pt-4 pb-3 border-t border-blue-800">
+  <div class="pt-4 pb-3 border-t border-teal-800">
         <div class="flex items-center px-4">
           <div class="flex-shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white bg-blue-600 p-2 rounded-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white bg-teal-600 p-2 rounded-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
@@ -188,13 +173,13 @@ onBeforeUnmount(() => {
         </div>
         <div class="mt-3 space-y-1">
           <div v-if="authStore.username">
-            <RouterLink to="/profile" class="flex items-center text-white hover:bg-blue-800 block px-3 py-2 rounded-md text-base font-medium">
+            <RouterLink to="/profile" class="flex items-center text-white hover:bg-teal-800 block px-3 py-2 rounded-md text-base font-medium">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               個人資料
             </RouterLink>
-            <RouterLink to="/logout" class="flex items-center text-white hover:bg-blue-800 block px-3 py-2 rounded-md text-base font-medium">
+            <RouterLink to="/logout" class="flex items-center text-white hover:bg-teal-800 block px-3 py-2 rounded-md text-base font-medium">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
@@ -202,7 +187,7 @@ onBeforeUnmount(() => {
             </RouterLink>
           </div>
           <div v-else>
-            <RouterLink to="/login" class="flex items-center text-white hover:bg-blue-800 block px-3 py-2 rounded-md text-base font-medium">
+            <RouterLink to="/login" class="flex items-center text-white hover:bg-teal-800 block px-3 py-2 rounded-md text-base font-medium">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
               </svg>

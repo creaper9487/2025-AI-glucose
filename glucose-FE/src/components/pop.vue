@@ -90,7 +90,7 @@ const closePopup = () => {
       class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg">
       <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
         <!-- 彈窗頭部 -->
-        <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 flex justify-between items-center">
+        <div class="bg-blue-600 px-6 py-4 flex justify-between items-center">
           <div class="flex items-center">
             <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24"
@@ -112,7 +112,7 @@ const closePopup = () => {
         <div class="p-6">
           <div class="flex justify-center mb-6">
             <button @click="chatStore.fetchChatContent"
-              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-lg transform transition-all duration-200 hover:scale-105">
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-lg transform transition-all duration-200 hover:scale-105">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -154,7 +154,7 @@ const closePopup = () => {
       class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg h-fit">
       <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
         <!-- 彈窗頭部 -->
-        <div class="bg-gradient-to-r from-green-600 to-teal-600 px-6 py-4 flex justify-between items-center">
+        <div class="bg-green-600 px-6 py-4 flex justify-between items-center">
           <div class="flex items-center">
             <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24"
@@ -207,7 +207,7 @@ const closePopup = () => {
       class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-4xl">
       <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
         <!-- 彈窗頭部 -->
-        <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4 flex justify-between items-center">
+        <div class="bg-blue-600 px-6 py-4 flex justify-between items-center">
           <div class="flex items-center">
             <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24"
@@ -385,7 +385,7 @@ const closePopup = () => {
       class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md">
       <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
         <!-- 彈窗頭部 -->
-        <div class="bg-gradient-to-r from-teal-500 to-cyan-500 px-6 py-4 flex justify-between items-center">
+        <div class="bg-teal-500 px-6 py-4 flex justify-between items-center">
           <div class="flex items-center">
             <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24"
@@ -447,7 +447,7 @@ const closePopup = () => {
                 </label>
                 </div>
               <button @click="saveUserData" :disabled="isSaving"
-                class="px-6 py-3 mx-2 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-md shadow-md hover:from-teal-600 hover:to-cyan-600 transition-all duration-300 focus:outline-none transform hover:scale-105"
+                class="px-6 py-3 mx-2 bg-teal-500 text-white rounded-md shadow-md hover:bg-teal-600 transition-all duration-300 focus:outline-none transform hover:scale-105"
                 :class="{ 'opacity-70 cursor-not-allowed': isSaving }">
                 <span v-if="isSaving" class="flex items-center">
                   <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"

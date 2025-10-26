@@ -37,12 +37,12 @@ const saveProfile = () => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+    <div class="min-h-screen bg-gray-800 text-white">
         <NavBar />
 
         <div class="pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
             <h1
-                class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400 mb-8">
+                class="text-3xl font-bold text-blue-400 mb-8">
                 個人資料儀表板
             </h1>
 
@@ -99,7 +99,7 @@ const saveProfile = () => {
 
                     <!-- 保存按鈕 -->
                     <button @click="saveProfile"
-                        class="mt-8 px-6 py-3 bg-gradient-to-r from-blue-600 to-teal-500 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 font-medium">
+                        class="mt-8 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 font-medium">
                         保存資料
                     </button>
                 </div>

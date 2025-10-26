@@ -10,7 +10,7 @@ const isHovered = ref(false);
         target="_blank"
         class="inline-flex items-center px-4 py-2 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
         :class="{ 
-            'bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow-blue-500/50': isHovered,
+            'bg-blue-600 text-white shadow-blue-500/50': isHovered,
             'bg-white text-gray-800': !isHovered
         }"
         @mouseenter="isHovered = true"

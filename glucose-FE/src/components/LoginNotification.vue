@@ -1,7 +1,7 @@
 <template>
     <transition name="notification-fade">
       <div v-if="show" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full">
-        <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow-2xl overflow-hidden">
+        <div class="bg-blue-600 rounded-lg shadow-2xl overflow-hidden">
           <div class="px-6 py-4 flex items-center">
             <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-4">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">

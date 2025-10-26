@@ -168,7 +168,7 @@ def train_personalized_model(user):
     # 定義損失函數和優化器
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=10, verbose=True)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=10)
     
     # 準備數據加載器
     X_train_tensor = torch.tensor(X_train_scaled, dtype=torch.float32)
@@ -212,11 +212,19 @@ def train_personalized_model(user):
             test_outputs = model(X_test_tensor)
             test_loss = criterion(test_outputs, y_test_tensor).item()
         
+        # 記錄當前學習率
+        current_lr = optimizer.param_groups[0]['lr']
+        
         # 更新學習率
         scheduler.step(test_loss)
         
+        # 檢查學習率是否改變
+        new_lr = optimizer.param_groups[0]['lr']
+        if new_lr != current_lr:
+            print(f'學習率已調整: {current_lr:.6f} -> {new_lr:.6f}')
+        
         if (epoch + 1) % 20 == 0:
-            print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {running_loss/len(X_train_tensor):.4f}, Test Loss: {test_loss:.4f}')
+            print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {running_loss/len(X_train_tensor):.4f}, Test Loss: {test_loss:.4f}, LR: {new_lr:.6f}')
     
     # 評估模型性能
     model.eval()
