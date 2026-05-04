@@ -46,6 +46,13 @@ const router = createRouter({
       name: 'profile',
       component: () => import('../views/ProfileView.vue'),
     }
+    ,
+    {
+      path: '/share-data',
+      name: 'share-data',
+      component: () => import('../views/ShareData.vue'),
+      meta: { requiresAuth: true, requiresWalletLinked: true }
+    }
   ],
 })
 

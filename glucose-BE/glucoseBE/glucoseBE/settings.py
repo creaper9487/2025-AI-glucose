@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import datetime
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -158,3 +159,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+MEDESCIENET_DEV_REGISTRY_ID = os.getenv('MEDESCIENET_DEV_REGISTRY_ID', '')
+MEDESCIENET_PACKAGE_ID = os.getenv('MEDESCIENET_PACKAGE_ID', '')
+MEDESCIENET_DEV_CAP_ID = os.getenv('MEDESCIENET_DEV_CAP_ID', '')
+MEDESCIENET_USER_ID_SALT = os.getenv('MEDESCIENET_USER_ID_SALT', '')
+CAP_ISSUER_PORT = int(os.getenv('CAP_ISSUER_PORT', '7777'))
+CAP_ISSUER_BASE_URL = os.getenv('CAP_ISSUER_BASE_URL', f'http://localhost:{CAP_ISSUER_PORT}')

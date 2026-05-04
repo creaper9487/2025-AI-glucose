@@ -101,3 +101,29 @@ class UserPersonalizedModel(models.Model):
     def __str__(self):
         status = "已訓練" if self.is_trained else "未訓練"
         return f"{self.user.username} - {status} (版本 {self.model_version})"
+
+
+class MediSciNetUpload(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('expired', 'Expired'),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    blob_id = models.CharField(max_length=128, blank=True)
+    seal_id = models.CharField(max_length=128, blank=True)
+    walrus_epoch = models.IntegerField(null=True, blank=True)
+    walrus_epoch_end = models.DateTimeField(null=True, blank=True)
+    file_size_bytes = models.IntegerField(default=0)
+    record_count = models.IntegerField(default=0)
+    date_range_start = models.DateField()
+    date_range_end = models.DateField()
+    schema_version = models.CharField(max_length=10, default='1.0')
+    checksum_sha256 = models.CharField(max_length=64, blank=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    user_file_cap_id = models.CharField(max_length=128, blank=True)
+
+    def __str__(self):
+        return f'{self.user.username} - {self.date_range_start} ~ {self.date_range_end} ({self.status})'

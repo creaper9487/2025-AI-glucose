@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import BloodSugarRecord
 from .models import BloodSugarComparison, UserModelConsent, UserPersonalizedModel
+from .models import MediSciNetUpload
 
 class BloodSugarRecordSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,3 +35,14 @@ class UserPersonalizedModelSerializer(serializers.ModelSerializer):
         model = UserPersonalizedModel
         fields = ['is_trained', 'last_trained', 'training_data_count', 'model_version', 'model_performance']
         read_only_fields = ['is_trained', 'last_trained', 'training_data_count', 'model_version', 'model_performance']
+
+
+class MediSciNetUploadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MediSciNetUpload
+        fields = [
+            'id', 'user', 'blob_id', 'seal_id', 'walrus_epoch', 'walrus_epoch_end',
+            'file_size_bytes', 'record_count', 'date_range_start', 'date_range_end',
+            'schema_version', 'checksum_sha256', 'uploaded_at', 'status', 'user_file_cap_id',
+        ]
+        read_only_fields = ['id', 'user', 'uploaded_at']

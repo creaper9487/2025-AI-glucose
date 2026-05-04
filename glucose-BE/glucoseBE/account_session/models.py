@@ -29,6 +29,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=30, unique=True)
     lang = models.CharField(max_length=10, default='zh')
+    sui_wallet_address = models.CharField(max_length=66, blank=True, null=True, unique=True)
+    sui_wallet_linked_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     weight = models.FloatField(null=True, blank=True)  # 體重 (kg)

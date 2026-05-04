@@ -1,0 +1,14 @@
+{
+  "name": "cap-issuer-sidecar",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch index.js",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@mysten/sui": "^2.16.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}

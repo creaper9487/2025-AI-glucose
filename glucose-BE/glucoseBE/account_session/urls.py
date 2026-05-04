@@ -7,6 +7,7 @@ from .GoogleLoginPort import GoogleLoginView
 from .lang_view import UpdateLangView, GetLangView
 from .Info_view import UpdateInfoView, GetInfoView
 from .jwtinspect import list_jwt_token
+from .wallet_views import WalletLinkView, WalletNonceView, WalletStatusView, WalletUnlinkView
 urlpatterns = [
     path('lang/get', GetLangView.as_view(), name='get-lang'),
     path('lang/update', UpdateLangView.as_view(), name='update-lang'),
@@ -16,5 +17,9 @@ urlpatterns = [
     path('token/refresh/', CustomRefreshView.as_view(), name='token_refresh'),
     path('info/update/',UpdateInfoView.as_view(), name='update_info'),
     path('info/get/', GetInfoView.as_view(), name='get_info'),  # 刷新 token
-    path('get/jwt', list_jwt_token.as_view(), name='view_info')
+    path('get/jwt', list_jwt_token.as_view(), name='view_info'),
+    path('medescienet/wallet/nonce/', WalletNonceView.as_view(), name='medescienet-wallet-nonce'),
+    path('medescienet/wallet/link/', WalletLinkView.as_view(), name='medescienet-wallet-link'),
+    path('medescienet/wallet/status/', WalletStatusView.as_view(), name='medescienet-wallet-status'),
+    path('medescienet/wallet/unlink/', WalletUnlinkView.as_view(), name='medescienet-wallet-unlink'),
 ]

@@ -2,6 +2,7 @@
 import { RouterLink, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import { useChatStore } from '@/stores/chatStore'
+import WalletButton from '@/components/WalletButton.vue'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const authStore = useAuthStore()
@@ -66,11 +67,20 @@ onBeforeUnmount(() => {
               :class="{ 'border-white font-bold': isActive('/figure') }">
               數據圖表
             </RouterLink>
+            <RouterLink
+              v-if="authStore.username"
+              to="/share-data"
+              class="border-transparent text-white hover:border-white hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200"
+              :class="{ 'border-white font-bold': isActive('/share-data') }"
+            >
+              分享資料
+            </RouterLink>
           </div>
         </div>
 
         <!-- 右側下拉選單 - 改進版 -->
         <div class="hidden sm:ml-6 sm:flex sm:items-center">
+          <WalletButton class="mr-4" />
           <div class="ml-3 relative" ref="dropdownRef">
             <button 
               @click="toggleDropdown"
@@ -96,6 +106,12 @@ onBeforeUnmount(() => {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   個人資料
+                </RouterLink>
+                <RouterLink to="/share-data" class="flex items-center px-4 py-3 hover:bg-gray-100 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  分享資料
                 </RouterLink>
                 <RouterLink to="/" class="flex items-center px-4 py-3 hover:bg-gray-100 transition-colors" @click="authStore.logout">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -158,6 +174,12 @@ onBeforeUnmount(() => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
           數據圖表
+        </RouterLink>
+        <RouterLink v-if="authStore.username" to="/share-data" class="flex items-center text-white hover:bg-teal-800 block px-3 py-2 rounded-md text-base font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          分享資料
         </RouterLink>
       </div>
   <div class="pt-4 pb-3 border-t border-teal-800">

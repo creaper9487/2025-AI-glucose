@@ -12,4 +12,6 @@ torch
 torchvision
 pandas
 joblib
-scikit-learn
+scikit-learn==1.6.0
+pynacl
+python-dotenv
