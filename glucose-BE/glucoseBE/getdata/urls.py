@@ -6,6 +6,9 @@ from .medescienet_views import (
     MediSciNetUploadListCreateView,
     MediSciNetUploadDetailView,
     MediSciNetRequestUploadCapView,
+    MediSciNetSubscriptionView,
+    MediSciNetSubscriptionApproveSettlementView,
+    MediSciNetSyncSubscriptionView,
 )
 
 urlpatterns = [
@@ -19,4 +22,7 @@ urlpatterns = [
     path('medescienet/uploads/', MediSciNetUploadListCreateView.as_view(), name='medescienet-uploads'),
     path('medescienet/uploads/<int:pk>/', MediSciNetUploadDetailView.as_view(), name='medescienet-upload-detail'),
     path('medescienet/request-upload-cap/', MediSciNetRequestUploadCapView.as_view(), name='medescienet-request-upload-cap'),
+    path('medescienet/subscription/', MediSciNetSubscriptionView.as_view(), name='medescienet-subscription'),
+    path('medescienet/subscription/approve-settlement/', MediSciNetSubscriptionApproveSettlementView.as_view(), name='medescienet-approve-settlement'),
+    path('medescienet/sync-subscription/', MediSciNetSyncSubscriptionView.as_view(), name='medescienet-sync-subscription'),
 ]

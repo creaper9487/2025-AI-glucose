@@ -106,7 +106,12 @@ class UserPersonalizedModel(models.Model):
 class MediSciNetUpload(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
+        ('vault_ready', 'Vault Ready'),
+        ('encrypting', 'Encrypting'),
+        ('uploading', 'Uploading'),
+        ('certifying', 'Certifying'),
         ('confirmed', 'Confirmed'),
+        ('failed', 'Failed'),
         ('expired', 'Expired'),
     ]
 
@@ -124,6 +129,35 @@ class MediSciNetUpload(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     user_file_cap_id = models.CharField(max_length=128, blank=True)
+    # Billing model v1 fields
+    sub_state_id = models.CharField(max_length=100, blank=True, null=True)
+    upload_cost_mist = models.BigIntegerField(null=True, blank=True)
+    service_active_until_epoch = models.BigIntegerField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.user.username} - {self.date_range_start} ~ {self.date_range_end} ({self.status})'
+
+
+class MediSciNetSubscription(models.Model):
+    """
+    Cache of on-chain SubscriptionState + Vault data for a user.
+    Not authoritative — the Sui chain is the source of truth.
+    Refreshed by the cap_issuer_sidecar on sync requests.
+    """
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='medescienet_subscription',
+    )
+    sub_state_id = models.CharField(max_length=100, unique=True)
+    vault_id = models.CharField(max_length=100, blank=True, null=True)
+    service_active_until_epoch = models.BigIntegerField(default=0)
+    projected_service_end_epoch = models.BigIntegerField(default=0)
+    vault_balance_mist = models.BigIntegerField(default=0)
+    service_credit_mist = models.BigIntegerField(default=0)
+    settlement_approval_id = models.CharField(max_length=100, blank=True, null=True)
+    last_synced_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user.username} - sub_state:{self.sub_state_id[:16]}...'

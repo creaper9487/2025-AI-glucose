@@ -47,24 +47,18 @@ class BloodSugarRecordAPIView(APIView):
         data = request.data.copy()
         data['time_slot'] = slot.isoformat()
 
-        # 判斷是否有提供胰島素注射量
-        insulin_injection = data.get('insulin_injection')
-        has_insulin = (insulin_injection not in [None, '', 'null'])
-
-        # 處理現有記錄覆蓋邏輯
-        if not has_insulin:
-            existing_record = BloodSugarRecord.objects.filter(
-                user=user_instance,
-                time_slot=slot,
-                insulin_injection__isnull=True
-            ).first()
-            if existing_record:
-                serializer = BloodSugarRecordSerializer(existing_record, data=data, partial=True)
-                if serializer.is_valid():
-                    serializer.save()
-                    return Response(serializer.data, status=status.HTTP_200_OK)
-                else:
-                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # 同一使用者在同一 time_slot 僅保留一筆記錄，避免重複樣本污染圖表與訓練資料
+        existing_record = BloodSugarRecord.objects.filter(
+            user=user_instance,
+            time_slot=slot,
+        ).order_by('-created_at').first()
+        if existing_record:
+            serializer = BloodSugarRecordSerializer(existing_record, data=data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # 建立新記錄
         data['user'] = user_instance
@@ -82,21 +76,20 @@ class BloodSugarRecordAPIView(APIView):
             
             if previous_records.exists():
                 previous_record = previous_records.first()
-                
-                # 創建比較記錄
-                comparison = BloodSugarComparison(
+                comparison, comparison_created = BloodSugarComparison.objects.get_or_create(
                     user=user_instance,
                     previous_record=previous_record,
                     current_record=new_record,
-                    previous_blood_glucose=previous_record.blood_glucose,
-                    current_blood_glucose=new_record.blood_glucose,
-                    insulin_injection=previous_record.insulin_injection,
-                    carbohydrate_intake=previous_record.carbohydrate_intake,
-                    time_interval=new_record.created_at - previous_record.created_at
+                    defaults={
+                        'previous_blood_glucose': previous_record.blood_glucose,
+                        'current_blood_glucose': new_record.blood_glucose,
+                        'insulin_injection': previous_record.insulin_injection,
+                        'carbohydrate_intake': previous_record.carbohydrate_intake,
+                        'time_interval': new_record.created_at - previous_record.created_at,
+                    }
                 )
-                comparison.save()
                 # 創建比較記錄後，檢查是否達到訓練條件
-                if comparison.user:
+                if comparison_created and comparison.user:
                     # 獲取用戶的同意狀態和比較記錄數量
                     consent = UserModelConsent.objects.filter(user=comparison.user, has_consented=True).first()
                     if consent:
@@ -115,11 +108,11 @@ class BloodSugarRecordAPIView(APIView):
                                     ).start()
                                 except Exception as e:
                                     print(f"啟動訓練模型線程時發生錯誤: {str(e)}")
-                    # 添加以下返回語句
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                # 當序列化器驗證失敗時返回錯誤信息
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        # 當序列化器驗證失敗時返回錯誤信息
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class BloodSugarComparisonAPIView(APIView):
     permission_classes = [IsAuthenticated]

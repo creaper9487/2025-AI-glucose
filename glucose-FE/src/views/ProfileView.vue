@@ -6,10 +6,12 @@ import ModelTrainingProgress from '@/components/ModelTrainingProgress.vue'
 import axiosInstance from '@/components/axiosInstance'
 import { useWalletStore } from '@/stores/walletStore'
 import { useDataStore } from '@/stores/dataStore'
+import { useMedescienetStore } from '@/stores/medescienetStore'
 
 const route = useRoute()
 const dataStore = useDataStore()
 const walletStore = useWalletStore()
+const medescienetStore = useMedescienetStore()
 
 const userData = ref({
   weight: dataStore.profile.weight || '',
@@ -27,6 +29,13 @@ const walletError = ref('')
 const walletLoading = ref(false)
 
 const showWalletHint = computed(() => route.query.tab === 'medescienet' || route.query.needWalletLinked === 'true')
+
+const showManageModal = ref(false)
+
+function formatSui(mist) {
+  if (mist == null) return '0'
+  return (Number(mist) / 1_000_000_000).toFixed(4)
+}
 
 function toBase64(bytes) {
   if (!bytes) return null
@@ -93,16 +102,21 @@ async function unlinkWallet() {
 
 function saveProfile() {
   dataStore.updateProfile(userData.value)
-  saveMessage.value = '個人資料已成功更新'
+  saveMessage.value = '資料已成功保存！'
   showMessage.value = true
   setTimeout(() => {
     showMessage.value = false
   }, 3000)
 }
 
-onMounted(() => {
+onMounted(async () => {
   walletStore.initialize()
-  fetchWalletStatus()
+  await fetchWalletStatus()
+  try {
+    await medescienetStore.fetchSubscriptionStatus()
+  } catch (err) {
+    console.error(err)
+  }
 })
 </script>
 
@@ -198,6 +212,63 @@ onMounted(() => {
               {{ walletError }}
             </div>
           </section>
+
+          <section class="rounded-xl border border-gray-700 bg-gray-800 bg-opacity-70 p-6 shadow-lg backdrop-blur-sm">
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl font-semibold text-white">Service Status</h2>
+            </div>
+            <div class="mt-4 space-y-3 text-sm text-slate-300">
+              <div class="flex items-center justify-between">
+                <span>Status:</span>
+                <span class="font-medium" :class="{
+                  'text-emerald-400': medescienetStore.subscriptionStatus === 'active',
+                  'text-amber-400': medescienetStore.subscriptionStatus === 'expiring_soon',
+                  'text-slate-400': medescienetStore.subscriptionStatus === 'expired'
+                }">{{ medescienetStore.subscriptionStatus.toUpperCase() }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>Projected service end:</span>
+                <span class="font-mono">epoch {{ medescienetStore.projectedServiceEndEpoch || '-' }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>Vault balance:</span>
+                <span><span class="font-mono text-emerald-300">{{ formatSui(medescienetStore.vaultBalance) }}</span> SUI (withdrawable)</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>Service credit:</span>
+                <span><span class="font-mono text-blue-300">{{ formatSui(medescienetStore.serviceCreditBalance) }}</span> SUI (non-withdrawable)</span>
+              </div>
+              <div class="mt-5 border-t border-slate-700 pt-4">
+                <button
+                  class="rounded-lg bg-blue-600 px-5 py-2 font-medium text-white transition-colors hover:bg-blue-700"
+                  @click="showManageModal = true"
+                >
+                  Manage
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Manage Modal -->
+          <div v-if="showManageModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+            <div class="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-800 p-6 shadow-2xl">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-white">Manage Service</h3>
+                <button @click="showManageModal = false" class="text-slate-400 hover:text-white">✕</button>
+              </div>
+              <div class="mt-4 flex flex-col gap-3">
+                <button class="rounded-xl border border-slate-600 bg-slate-700 px-4 py-3 text-left font-medium text-white hover:bg-slate-600">
+                  Withdraw from Vault
+                </button>
+                <button class="rounded-xl border border-slate-600 bg-slate-700 px-4 py-3 text-left font-medium text-white hover:bg-slate-600">
+                  Approve Settlement
+                </button>
+                <button class="rounded-xl border border-slate-600 bg-slate-700 px-4 py-3 text-left font-medium text-white hover:bg-slate-600">
+                  View History
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="col-span-1 space-y-6">

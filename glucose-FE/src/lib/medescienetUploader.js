@@ -11,6 +11,41 @@ const FILE_SIZE_UNIT_BYTES = BigInt(import.meta.env.VITE_MEDESCIENET_FILE_SIZE_U
 const UPLOAD_FEE_PER_EPOCH = BigInt(import.meta.env.VITE_MEDESCIENET_UPLOAD_FEE_PER_EPOCH || '1000000')
 const SEAL_THRESHOLD = Number(import.meta.env.VITE_MEDESCIENET_SEAL_THRESHOLD || '2')
 
+// ── Custom error types ──────────────────────────────────────────────────────
+
+export class ServiceExpiredError extends Error {
+  constructor(subStatus) {
+    super('Service subscription has expired')
+    this.name = 'ServiceExpiredError'
+    this.subStatus = subStatus
+  }
+}
+
+export class InsufficientVaultError extends Error {
+  constructor({ needed, have }) {
+    super(`Vault balance too low: need ${needed} MIST, have ${have} MIST`)
+    this.name = 'InsufficientVaultError'
+    this.needed = needed
+    this.have = have
+  }
+}
+
+export class WalletNotLinkedError extends Error {
+  constructor() {
+    super('Sui wallet is not linked')
+    this.name = 'WalletNotLinkedError'
+  }
+}
+
+export class VaultNotCreatedError extends Error {
+  constructor() {
+    super('No vault found — create a vault first')
+    this.name = 'VaultNotCreatedError'
+  }
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
 function decodeBase64(base64Value) {
   const binary = atob(base64Value)
   const bytes = new Uint8Array(binary.length)
@@ -31,7 +66,7 @@ function extractDigest(result) {
   return result?.Transaction?.digest || result?.digest || ''
 }
 
-function extractErrorMessage(error) {
+export function extractErrorMessage(error) {
   if (error?.response?.data?.error) return error.response.data.error
   if (error?.message) return error.message
   return 'Unknown upload error'
@@ -62,6 +97,8 @@ function createWalletSigner(walletStore) {
   }
 }
 
+// ── Fee estimation ───────────────────────────────────────────────────────────
+
 export function estimateUploadFee(fileSizeBytes, epochs) {
   const units = BigInt(Math.max(1, Math.ceil(fileSizeBytes / Number(FILE_SIZE_UNIT_BYTES))))
   return UPLOAD_FEE_PER_EPOCH * BigInt(epochs) * units
@@ -77,11 +114,42 @@ export async function fetchCurrentWalrusEpoch() {
   return Number(state?.epoch || 0)
 }
 
+// ── Preflight check ──────────────────────────────────────────────────────────
+
+/**
+ * Validate subscription status and vault balance before starting upload.
+ * Throws ServiceExpiredError or InsufficientVaultError on failure.
+ * Returns { ok, uploadCost, subStatus }.
+ */
+export async function preflight({ medescienetStore, fileSizeBytes, blobWalrusEpochs }) {
+  const subStatus = await medescienetStore.fetchSubscriptionStatus()
+
+  if (subStatus.status === 'expired') {
+    throw new ServiceExpiredError(subStatus)
+  }
+
+  const uploadCost = estimateUploadFee(fileSizeBytes, blobWalrusEpochs)
+  const vaultBalance = BigInt(subStatus.vault_balance_mist || '0')
+
+  if (vaultBalance < uploadCost) {
+    throw new InsufficientVaultError({
+      needed: uploadCost,
+      have: vaultBalance,
+    })
+  }
+
+  return { ok: true, uploadCost, subStatus }
+}
+
+// ── Main upload orchestration ────────────────────────────────────────────────
+
 export async function uploadGlucoseData({
   walletStore,
+  medescienetStore,
   axiosInstance,
   rawDataBase64,
   capObjectId,
+  subStateId,
   walrusEpochs,
   uploadId,
   checksumSha256,
@@ -95,6 +163,20 @@ export async function uploadGlucoseData({
   }
 
   const plaintext = decodeBase64(rawDataBase64)
+
+  // Run preflight before any wallet interaction
+  onProgress?.('vault_check', 'checking')
+  const { uploadCost } = await preflight({
+    medescienetStore,
+    fileSizeBytes: plaintext.byteLength,
+    blobWalrusEpochs: walrusEpochs,
+  })
+
+  // Report encrypting stage to backend
+  if (axiosInstance && uploadId) {
+    await axiosInstance.patch(`/api/medescienet/uploads/${uploadId}/`, { status: 'encrypting' }).catch(() => {})
+  }
+
   const signer = createWalletSigner(walletStore)
   const userClient = new MedeSciNetUserClient({
     network: NETWORK,
@@ -110,7 +192,7 @@ export async function uploadGlucoseData({
 
   const vault = vaults[0]
   if (!vault) {
-    throw new Error('無法建立或取得上傳 Vault')
+    throw new VaultNotCreatedError()
   }
 
   const estimatedFeeMist = estimateUploadFee(plaintext.byteLength, walrusEpochs)
@@ -141,6 +223,10 @@ export async function uploadGlucoseData({
   })
 
   onProgress?.('walrus-register', 'running')
+  if (axiosInstance && uploadId) {
+    await axiosInstance.patch(`/api/medescienet/uploads/${uploadId}/`, { status: 'uploading' }).catch(() => {})
+  }
+
   const flow = walrus.writeBlobFlow({ blob: encryptedObject })
   await flow.encode()
 
@@ -156,6 +242,10 @@ export async function uploadGlucoseData({
   await flow.upload({ digest: registerDigest })
 
   onProgress?.('walrus-certify', 'running')
+  if (axiosInstance && uploadId) {
+    await axiosInstance.patch(`/api/medescienet/uploads/${uploadId}/`, { status: 'certifying' }).catch(() => {})
+  }
+
   const certifyTx = flow.certify()
   const certifyResult = await walletStore.signAndExecuteTransaction(certifyTx)
   const certifyDigest = extractDigest(certifyResult)
@@ -170,6 +260,7 @@ export async function uploadGlucoseData({
     userFileCapId: capObjectId,
     vaultId: vault.objectId,
     registryId: DEV_REGISTRY_ID,
+    subStateId,
     blobId: hexToBytes(blobId),
     sealId: hexToBytes(sealFullId),
     walrusEndEpoch: BigInt(walrusEndEpoch),
@@ -186,7 +277,7 @@ export async function uploadGlucoseData({
       seal_id: sealFullId,
       walrus_epoch: walrusEndEpoch,
       file_size_bytes: plaintext.byteLength,
-      status: 'confirmed',
+      sub_state_id: subStateId,
     })
   }
 
@@ -201,5 +292,3 @@ export async function uploadGlucoseData({
     vaultId: vault.objectId,
   }
 }
-
-export { extractErrorMessage }
